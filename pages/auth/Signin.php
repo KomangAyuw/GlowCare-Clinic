@@ -24,7 +24,7 @@
         <h1 class="k-judul">Masuk ke <em>Akun</em></h1>
         
 
-        <form action="../../bacckend/log.php" method="POST">
+        <form action="../../backend/log.php" method="POST">
             <div class="grup">
                 <label class="label">Email Address</label>
                 <input type="email" name="email" class="input" placeholder="contoh@email.com" required>

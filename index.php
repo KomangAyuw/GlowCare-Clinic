@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="asset/css/style.css">
     </head>
     <body>
-        <?php include 'bacckend/nav.php'; ?>
+        <?php include 'backend/nav.php'; ?>
 
         <main>
             <!-- ══ HERO ══ -->

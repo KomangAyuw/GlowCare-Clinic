@@ -414,6 +414,8 @@ body {
 /* ── BADGE STATUS ── */
 .badge {
     display: inline-block;
+    align-items: center;
+    justify-content: center;
     padding: 3px 12px;
     border-radius: 50px;
     font-size: 10px;
@@ -457,9 +459,14 @@ body {
 
 .activity-item {
     display: flex;
+    align-items: center;
     gap: 14px;
     padding: 12px 0;
     border-bottom: 1px solid #fdf0f5;
+}
+
+.activity-item > div {
+    flex: 1;
 }
 
 .activity-item:last-child { border-bottom: none; }

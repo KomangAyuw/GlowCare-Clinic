@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="../../asset/css/admin.css">
 </head>
 <body>
-
     <!-- ══ SIDEBAR ══ -->
     <aside class="sidebar">
         <div class="sidebar-logo">
@@ -20,29 +19,29 @@
             <div class="nav-section">
                 <div class="nav-section-label">Utama</div>
                 <a class="nav-item active" onclick="showPanel('dashboard', this)">
-                    <span class="nav-icon">📊</span> Dashboard
+                    <span class="nav-icon"></span> Dashboard
                 </a>
                 <a class="nav-item" onclick="showPanel('aktivitas', this)">
-                    <span class="nav-icon">🔔</span> Aktivitas
+                    <span class="nav-icon"></span> Aktivitas
                     <span class="nav-badge">5</span>
                 </a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-label">Manajemen</div>
                 <a class="nav-item" onclick="showPanel('pasien', this)">
-                    <span class="nav-icon">👤</span> Data Pasien
+                    <span class="nav-icon"></span> Data Pasien
                 </a>
                 <a class="nav-item" onclick="showPanel('dokter', this)">
-                    <span class="nav-icon">🩺</span> Data Dokter
+                    <span class="nav-icon"></span> Data Dokter
                 </a>
                 <a class="nav-item" onclick="showPanel('jadwal', this)">
-                    <span class="nav-icon">📅</span> Jadwal Dokter
+                    <span class="nav-icon"></span> Jadwal Dokter
                 </a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-label">Laporan</div>
                 <a class="nav-item" onclick="showPanel('laporan', this)">
-                    <span class="nav-icon">📋</span> Laporan
+                    <span class="nav-icon"></span> Laporan
                 </a>
             </div>
         </nav>
@@ -68,8 +67,8 @@
                 <div class="breadcrumb" id="topbar-bc">GlowCare Admin → Dashboard</div>
             </div>
             <div class="topbar-right">
-                <input class="topbar-search" type="text" placeholder="🔍  Cari pasien, dokter...">
-                <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+                <input class="topbar-search" type="text" placeholder="Cari pasien, dokter...">
+                <div class="notif-btn"><div class="notif-dot"></div></div>
             </div>
         </div>
 
@@ -82,25 +81,25 @@
 
                 <div class="stats-row">
                     <div class="stat-card">
-                        <div class="stat-icon">👤</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-value">1.248</div>
                         <div class="stat-label">Total Pasien</div>
                         <div class="stat-change">↑ 12%</div>
                     </div>
                     <div class="stat-card green">
-                        <div class="stat-icon">📅</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-value">34</div>
                         <div class="stat-label">Janji Hari Ini</div>
                         <div class="stat-change">↑ 8%</div>
                     </div>
                     <div class="stat-card purple">
-                        <div class="stat-icon">🩺</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-value">8</div>
                         <div class="stat-label">Dokter Aktif</div>
                         <div class="stat-change">→ 0%</div>
                     </div>
                     <div class="stat-card orange">
-                        <div class="stat-icon">💰</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-value">68Jt</div>
                         <div class="stat-label">Pendapatan Bulan Ini</div>
                         <div class="stat-change down">↓ 3%</div>
@@ -244,7 +243,7 @@
                 </div>
 
                 <div class="filter-bar">
-                    <input class="filter-input" type="text" placeholder="🔍 Cari nama, nomor...">
+                    <input class="filter-input" type="text" placeholder="Cari nama, nomor...">
                     <select class="filter-select">
                         <option>Semua Treatment</option>
                         <option>Facelift</option>
@@ -281,9 +280,9 @@
                                 <td style="text-align:center">12</td>
                                 <td><span class="badge badge-green">Aktif</span></td>
                                 <td>
-                                    <button class="act-btn" title="Edit" onclick="openModal('modal-pasien')">✏️</button>
-                                    <button class="act-btn" title="Detail">👁️</button>
-                                    <button class="act-btn" title="Hapus">🗑️</button>
+                                    <button class="act-btn" title="Edit" onclick="openModal('modal-pasien')"></button>
+                                    <button class="act-btn" title="Detail"></button>
+                                    <button class="act-btn" title="Hapus"></button>
                                 </td>
                             </tr>
                             <tr>
@@ -294,9 +293,9 @@
                                 <td style="text-align:center">7</td>
                                 <td><span class="badge badge-green">Aktif</span></td>
                                 <td>
-                                    <button class="act-btn" onclick="openModal('modal-pasien')">✏️</button>
-                                    <button class="act-btn">👁️</button>
-                                    <button class="act-btn">🗑️</button>
+                                    <button class="act-btn" onclick="openModal('modal-pasien')"></button>
+                                    <button class="act-btn"></button>
+                                    <button class="act-btn"></button>
                                 </td>
                             </tr>
                             <tr>
@@ -307,9 +306,9 @@
                                 <td style="text-align:center">3</td>
                                 <td><span class="badge badge-gray">Tidak Aktif</span></td>
                                 <td>
-                                    <button class="act-btn" onclick="openModal('modal-pasien')">✏️</button>
-                                    <button class="act-btn">👁️</button>
-                                    <button class="act-btn">🗑️</button>
+                                    <button class="act-btn" onclick="openModal('modal-pasien')"></button>
+                                    <button class="act-btn"></button>
+                                    <button class="act-btn"></button>
                                 </td>
                             </tr>
                             <tr>
@@ -320,9 +319,9 @@
                                 <td style="text-align:center">5</td>
                                 <td><span class="badge badge-green">Aktif</span></td>
                                 <td>
-                                    <button class="act-btn" onclick="openModal('modal-pasien')">✏️</button>
-                                    <button class="act-btn">👁️</button>
-                                    <button class="act-btn">🗑️</button>
+                                    <button class="act-btn" onclick="openModal('modal-pasien')"></button>
+                                    <button class="act-btn"></button>
+                                    <button class="act-btn"></button>
                                 </td>
                             </tr>
                             <tr>
@@ -333,15 +332,15 @@
                                 <td style="text-align:center">9</td>
                                 <td><span class="badge badge-green">Aktif</span></td>
                                 <td>
-                                    <button class="act-btn" onclick="openModal('modal-pasien')">✏️</button>
-                                    <button class="act-btn">👁️</button>
-                                    <button class="act-btn">🗑️</button>
+                                    <button class="act-btn" onclick="openModal('modal-pasien')"></button>
+                                    <button class="act-btn"></button>
+                                    <button class="act-btn"></button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                     <div style="padding:16px 20px; border-top:1px solid #fdf0f5; display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#b89098">
-                        <span>Menampilkan 1–5 dari 1.248 pasien</span>
+                        <span>Menampilkan 1-5 dari 1.248 pasien</span>
                         <div style="display:flex; gap:8px">
                             <button class="act-btn">← Prev</button>
                             <button class="act-btn" style="background:#c55085;color:#fff;border-radius:4px;padding:4px 10px">1</button>
@@ -384,12 +383,12 @@
                                 <td><span class="badge badge-pink">Plastic Surgeon</span></td>
                                 <td>10+ Tahun</td>
                                 <td style="text-align:center">412</td>
-                                <td>⭐ 5.0</td>
+                                <td>5.0</td>
                                 <td><span class="badge badge-green">Aktif</span></td>
                                 <td>
-                                    <button class="act-btn" onclick="openModal('modal-dokter')">✏️</button>
-                                    <button class="act-btn">👁️</button>
-                                    <button class="act-btn">🗑️</button>
+                                    <button class="act-btn" onclick="openModal('modal-dokter')"></button>
+                                    <button class="act-btn"></button>
+                                    <button class="act-btn"></button>
                                 </td>
                             </tr>
                             <tr>
@@ -398,12 +397,12 @@
                                 <td><span class="badge badge-pink">Aesthetic Physician</span></td>
                                 <td>8 Tahun</td>
                                 <td style="text-align:center">387</td>
-                                <td>⭐ 5.0</td>
+                                <td>5.0</td>
                                 <td><span class="badge badge-green">Aktif</span></td>
                                 <td>
-                                    <button class="act-btn" onclick="openModal('modal-dokter')">✏️</button>
-                                    <button class="act-btn">👁️</button>
-                                    <button class="act-btn">🗑️</button>
+                                    <button class="act-btn" onclick="openModal('modal-dokter')"></button>
+                                    <button class="act-btn"></button>
+                                    <button class="act-btn"></button>
                                 </td>
                             </tr>
                             <tr>
@@ -412,12 +411,12 @@
                                 <td><span class="badge badge-pink">Dermatologist</span></td>
                                 <td>12 Tahun</td>
                                 <td style="text-align:center">449</td>
-                                <td>⭐ 5.0</td>
+                                <td>5.0</td>
                                 <td><span class="badge badge-green">Aktif</span></td>
                                 <td>
-                                    <button class="act-btn" onclick="openModal('modal-dokter')">✏️</button>
-                                    <button class="act-btn">👁️</button>
-                                    <button class="act-btn">🗑️</button>
+                                    <button class="act-btn" onclick="openModal('modal-dokter')"></button>
+                                    <button class="act-btn"></button>
+                                    <button class="act-btn"></button>
                                 </td>
                             </tr>
                             <tr>
@@ -426,12 +425,12 @@
                                 <td><span class="badge badge-pink">Aesthetic Physician</span></td>
                                 <td>5 Tahun</td>
                                 <td style="text-align:center">198</td>
-                                <td>⭐ 4.8</td>
+                                <td>4.8</td>
                                 <td><span class="badge badge-yellow">Cuti</span></td>
                                 <td>
-                                    <button class="act-btn" onclick="openModal('modal-dokter')">✏️</button>
-                                    <button class="act-btn">👁️</button>
-                                    <button class="act-btn">🗑️</button>
+                                    <button class="act-btn" onclick="openModal('modal-dokter')"></button>
+                                    <button class="act-btn"></button>
+                                    <button class="act-btn"></button>
                                 </td>
                             </tr>
                         </tbody>
@@ -452,9 +451,9 @@
                 <!-- Week nav -->
                 <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px">
                     <button class="act-btn">← Minggu Lalu</button>
-                    <span style="font-family:'Playfair Display',serif; font-size:16px; color:#3d1a22">28 Apr – 03 Mei 2026</span>
+                    <span style="font-family:'Playfair Display',serif; font-size:16px; color:#3d1a22">28 Apr - 03 Mei 2026</span>
                     <button class="act-btn">Minggu Depan →</button>
-                    <button class="btn-add" style="margin-left:auto; background:transparent; color:#c55085; border:1px solid #f2c4ce; padding:8px 18px; font-size:11px">📋 Tampilan List</button>
+                    <button class="btn-add" style="margin-left:auto; background:transparent; color:#c55085; border:1px solid #f2c4ce; padding:8px 18px; font-size:11px">Tampilan List</button>
                 </div>
 
                 <div class="schedule-week">
@@ -520,7 +519,7 @@
                                 <td>Facelift / Rhinoplasty</td>
                                 <td style="text-align:center; color:#c55085">3 / 6</td>
                                 <td><span class="badge badge-green">Aktif</span></td>
-                                <td><button class="act-btn" onclick="openModal('modal-jadwal')">✏️</button><button class="act-btn">🗑️</button></td>
+                                <td><button class="act-btn" onclick="openModal('modal-jadwal')"></button><button class="act-btn"></button></td>
                             </tr>
                             <tr>
                                 <td><span class="td-name">Dr. Marina Crystine</span></td>
@@ -530,17 +529,17 @@
                                 <td>Botox / CoolSculpting</td>
                                 <td style="text-align:center; color:#c55085">5 / 8</td>
                                 <td><span class="badge badge-green">Aktif</span></td>
-                                <td><button class="act-btn" onclick="openModal('modal-jadwal')">✏️</button><button class="act-btn">🗑️</button></td>
+                                <td><button class="act-btn" onclick="openModal('modal-jadwal')"></button><button class="act-btn"></button></td>
                             </tr>
                             <tr>
                                 <td><span class="td-name">Dr. Michael Chen</span></td>
-                                <td>Senin – Jumat</td>
+                                <td>Senin - Jumat</td>
                                 <td class="td-jam">09:00</td>
                                 <td class="td-jam">16:00</td>
                                 <td>Laser / Dermatologi</td>
                                 <td style="text-align:center; color:#6dbf9e">7 / 10</td>
                                 <td><span class="badge badge-green">Aktif</span></td>
-                                <td><button class="act-btn" onclick="openModal('modal-jadwal')">✏️</button><button class="act-btn">🗑️</button></td>
+                                <td><button class="act-btn" onclick="openModal('modal-jadwal')"></button><button class="act-btn"></button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -554,17 +553,17 @@
 
                 <div class="stats-row" style="grid-template-columns: repeat(3,1fr)">
                     <div class="stat-card">
-                        <div class="stat-icon">📋</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-value">128</div>
                         <div class="stat-label">Aktivitas Hari Ini</div>
                     </div>
                     <div class="stat-card green">
-                        <div class="stat-icon">✅</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-value">34</div>
                         <div class="stat-label">Appointment Selesai</div>
                     </div>
                     <div class="stat-card orange">
-                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-icon"></div>
                         <div class="stat-value">3</div>
                         <div class="stat-label">Pembatalan</div>
                     </div>
@@ -589,7 +588,6 @@
                                 <div class="activity-text"><strong>Pasien Baru</strong> — Siti Rahayu mendaftar sebagai pasien baru (ID: #P-0041)</div>
                                 <div class="activity-time">Hari ini, 08:14 · Admin</div>
                             </div>
-                            <span class="badge badge-pink">Pasien</span>
                         </div>
                         <div class="activity-item">
                             <div class="activity-dot green"></div>
@@ -597,7 +595,6 @@
                                 <div class="activity-text"><strong>Appointment Selesai</strong> — Dr. Anisa Putri menyelesaikan sesi Facelift untuk Siti Rahayu</div>
                                 <div class="activity-time">Hari ini, 09:55 · Sistem</div>
                             </div>
-                            <span class="badge badge-green">Treatment</span>
                         </div>
                         <div class="activity-item">
                             <div class="activity-dot orange"></div>
@@ -605,7 +602,6 @@
                                 <div class="activity-text"><strong>Pembatalan</strong> — Budi Santoso membatalkan appointment pukul 11:00 (Body Contouring)</div>
                                 <div class="activity-time">Hari ini, 10:22 · Pasien</div>
                             </div>
-                            <span class="badge badge-yellow">Pembatalan</span>
                         </div>
                         <div class="activity-item">
                             <div class="activity-dot"></div>
@@ -613,7 +609,6 @@
                                 <div class="activity-text"><strong>Pembayaran Diterima</strong> — Rp 2.500.000 dari Andini Kusuma untuk Laser Treatment</div>
                                 <div class="activity-time">Hari ini, 10:48 · Kasir</div>
                             </div>
-                            <span class="badge badge-green">Pembayaran</span>
                         </div>
                         <div class="activity-item">
                             <div class="activity-dot"></div>
@@ -621,7 +616,6 @@
                                 <div class="activity-text"><strong>Jadwal Diperbarui</strong> — Dr. Marina Crystine mengkonfirmasi jadwal Sabtu 03 Mei</div>
                                 <div class="activity-time">Hari ini, 11:03 · Admin</div>
                             </div>
-                            <span class="badge badge-pink">Jadwal</span>
                         </div>
                         <div class="activity-item">
                             <div class="activity-dot green"></div>
@@ -629,7 +623,6 @@
                                 <div class="activity-text"><strong>Appointment Selesai</strong> — Dr. Michael Chen menyelesaikan sesi Dermatologi untuk Andini Kusuma</div>
                                 <div class="activity-time">Hari ini, 11:30 · Sistem</div>
                             </div>
-                            <span class="badge badge-green">Treatment</span>
                         </div>
                         <div class="activity-item">
                             <div class="activity-dot"></div>
@@ -637,7 +630,6 @@
                                 <div class="activity-text"><strong>Data Dokter Diperbarui</strong> — Profil Dr. Sarah Dewi diperbarui (status: Cuti)</div>
                                 <div class="activity-time">Hari ini, 12:10 · Admin</div>
                             </div>
-                            <span class="badge badge-yellow">Dokter</span>
                         </div>
                     </div>
                 </div>
@@ -662,25 +654,25 @@
                         <a class="report-link" onclick="showToast('Mengunduh laporan dokter...')">Unduh Laporan →</a>
                     </div>
                     <div class="report-card">
-                        <div class="report-icon">💰</div>
+                        <div class="report-icon"></div>
                         <div class="report-name">Laporan Keuangan</div>
                         <div class="report-desc">Pendapatan bulanan, rincian pembayaran, dan tren keuangan klinik per treatment.</div>
                         <a class="report-link" onclick="showToast('Mengunduh laporan keuangan...')">Unduh Laporan →</a>
                     </div>
                     <div class="report-card">
-                        <div class="report-icon">📅</div>
+                        <div class="report-icon"></div>
                         <div class="report-name">Laporan Jadwal</div>
                         <div class="report-desc">Rekap appointment, pembatalan, dan tingkat kehadiran pasien per dokter per bulan.</div>
                         <a class="report-link" onclick="showToast('Mengunduh laporan jadwal...')">Unduh Laporan →</a>
                     </div>
                     <div class="report-card">
-                        <div class="report-icon">💉</div>
+                        <div class="report-icon"></div>
                         <div class="report-name">Laporan Treatment</div>
                         <div class="report-desc">Treatment terpopuler, statistik keberhasilan, dan feedback pasien per kategori layanan.</div>
                         <a class="report-link" onclick="showToast('Mengunduh laporan treatment...')">Unduh Laporan →</a>
                     </div>
                     <div class="report-card">
-                        <div class="report-icon">🔔</div>
+                        <div class="report-icon"></div>
                         <div class="report-name">Laporan Aktivitas</div>
                         <div class="report-desc">Log lengkap aktivitas sistem, tindakan admin, dan catatan kejadian penting dalam klinik.</div>
                         <a class="report-link" onclick="showToast('Mengunduh laporan aktivitas...')">Unduh Laporan →</a>
@@ -711,7 +703,7 @@
                                 <td style="text-align:center">92</td>
                                 <td style="text-align:center; color:#c55085">6</td>
                                 <td>Rp 28.500.000</td>
-                                <td>⭐ 5.0</td>
+                                <td>5.0</td>
                             </tr>
                             <tr>
                                 <td><span class="td-name">Dr. Marina Crystine</span></td>
@@ -719,7 +711,7 @@
                                 <td style="text-align:center">78</td>
                                 <td style="text-align:center; color:#c55085">4</td>
                                 <td>Rp 21.000.000</td>
-                                <td>⭐ 5.0</td>
+                                <td>5.0</td>
                             </tr>
                             <tr>
                                 <td><span class="td-name">Dr. Michael Chen</span></td>
@@ -727,7 +719,7 @@
                                 <td style="text-align:center">96</td>
                                 <td style="text-align:center; color:#c55085">4</td>
                                 <td>Rp 18.500.000</td>
-                                <td>⭐ 5.0</td>
+                                <td>5.0</td>
                             </tr>
                             <tr style="background:#fdf0f5; font-weight:500">
                                 <td><strong>Total</strong></td>
@@ -735,7 +727,7 @@
                                 <td style="text-align:center"><strong>266</strong></td>
                                 <td style="text-align:center; color:#c55085"><strong>14</strong></td>
                                 <td><strong>Rp 68.000.000</strong></td>
-                                <td><strong>⭐ 5.0</strong></td>
+                                <td><strong>5.0</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -821,7 +813,7 @@
     </div>
 
     <!-- Toast -->
-    <div class="toast" id="toast">✅ <span id="toast-msg">Berhasil disimpan</span></div>
+    <div class="toast" id="toast"><span id="toast-msg">Berhasil disimpan</span></div>
 
     <script src="../../asset/js/admin.js"></script>
 </body>
