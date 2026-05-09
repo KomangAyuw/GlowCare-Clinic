@@ -10,7 +10,9 @@ function showPanel(id, el) {
         dokter: 'Data Dokter',
         jadwal: 'Jadwal Dokter',
         aktivitas: 'Aktivitas',
-        laporan: 'Laporan'
+        laporan: 'Laporan',
+        treatment: 'Kelola Treatment',
+        profil: 'Profil & Keamanan'
     };
     document.getElementById('topbar-title').textContent = titles[id] || id;
     document.getElementById('topbar-bc').textContent = 'GlowCare Admin → ' + (titles[id] || id);
