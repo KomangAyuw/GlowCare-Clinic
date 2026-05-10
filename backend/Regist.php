@@ -37,9 +37,13 @@ $createTable = "CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL DEFAULT 'user', 'admin', 'dokter',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 mysqli_query($conn, $createTable);
+
+$alterTable = "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NOT NULL DEFAULT 'user'";
+mysqli_query($conn, $alterTable);
 
 $email = mysqli_real_escape_string($conn, $email);
 $username = mysqli_real_escape_string($conn, $username);
@@ -53,7 +57,9 @@ if ($result && mysqli_num_rows($result) > 0) {
 
 $hashPassword = password_hash($password, PASSWORD_DEFAULT);
 $hashPassword = mysqli_real_escape_string($conn, $hashPassword);
-$insertSql = "INSERT INTO users (username, email, password) VALUES ('$username', '$email', '$hashPassword')";
+$role = 'user';
+$role = mysqli_real_escape_string($conn, $role);
+$insertSql = "INSERT INTO users (username, email, password, role) VALUES ('$username', '$email', '$hashPassword', '$role')";
 
 if (mysqli_query($conn, $insertSql)) {
     header('Location: ../pages/auth/SignIn.php?success=' . urlencode('Registrasi berhasil. Silakan masuk.'));

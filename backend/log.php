@@ -2,6 +2,9 @@
 // backend/login.php
 require 'koneksi.php';
 
+$alterTable = "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NOT NULL DEFAULT 'user'";
+mysqli_query($conn, $alterTable);
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../pages/auth/Signin.php');
     exit;
@@ -33,10 +36,11 @@ if ($result && mysqli_num_rows($result) === 1) {
         $_SESSION['user_id']  = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email']    = $email;
-        $_SESSION['role']     = $user['role'];
+        $role = $user['role'] ?? 'user';
+        $_SESSION['role']     = $role;
 
         // Arahkan sesuai role
-        switch ($user['role']) {
+        switch ($role) {
             case 'dokter':
                 header('Location: ../pages/dokter/dashboard.php');
                 break;

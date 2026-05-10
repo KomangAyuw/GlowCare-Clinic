@@ -23,7 +23,7 @@
         <div class="k-logo">GlowCare Clinic</div>
         <h1 class="k-judul">Buat <em>Akun Baru</em></h1>
 
-        <form method="POST" action="../../bacckend/Regist.php">
+        <form method="POST" action="../../backend/Regist.php">
             <div class="grup">
                 <label class="label">Username</label>
                 <input type="text" name="username" class="input" placeholder="Masukkan username Anda" required>

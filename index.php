@@ -9,6 +9,10 @@
         <link rel="stylesheet" href="asset/css/style.css">
     </head>
     <body>
+        <?php
+        $error = $_GET['error'] ?? '';
+        $success = $_GET['success'] ?? '';
+        ?>
         <?php include 'backend/nav.php'; ?>
 
         <main>
