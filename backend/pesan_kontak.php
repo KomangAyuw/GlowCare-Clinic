@@ -6,13 +6,13 @@ session_start();
 require_once 'koneksi.php';
 
 // DEBUG - hapus setelah selesai
-echo '<pre>';
+/*echo '<pre>';
 echo 'POST data: ';
 var_dump($_POST);
 echo 'Koneksi: ';
 var_dump($conn);
 echo '</pre>';
-die();
+die();*/
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../index.php');
