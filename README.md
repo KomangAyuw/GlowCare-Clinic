@@ -2,7 +2,7 @@
 
 > **Sistem Informasi Manajemen Klinik Kecantikan Berbasis Website**
 
-## 📖 Detailed Description
+## Detailed Description
 
 GlowCare Clinic adalah sebuah sistem informasi berbasis website yang dirancang untuk mengelola seluruh aktivitas operasional klinik kecantikan secara digital. Sistem ini dibangun untuk menggantikan proses manual yang sebelumnya digunakan dalam pencatatan data pasien, pengelolaan jadwal dokter, serta administrasi treatment yang masih dilakukan secara konvensional menggunakan dokumen fisik.
 
@@ -26,15 +26,15 @@ Secara keseluruhan, GlowCare Clinic bertujuan untuk meningkatkan efisiensi opera
 
 ## 👥 Tim Pengembang
 
-| Nama | NIM | 
-|---|---|
-| I Gde Surya Laksana | F1D02410051 | 
-| Nurhidayah Maulidia | F1D02410022 | 
-| Ni Komang Ayu Sumeitri | F1D02410084 | 
+| Nama | NIM | Tanggung Jawab |
+|---|---|---|
+| I Gde Surya Laksana | F1D02410051 | Backend Development: pembuatan dan pengelolaan database MySQL, query CRUD (pasien, dokter, appointment, treatment), serta logic server-side menggunakan PHP |
+| Nurhidayah Maulidia | F1D02410022 | Frontend Development: pembuatan tampilan website menggunakan HTML, CSS, dan JavaScript, termasuk halaman login, form booking, dan dashboard user/admin |
+| Ni Komang Ayu Sumeitri | F1D02410084 | Full Integration & Testing: menghubungkan frontend dengan backend (PHP–MySQL), melakukan testing fitur, debugging error, serta membantu penyempurnaan UI dan sistem |
 
 ---
 
-## 👤 Aktor / Pengguna Sistem
+## Aktor / Pengguna Sistem
 
 Sistem GlowCare Clinic melayani tiga aktor utama:
 
@@ -46,7 +46,7 @@ Sistem GlowCare Clinic melayani tiga aktor utama:
 
 ---
 
-## 🗺️ Fitur & Sitemap
+## Fitur & Sitemap
 
 ### Pasien
 - **Beranda** : Informasi umum klinik, layanan unggulan, dan testimoni
@@ -76,7 +76,7 @@ Sistem GlowCare Clinic melayani tiga aktor utama:
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Kategori | Teknologi |
 |---|---|
@@ -101,26 +101,6 @@ Sistem GlowCare Clinic melayani tiga aktor utama:
 | **Port** | `3306` |
 | **Charset** | `utf8mb4` |
 | **Collation** | `utf8mb4_unicode_ci` |
-
-
-## 🚀 Cara Menjalankan
-
-```bash
-# 1. Clone repository
-git clone https://github.com/KomangAyuw/GlowCare-Clinic.git
-
-# 2. Pindahkan folder ke direktori htdocs (XAMPP) atau www (Laragon)
-# Contoh: C:/xampp/htdocs/GlowCare-Clinic
-
-# 3. Import database
-# Buka phpMyAdmin → buat database 'glowcare_clinic' → import file .sql dari folder /database
-
-# 4. Konfigurasi koneksi database
-# Edit file config/database.php (atau sesuai framework yang digunakan)
-
-# 5. Jalankan aplikasi
-# Akses melalui browser: http://localhost/GlowCare-Clinic
-```
 
 ## 📁 Struktur Direktori
 
