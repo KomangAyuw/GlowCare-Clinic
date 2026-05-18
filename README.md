@@ -14,7 +14,7 @@ Di sisi lain, pihak admin klinik memiliki kontrol penuh terhadap manajemen data,
 
 Secara keseluruhan, GlowCare Clinic bertujuan untuk meningkatkan efisiensi operasional klinik kecantikan, meminimalkan kesalahan akibat proses manual, mengoptimalkan pengelolaan jadwal dan layanan pasien, serta memberikan pengalaman layanan yang lebih modern, cepat, dan mudah diakses. Sistem ini juga selaras dengan perkembangan teknologi digital saat ini, di mana industri kesehatan dan kecantikan mulai bertransformasi menuju sistem berbasis teknologi informasi yang lebih efektif dan fleksibel.
 
-### ✨ Apa yang bisa dilakukan GlowCare Clinic?
+### Apa yang bisa dilakukan GlowCare Clinic?
 
 | Untuk Pasien | Untuk Dokter | Untuk Admin |
 |---|---|---|
@@ -24,7 +24,7 @@ Secara keseluruhan, GlowCare Clinic bertujuan untuk meningkatkan efisiensi opera
 
 ---
 
-## 👥 Tim Pengembang
+## Tim Pengembang
 
 | Nama | NIM | Tanggung Jawab |
 |---|---|---|
@@ -89,7 +89,7 @@ Sistem GlowCare Clinic melayani tiga aktor utama:
 
 ---
 
-## 🗄️ DBMS
+## DBMS
 
 ### Konfigurasi Database
 
@@ -102,7 +102,7 @@ Sistem GlowCare Clinic melayani tiga aktor utama:
 | **Charset** | `utf8mb4` |
 | **Collation** | `utf8mb4_unicode_ci` |
 
-## 📁 Struktur Direktori
+## Struktur Direktori
 
 ```
 GlowCare-Clinic/
@@ -131,6 +131,6 @@ GlowCare-Clinic/
 
 ---
 
-## 📄 Lisensi
+## Lisensi
 
 Proyek ini dibuat untuk keperluan akademik. Seluruh hak cipta milik tim pengembang GlowCare Clinic.
