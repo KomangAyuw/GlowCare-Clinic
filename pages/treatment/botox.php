@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Botox & Fillers - GlowCare Clinic</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="../../asset/css/style.css">
-    <link rel="stylesheet" href="../../asset/css/detail.css">
+    <link rel="stylesheet" href="../../asset/css/style.css?v=4">
+    <link rel="stylesheet" href="../../asset/css/detail.css?v=4">
 </head>
 <body class="detail-page">
 
@@ -19,7 +19,7 @@
             <a href="../../index.php#services">Services</a>
             <a href="../../jadwal.php">Jadwal</a>
             <a href="../../index.php#kontak">Kontak</a>
-            <a href="../../SignUp.php" class="btn">Sign Up</a>
+            <a href="../../pages/auth/SignUp.php" class="btn">Sign Up</a>
         </nav>
     </header>
 
@@ -149,12 +149,12 @@
         <section class="detail-cta">
             <h2>Siap untuk Hasil yang Terlihat Alami?</h2>
             <p>Pesan konsultasi gratis hari ini dan temukan bagaimana Botox & Fillers dapat meningkatkan kecantikan alami Anda.</p>
-            <a href="index.html#kontak" class="btn-primary">Book Free Consultation</a>
+            <a href="../../index.php#kontak" class="btn-primary">Book Free Consultation</a>
         </section>
 
     </main>
 
-    <script src="../../asset/js/detail.js"></script>
-    <script src="../../asset/js/script.js"></script>
+    <script src="../../asset/js/detail.js?v=2"></script>
+    <script src="../../asset/js/script.js?v=2"></script>
 </body>
 </html>

@@ -4,10 +4,75 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ../../pages/auth/Signin.php');
     exit;
 }
-$username = htmlspecialchars($_SESSION['username'] ?? 'User');
-$email = htmlspecialchars($_SESSION['email'] ?? '');
-$initial = strtoupper(substr($username, 0, 1));
+
+$user_id = (int)$_SESSION['user_id'];
+$conn = require_once '../../backend/koneksi.php';
+
+// 1. Ambil Profil Pasien
+$qPasien = mysqli_query($conn, "SELECT * FROM pasien WHERE user_id = $user_id LIMIT 1");
+if (!$qPasien || mysqli_num_rows($qPasien) === 0) {
+    // Buat pasien record jika belum ada
+    $noPasien = 'P-' . rand(1000, 9999);
+    $noRekam = 'RM-' . rand(1000, 9999);
+    $nama = mysqli_real_escape_string($conn, $_SESSION['username']);
+    $email = mysqli_real_escape_string($conn, $_SESSION['email']);
+    mysqli_query($conn, "INSERT INTO pasien (user_id, nama, no_pasien, no_rekam, email, status) VALUES ($user_id, '$nama', '$noPasien', '$noRekam', '$email', 'Aktif')");
+    $qPasien = mysqli_query($conn, "SELECT * FROM pasien WHERE user_id = $user_id LIMIT 1");
+}
+$pasien = mysqli_fetch_assoc($qPasien);
+$pasien_id = (int)$pasien['id'];
+
+// 2. Statistik
+$total_kunjungan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM rekam_medis WHERE pasien_id = $pasien_id"))['n'];
+$jadwal_mendatang = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM appointment WHERE pasien_id = $pasien_id AND status = 'Terjadwal' AND tanggal >= CURDATE()"))['n'];
+$notif_baru = $jadwal_mendatang > 0 ? 1 : 0;
+
+// 3. Jadwal Mendatang Pertama
+$qNextAppt = mysqli_query($conn, "
+    SELECT a.*, d.nama AS nama_dokter, d.spesialisasi, t.nama AS nama_treatment 
+    FROM appointment a 
+    JOIN dokter d ON a.dokter_id = d.id 
+    LEFT JOIN treatment t ON a.treatment_id = t.id 
+    WHERE a.pasien_id = $pasien_id AND a.tanggal >= CURDATE() AND a.status = 'Terjadwal' 
+    ORDER BY a.tanggal ASC, a.jam ASC 
+    LIMIT 1
+");
+$nextAppt = $qNextAppt ? mysqli_fetch_assoc($qNextAppt) : null;
+
+// 4. Dokter List
+$qDokter = mysqli_query($conn, "SELECT * FROM dokter WHERE status='Aktif' ORDER BY nama ASC");
+$dokter_list = [];
+while ($d = mysqli_fetch_assoc($qDokter)) {
+    $dokter_list[] = $d;
+}
+
+// 5. Treatment List untuk Dropdown Booking
+$qTreatment = mysqli_query($conn, "SELECT * FROM treatment WHERE status='Aktif' ORDER BY urutan ASC");
+$treatment_list = [];
+while ($t = mysqli_fetch_assoc($qTreatment)) {
+    $treatment_list[] = $t;
+}
+
+// 6. Riwayat Kunjungan Pasien
+$qRiwayat = mysqli_query($conn, "
+    SELECT a.id, a.tanggal, a.jam, a.status, d.nama AS nama_dokter, d.spesialisasi, t.nama AS nama_treatment, rm.anamnesis, rm.pemeriksaan, rm.tindak_lanjut, rm.ruangan
+    FROM appointment a
+    JOIN dokter d ON a.dokter_id = d.id
+    LEFT JOIN treatment t ON a.treatment_id = t.id
+    LEFT JOIN rekam_medis rm ON rm.pasien_id = a.pasien_id AND rm.dokter_id = a.dokter_id AND rm.tanggal = a.tanggal
+    WHERE a.pasien_id = $pasien_id
+    ORDER BY a.tanggal DESC, a.jam DESC
+");
+$riwayat_list = [];
+while ($r = mysqli_fetch_assoc($qRiwayat)) {
+    $riwayat_list[] = $r;
+}
+
+$initial = strtoupper(substr($pasien['nama'], 0, 1));
+$error = $_GET['error'] ?? '';
+$success = $_GET['success'] ?? '';
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -15,12 +80,39 @@ $initial = strtoupper(substr($username, 0, 1));
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GlowCare — Dashboard Pasien</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="../../asset/css/user.css">
+    <link rel="stylesheet" href="../../asset/css/user.css?v=4">
+    <style>
+        .slot-btn {
+            padding: 10px 14px;
+            border: 1px solid #a7f3d0;
+            border-radius: 8px;
+            text-align: center;
+            background: #fff;
+            color: #585552;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+        }
+        .slot-btn:hover {
+            background: #F9F7F2;
+        }
+        .slot-btn.selected {
+            background: #064e3b;
+            color: #fff;
+            border-color: #064e3b;
+        }
+        .slot-btn.full {
+            background: #F9F7F2;
+            color: #b0c4c4;
+            border-color: #F9F7F2;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
     <!-- ══ TOP NAV ══ -->
     <nav class="topnav">
-        <div class="topnav-brand">GlowCare Clinic</div>
+        <div class="topnav-brand" onclick="window.location.href='../../index.php'" style="cursor:pointer">GlowCare Clinic</div>
 
         <div class="topnav-menu">
             <button class="topnav-item active" onclick="showPage('beranda', this)">Beranda</button>
@@ -30,15 +122,31 @@ $initial = strtoupper(substr($username, 0, 1));
         </div>
 
         <div class="topnav-right">
-            <div class="notif-btn" onclick="showPage('notifikasi', document.querySelector('[onclick*=notifikasi]'))">
-                <div class="notif-dot"></div>
-            </div>
+            <button class="topnav-item" style="position: relative; border: 1px solid #dce8e8; border-radius: 20px; padding: 6px 14px; margin-right: 8px;" onclick="showPage('notifikasi', document.querySelector('[onclick*=notifikasi]'))">
+                Notifikasi
+                <?php if ($notif_baru > 0): ?>
+                    <div class="notif-dot" style="top: -2px; right: -2px; border: 2px solid #fff; width: 8px; height: 8px;"></div>
+                <?php endif; ?>
+            </button>
             <div class="user-chip" onclick="showPage('akun', document.querySelector('[onclick*=akun]'))">
-                <div class="user-chip-avatar">S</div>
-                <span class="user-chip-name">Siti Rahayu</span>
+                <div class="user-chip-avatar"><?= $initial ?></div>
+                <span class="user-chip-name"><?= htmlspecialchars($pasien['nama']) ?></span>
             </div>
+            <a href="../../backend/logout.php" class="logout-btn" style="background: #e05050; color: #ffffff; padding: 8px 16px; border-radius: 50px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; margin-left: 15px;">Logout</a>
         </div>
     </nav>
+
+    <!-- ALERT SUCCESS/ERROR -->
+    <?php if ($error): ?>
+        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; color: #721c24; font-size: 13px;">
+            ❌ <?= htmlspecialchars($error) ?>
+        </div>
+    <?php endif; ?>
+    <?php if ($success): ?>
+        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; color: #155724; font-size: 13px;">
+            ✅ <?= htmlspecialchars($success) ?>
+        </div>
+    <?php endif; ?>
 
     <!-- ══════════════════════════════════════════
         PAGE: BERANDA
@@ -47,23 +155,23 @@ $initial = strtoupper(substr($username, 0, 1));
 
         <!-- Hero banner -->
         <div class="hero-banner">
-            <div class="hero-greeting">Sabtu, 02 Mei 2026</div>
-            <div class="hero-name">Halo, <em>Siti Rahayu</em></div>
+            <div class="hero-greeting"><?= ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][date('w')] ?>, <?= date('d M Y') ?></div>
+            <div class="hero-name">Halo, <em><?= htmlspecialchars($pasien['nama']) ?></em></div>
             <div class="hero-sub">Selamat datang kembali di GlowCare Clinic. Yuk, jaga kecantikan alami Anda.</div>
             <div class="hero-stats">
                 <div class="hero-stat-item">
-                    <div class="hero-stat-val">12</div>
+                    <div class="hero-stat-val"><?= $total_kunjungan ?></div>
                     <div class="hero-stat-lbl">Total Kunjungan</div>
                 </div>
                 <div class="hero-divider-v"></div>
                 <div class="hero-stat-item">
-                    <div class="hero-stat-val">1</div>
+                    <div class="hero-stat-val"><?= $jadwal_mendatang ?></div>
                     <div class="hero-stat-lbl">Jadwal Mendatang</div>
                 </div>
                 <div class="hero-divider-v"></div>
                 <div class="hero-stat-item">
-                    <div class="hero-stat-val">3</div>
-                    <div class="hero-stat-lbl">Notifikasi Baru</div>
+                    <div class="hero-stat-val"><?= $notif_baru ?></div>
+                    <div class="hero-stat-lbl">Pemberitahuan</div>
                 </div>
             </div>
         </div>
@@ -81,57 +189,60 @@ $initial = strtoupper(substr($username, 0, 1));
                             <button class="card-action" onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))">Daftar</button>
                         </div>
 
-                        <!-- Active appointment -->
                         <div style="padding: 0 26px 26px">
-                            <div style="background:linear-gradient(135deg,#3d1a22,#c55085); border-radius:12px; padding:22px; color:#fff; position:relative; overflow:hidden">
-                                <div style="font-size:9px; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:10px">JADWAL BERIKUTNYA</div>
-                                <div style="font-family:'Playfair Display',serif; font-size:20px; margin-bottom:4px">Dr. Anisa Putri</div>
-                                <div style="font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#f2c4ce; margin-bottom:14px">Facelift Consultation</div>
-                                <div style="display:flex; gap:20px">
-                                    <div>
-                                        <div style="font-size:9px; color:rgba(255,255,255,0.45); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px">Tanggal</div>
-                                        <div style="font-size:13px">Senin, 23 Mei 2026</div>
+                            <?php if ($nextAppt): ?>
+                                <div style="background:linear-gradient(135deg,#2D3436,#064e3b); border-radius:12px; padding:22px; color:#fff; position:relative; overflow:hidden">
+                                    <div style="font-size:9px; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:10px">JADWAL BERIKUTNYA</div>
+                                    <div style="font-family:'Playfair Display',serif; font-size:20px; margin-bottom:4px"><?= htmlspecialchars($nextAppt['nama_dokter']) ?></div>
+                                    <div style="font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#a7f3d0; margin-bottom:14px"><?= htmlspecialchars($nextAppt['nama_treatment'] ?: 'Konsultasi') ?></div>
+                                    <div style="display:flex; gap:20px">
+                                        <div>
+                                            <div style="font-size:9px; color:rgba(255,255,255,0.45); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px">Tanggal</div>
+                                            <div style="font-size:13px"><?= date('d M Y', strtotime($nextAppt['tanggal'])) ?></div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:9px; color:rgba(255,255,255,0.45); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px">Jam</div>
+                                            <div style="font-size:13px"><?= substr($nextAppt['jam'], 0, 5) ?> WIB</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:9px; color:rgba(255,255,255,0.45); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px">Ruangan</div>
+                                            <div style="font-size:13px">Ruang A-1</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div style="font-size:9px; color:rgba(255,255,255,0.45); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px">Jam</div>
-                                        <div style="font-size:13px">09:00 WIB</div>
-                                    </div>
-                                    <div>
-                                        <div style="font-size:9px; color:rgba(255,255,255,0.45); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px">Ruangan</div>
-                                        <div style="font-size:13px">Ruang A-1</div>
+                                    <div style="margin-top:16px; display:flex; gap:8px">
+                                        <button onclick="window.location.href='chat.php?appt_id=<?= $nextAppt['id'] ?>'" style="background:#fff; color:#064e3b; border:none; padding:7px 16px; border-radius:50px; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1)">Chat Dokter</button>
+                                        <button onclick="openModalBatal(<?= $nextAppt['id'] ?>, '<?= htmlspecialchars(addslashes($nextAppt['nama_dokter'])) ?>', '<?= $nextAppt['tanggal'] ?>', '<?= substr($nextAppt['jam'], 0, 5) ?>', '<?= htmlspecialchars(addslashes($nextAppt['nama_treatment'])) ?>')" style="background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); color:#fff; padding:7px 16px; border-radius:50px; font-size:10px; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;">Batalkan</button>
                                     </div>
                                 </div>
-                                <div style="margin-top:16px; display:flex; gap:8px">
-                                    <button onclick="openModal('modal-batalkan')" style="background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); color:#fff; padding:7px 16px; border-radius:50px; font-size:10px; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;">Batalkan</button>
-                                    <button style="background:#fff; border:none; color:#c55085; padding:7px 16px; border-radius:50px; font-size:10px; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer; font-weight:500;">Lihat Detail</button>
+                            <?php else: ?>
+                                <div style="padding:24px; text-align:center; color:#7a7571; font-size:13px; background:#F9F7F2; border-radius:8px">
+                                    Tidak ada jadwal konsultasi mendatang.<br>
+                                    <button class="btn-primary" style="margin-top:12px; font-size:11px; padding:6px 14px;" onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))">Booking Online Sekarang</button>
                                 </div>
-                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
                     <!-- Rekomendasi dokter -->
                     <div class="card">
                         <div class="card-header">
-                            <div class="card-title">Dokter <em>Favorit</em></div>
+                            <div class="card-title">Dokter <em>Kecantikan</em></div>
                             <button class="card-action" onclick="showPage('jadwal-dokter', document.querySelector('[onclick*=jadwal-dokter]'))">Semua →</button>
                         </div>
                         <div style="padding:0 26px 26px; display:flex; flex-direction:column; gap:12px">
-                            <div class="dokter-card">
-                                <div class="dokter-avatar">
-                                    <img src="https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=200&q=80">
-                                </div>
-                                <div style="flex:1">
-                                    <div class="dokter-name">Dr. Anisa Putri</div>
-                                    <div class="dokter-spec">Plastic Surgeon</div>
-                                    <div class="dokter-rating">5.0 · 412 pasien</div>
-                                    <div class="dokter-slots">
-                                        <span class="slot-chip">09:00</span>
-                                        <span class="slot-chip">13:00</span>
-                                        <span class="slot-chip penuh">15:00 penuh</span>
+                            <?php foreach (array_slice($dokter_list, 0, 2) as $d): ?>
+                                <div class="dokter-card">
+                                    <div class="dokter-avatar">
+                                        <img src="<?= htmlspecialchars($d['foto']) ?>">
                                     </div>
+                                    <div style="flex:1">
+                                        <div class="dokter-name"><?= htmlspecialchars($d['nama']) ?></div>
+                                        <div class="dokter-spec"><?= htmlspecialchars($d['spesialisasi']) ?></div>
+                                        <div class="dokter-rating">⭐ <?= number_format($d['rating'], 1) ?> · <?= htmlspecialchars($d['bio']) ?></div>
+                                    </div>
+                                    <button class="btn-primary btn-sm" onclick="startBookingDokter(<?= $d['id'] ?>)">Daftar</button>
                                 </div>
-                                <button class="btn-primary btn-sm" onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))">Daftar</button>
-                            </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
@@ -142,35 +253,23 @@ $initial = strtoupper(substr($username, 0, 1));
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">Notifikasi <em>Terbaru</em></div>
-                            <button class="card-action" onclick="showPage('notifikasi', document.querySelector('[onclick*=notifikasi]'))">Semua →</button>
                         </div>
                         <div>
-                            <div class="notif-item unread">
-                                <div class="notif-icon pink"></div>
-                                <div>
-                                    <div class="notif-title">Pengingat Jadwal</div>
-                                    <div class="notif-desc">Jadwal konsultasi Anda dengan Dr. Anisa Putri pada 23 Mei 2026 pukul 09:00 WIB.</div>
-                                    <div class="notif-time">2 jam lalu</div>
+                            <?php if ($nextAppt): ?>
+                                <div class="notif-item unread">
+                                    <div class="notif-icon pink">⏰</div>
+                                    <div>
+                                        <div class="notif-title">Pengingat Jadwal</div>
+                                        <div class="notif-desc">Konsultasi Anda dengan <?= htmlspecialchars($nextAppt['nama_dokter']) ?> terjadwal pada <?= date('d M Y', strtotime($nextAppt['tanggal'])) ?> pukul <?= substr($nextAppt['jam'], 0, 5) ?> WIB.</div>
+                                    </div>
                                 </div>
-                                <div class="unread-dot"></div>
-                            </div>
-                            <div class="notif-item unread">
-                                <div class="notif-icon green"></div>
+                            <?php endif; ?>
+                            <div class="notif-item">
+                                <div class="notif-icon green">✓</div>
                                 <div>
-                                    <div class="notif-title">Pendaftaran Dikonfirmasi</div>
-                                    <div class="notif-desc">Jadwal Konsultasi Anda telah dikonfirmasi oleh pihak klinik.</div>
-                                    <div class="notif-time">1 hari lalu</div>
+                                    <div class="notif-title">Akun Aktif</div>
+                                    <div class="notif-desc">Selamat! Akun GlowCare Clinic Anda telah aktif sepenuhnya.</div>
                                 </div>
-                                <div class="unread-dot"></div>
-                            </div>
-                            <div class="notif-item unread">
-                                <div class="notif-icon yellow"></div>
-                                <div>
-                                    <div class="notif-title">Beri Ulasan</div>
-                                    <div class="notif-desc">Bagaimana kunjungan Anda pada 02 Apr 2026? Beri rating untuk Dr. Anisa Putri.</div>
-                                    <div class="notif-time">3 hari lalu</div>
-                                </div>
-                                <div class="unread-dot"></div>
                             </div>
                         </div>
                     </div>
@@ -178,23 +277,11 @@ $initial = strtoupper(substr($username, 0, 1));
                     <!-- Quick action -->
                     <div class="card">
                         <div class="card-header"><div class="card-title">Akses <em>Cepat</em></div></div>
-                        <div style="padding:0 26px 26px; display:grid; grid-template-columns:1fr 1fr; gap:10px">
-                            <button onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))" style="background:#fde8f2; border:none; border-radius:10px; padding:16px; text-align:center; cursor:pointer; transition:background 0.15s; display:flex; flex-direction:column; align-items:center; gap:6px">
-                                <span style="font-size:22px"></span>
-                                <span style="font-size:11px; color:#c55085; letter-spacing:0.5px">Daftar Konsultasi</span>
-                            </button>
-                            <button onclick="showPage('jadwal-dokter', document.querySelector('[onclick*=jadwal-dokter]'))" style="background:#f0f9f5; border:none; border-radius:10px; padding:16px; text-align:center; cursor:pointer; transition:background 0.15s; display:flex; flex-direction:column; align-items:center; gap:6px">
-                                <span style="font-size:22px"></span>
-                                <span style="font-size:11px; color:#5bab8b; letter-spacing:0.5px">Lihat Jadwal</span>
-                            </button>
-                            <button onclick="showPage('riwayat', document.querySelector('[onclick*=riwayat]'))" style="background:#f0effe; border:none; border-radius:10px; padding:16px; text-align:center; cursor:pointer; transition:background 0.15s; display:flex; flex-direction:column; align-items:center; gap:6px">
-                                <span style="font-size:22px"></span>
-                                <span style="font-size:11px; color:#9b7dd4; letter-spacing:0.5px">Riwayat Konsultasi</span>
-                            </button>
-                            <button onclick="showPage('akun', document.querySelector('[onclick*=akun]'))" style="background:#fff5e8; border:none; border-radius:10px; padding:16px; text-align:center; cursor:pointer; transition:background 0.15s; display:flex; flex-direction:column; align-items:center; gap:6px">
-                                <span style="font-size:22px"></span>
-                                <span style="font-size:11px; color:#e8956d; letter-spacing:0.5px">Kelola Akun</span>
-                            </button>
+                        <div style="padding:0 26px 26px; display:flex; flex-direction:column; gap:10px">
+                            <button onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))" class="btn-outline" style="width:100%; text-align:center">Daftar Konsultasi</button>
+                            <button onclick="showPage('jadwal-dokter', document.querySelector('[onclick*=jadwal-dokter]'))" class="btn-outline" style="width:100%; text-align:center">Lihat Jadwal</button>
+                            <button onclick="showPage('riwayat', document.querySelector('[onclick*=riwayat]'))" class="btn-outline" style="width:100%; text-align:center">Riwayat Konsultasi</button>
+                            <button onclick="showPage('akun', document.querySelector('[onclick*=akun]'))" class="btn-outline" style="width:100%; text-align:center">Kelola Akun</button>
                         </div>
                     </div>
 
@@ -212,127 +299,37 @@ $initial = strtoupper(substr($username, 0, 1));
         <div class="hero-banner" style="padding-bottom:50px">
             <div class="hero-greeting">Jadwal Dokter Real-Time</div>
             <div class="hero-name">Pilih <em>Dokter & Waktu</em></div>
-            <div class="hero-sub">Lihat ketersediaan dokter dan pilih jadwal yang sesuai kebutuhan Anda.</div>
+            <div class="hero-sub">Lihat ketersediaan dokter dan lakukan konsultasi sesuai kebutuhan kulit Anda.</div>
         </div>
 
         <div class="content-area">
-
-            <!-- Filter -->
-            <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap">
-                <select class="form-select" style="width:auto; background:#fff">
-                    <option>Semua Spesialisasi</option>
-                    <option>Plastic Surgeon</option>
-                    <option>Aesthetic Physician</option>
-                    <option>Dermatologist</option>
-                </select>
-                <select class="form-select" style="width:auto; background:#fff">
-                    <option>Semua Treatment</option>
-                    <option>Facelift</option>
-                    <option>Botox & Fillers</option>
-                    <option>Laser Treatment</option>
-                    <option>Body Contouring</option>
-                </select>
-                <input class="form-input" type="date" style="width:auto; background:#fff" value="2026-05-23">
-            </div>
-
             <div class="three-col">
-
-                <!-- Dr. Anisa -->
-                <div class="card">
-                    <div style="background:linear-gradient(135deg,#f9e7ef,#fdf0f5); padding:20px; display:flex; gap:14px; align-items:flex-start">
-                        <div class="dokter-avatar" style="width:56px;height:56px">
-                            <img src="https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=200&q=80">
+                <?php foreach ($dokter_list as $d): ?>
+                    <div class="card">
+                        <div style="background:linear-gradient(135deg,#f5f3ee,#F9F7F2); padding:20px; display:flex; gap:14px; align-items:flex-start">
+                            <div class="dokter-avatar" style="width:56px;height:56px">
+                                <img src="<?= htmlspecialchars($d['foto']) ?>">
+                            </div>
+                            <div>
+                                <div class="dokter-name"><?= htmlspecialchars($d['nama']) ?></div>
+                                <div class="dokter-spec"><?= htmlspecialchars($d['spesialisasi']) ?></div>
+                                <div class="dokter-rating">⭐ <?= number_format($d['rating'], 1) ?> · <?= $d['pengalaman'] ?>+ Thn</div>
+                            </div>
+                            <span class="badge badge-green" style="margin-left:auto"><?= htmlspecialchars($d['status']) ?></span>
                         </div>
-                        <div>
-                            <div class="dokter-name">Dr. Anisa Putri</div>
-                            <div class="dokter-spec">Plastic Surgeon</div>
-                            <div class="dokter-rating"> 5.0 · 10+ Tahun</div>
+                        <div style="padding:14px 20px; font-size:11px; color:#7a7571; letter-spacing:0.5px; border-bottom:1px solid #F9F7F2">
+                            Bio: <?= htmlspecialchars($d['bio']) ?>
                         </div>
-                        <span class="badge badge-green" style="margin-left:auto">Tersedia</span>
-                    </div>
-                    <div style="padding:14px 20px; font-size:11px; color:#b89098; letter-spacing:0.5px; border-bottom:1px solid #fdf0f5">
-                        Keahlian: Facelift · Rhinoplasty · Blepharoplasty
-                    </div>
-                    <div class="slot-section" style="padding:16px 20px 20px">
-                        <div class="slot-date-title">Senin, 23 Mei 2026</div>
-                        <div class="slot-grid">
-                            <div class="slot-btn" onclick="selectSlot(this)">09:00</div>
-                            <div class="slot-btn" onclick="selectSlot(this)">10:00</div>
-                            <div class="slot-btn full">11:00<br><span style="font-size:9px">penuh</span></div>
-                            <div class="slot-btn" onclick="selectSlot(this)">13:00</div>
-                            <div class="slot-btn full">14:00<br><span style="font-size:9px">penuh</span></div>
-                            <div class="slot-btn" onclick="selectSlot(this)">15:00</div>
-                            <div class="slot-btn" onclick="selectSlot(this)">16:00</div>
-                            <div class="slot-btn full">17:00<br><span style="font-size:9px">penuh</span></div>
+                        <div class="slot-section" style="padding:16px 20px 20px">
+                            <div class="slot-date-title">Jam Praktik Mingguan</div>
+                            <div style="font-size:12px; color:#585552; line-height:1.7; margin-bottom:12px">
+                                Senin - Jumat: 09:00 - 16:00<br>
+                                Sabtu: 09:00 - 13:00 (dr. Marina, dr. Michael)
+                            </div>
+                            <button class="btn-primary" style="width:100%; text-align:center" onclick="startBookingDokter(<?= $d['id'] ?>)">Pilih & Daftar Konsultasi</button>
                         </div>
-                        <button class="btn-primary" style="width:100%; margin-top:14px; text-align:center" onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))">Pilih & Daftar</button>
                     </div>
-                </div>
-
-                <!-- Dr. Marina -->
-                <div class="card">
-                    <div style="background:linear-gradient(135deg,#f9e7ef,#fdf0f5); padding:20px; display:flex; gap:14px; align-items:flex-start">
-                        <div class="dokter-avatar" style="width:56px;height:56px">
-                            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=200&q=80">
-                        </div>
-                        <div>
-                            <div class="dokter-name">Dr. Marina Crystine</div>
-                            <div class="dokter-spec">Aesthetic Physician</div>
-                            <div class="dokter-rating"> 5.0 · 8 Tahun</div>
-                        </div>
-                        <span class="badge badge-green" style="margin-left:auto">Tersedia</span>
-                    </div>
-                    <div style="padding:14px 20px; font-size:11px; color:#b89098; letter-spacing:0.5px; border-bottom:1px solid #fdf0f5">
-                        Keahlian: Botox · CoolSculpting · Thread Lifts
-                    </div>
-                    <div class="slot-section" style="padding:16px 20px 20px">
-                        <div class="slot-date-title">Senin, 23 Mei 2026</div>
-                        <div class="slot-grid">
-                            <div class="slot-btn full">09:00<br><span style="font-size:9px">penuh</span></div>
-                            <div class="slot-btn" onclick="selectSlot(this)">10:00</div>
-                            <div class="slot-btn" onclick="selectSlot(this)">11:00</div>
-                            <div class="slot-btn full">13:00<br><span style="font-size:9px">penuh</span></div>
-                            <div class="slot-btn" onclick="selectSlot(this)">14:00</div>
-                            <div class="slot-btn" onclick="selectSlot(this)">15:00</div>
-                            <div class="slot-btn full">16:00<br><span style="font-size:9px">penuh</span></div>
-                            <div class="slot-btn" onclick="selectSlot(this)">17:00</div>
-                        </div>
-                        <button class="btn-primary" style="width:100%; margin-top:14px; text-align:center" onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))">Pilih & Daftar</button>
-                    </div>
-                </div>
-
-                <!-- Dr. Michael -->
-                <div class="card">
-                    <div style="background:linear-gradient(135deg,#f9e7ef,#fdf0f5); padding:20px; display:flex; gap:14px; align-items:flex-start">
-                        <div class="dokter-avatar" style="width:56px;height:56px">
-                            <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=200&q=80">
-                        </div>
-                        <div>
-                            <div class="dokter-name">Dr. Michael Chen</div>
-                            <div class="dokter-spec">Dermatologist</div>
-                            <div class="dokter-rating"> 5.0 · 12 Tahun</div>
-                        </div>
-                        <span class="badge badge-yellow" style="margin-left:auto">Sibuk</span>
-                    </div>
-                    <div style="padding:14px 20px; font-size:11px; color:#b89098; letter-spacing:0.5px; border-bottom:1px solid #fdf0f5">
-                        Keahlian: Laser Treatment · Botox · Fillers
-                    </div>
-                    <div class="slot-section" style="padding:16px 20px 20px">
-                        <div class="slot-date-title">Senin, 23 Mei 2026</div>
-                        <div class="slot-grid">
-                            <div class="slot-btn full">09:00<br><span style="font-size:9px">penuh</span></div>
-                            <div class="slot-btn full">10:00<br><span style="font-size:9px">penuh</span></div>
-                            <div class="slot-btn full">11:00<br><span style="font-size:9px">penuh</span></div>
-                            <div class="slot-btn full">13:00<br><span style="font-size:9px">penuh</span></div>
-                            <div class="slot-btn" onclick="selectSlot(this)">14:00</div>
-                            <div class="slot-btn" onclick="selectSlot(this)">15:00</div>
-                            <div class="slot-btn" onclick="selectSlot(this)">16:00</div>
-                            <div class="slot-btn full">17:00<br><span style="font-size:9px">penuh</span></div>
-                        </div>
-                        <button class="btn-primary" style="width:100%; margin-top:14px; text-align:center" onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))">Pilih & Daftar</button>
-                    </div>
-                </div>
-
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
@@ -350,206 +347,177 @@ $initial = strtoupper(substr($username, 0, 1));
 
         <div class="content-area">
             <!-- Step indicator -->
-            <div class="steps" id="step-indicator">
-                <div class="step active" id="step1">
-                    <div class="step-num">1</div>
-                    <div class="step-label">Pilih Dokter</div>
-                </div>
-                <div class="step-line"></div>
-                <div class="step" id="step2">
-                    <div class="step-num">2</div>
-                    <div class="step-label">Pilih Jadwal</div>
-                </div>
-                <div class="step-line"></div>
-                <div class="step" id="step3">
-                    <div class="step-num">3</div>
-                    <div class="step-label">Isi Keluhan</div>
-                </div>
-                <div class="step-line"></div>
-                <div class="step" id="step4">
-                    <div class="step-num">4</div>
-                    <div class="step-label">Konfirmasi</div>
+            <div class="card" style="padding: 20px 32px; margin-bottom: 24px; border-radius: 16px;">
+                <div class="steps" id="step-indicator" style="margin-bottom: 0;">
+                    <div class="step active" id="step1">
+                        <div class="step-num">1</div>
+                        <div class="step-label">Pilih Dokter</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step2">
+                        <div class="step-num">2</div>
+                        <div class="step-label">Pilih Jadwal</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step3">
+                        <div class="step-num">3</div>
+                        <div class="step-label">Isi Keluhan</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step4">
+                        <div class="step-num">4</div>
+                        <div class="step-label">Konfirmasi</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Step content wrapper -->
-            <div id="step-content">
+            <!-- Booking Form Wrapper -->
+            <form method="POST" action="../../backend/user/simpan_booking.php" id="booking-form">
+                <input type="hidden" name="dokter_id" id="booking-dokter-id" value="<?= $dokter_list[0]['id'] ?? 0 ?>">
+                <input type="hidden" name="tanggal" id="booking-tanggal" value="<?= date('Y-m-d') ?>">
+                <input type="hidden" name="jam" id="booking-jam" value="09:00">
 
-                <!-- STEP 1: Pilih Dokter -->
-                <div id="step-panel-1">
-                    <div class="card" style="margin-bottom:20px">
-                        <div class="card-header"><div class="card-title">Pilih <em>Dokter</em></div></div>
-                        <div style="padding:0 26px 26px; display:flex; flex-direction:column; gap:12px">
+                <!-- Step content wrapper -->
+                <div id="step-content">
 
-                            <div class="dokter-card" id="dokter-option-1" onclick="selectDokter(1)" style="border:2px solid #c55085">
-                                <div class="dokter-avatar" style="width:52px;height:52px">
-                                    <img src="https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=200&q=80">
-                                </div>
-                                <div style="flex:1">
-                                    <div class="dokter-name">Dr. Anisa Putri</div>
-                                    <div class="dokter-spec">Plastic Surgeon</div>
-                                    <div class="dokter-rating"> 5.0 · Facelift · Rhinoplasty · Blepharoplasty</div>
-                                </div>
-                                <span class="badge badge-green">Terpilih ✓</span>
-                            </div>
-
-                            <div class="dokter-card" id="dokter-option-2" onclick="selectDokter(2)">
-                                <div class="dokter-avatar" style="width:52px;height:52px">
-                                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=200&q=80">
-                                </div>
-                                <div style="flex:1">
-                                    <div class="dokter-name">Dr. Marina Crystine</div>
-                                    <div class="dokter-spec">Aesthetic Physician</div>
-                                    <div class="dokter-rating"> 5.0 · Botox · CoolSculpting · Thread Lifts</div>
-                                </div>
-                                <span class="badge badge-gray">Pilih</span>
-                            </div>
-
-                            <div class="dokter-card" id="dokter-option-3" onclick="selectDokter(3)">
-                                <div class="dokter-avatar" style="width:52px;height:52px">
-                                    <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=200&q=80">
-                                </div>
-                                <div style="flex:1">
-                                    <div class="dokter-name">Dr. Michael Chen</div>
-                                    <div class="dokter-spec">Dermatologist</div>
-                                    <div class="dokter-rating"> 5.0 · Laser Treatment · Botox · Fillers</div>
-                                </div>
-                                <span class="badge badge-gray">Pilih</span>
+                    <!-- STEP 1: Pilih Dokter -->
+                    <div id="step-panel-1">
+                        <div class="card" style="margin-bottom:20px">
+                            <div class="card-header"><div class="card-title">Pilih <em>Dokter</em></div></div>
+                            <div style="padding:0 26px 26px; display:flex; flex-direction:column; gap:12px">
+                                <?php 
+                                $idx = 0;
+                                foreach ($dokter_list as $d): 
+                                    $idx++;
+                                    $border = $idx === 1 ? 'border:2px solid #064e3b' : '';
+                                    $badge = $idx === 1 ? 'badge-green' : 'badge-gray';
+                                    $badgeTxt = $idx === 1 ? 'Terpilih ✓' : 'Pilih';
+                                ?>
+                                    <div class="dokter-card" id="dokter-option-<?= $d['id'] ?>" onclick="selectDokterCard(<?= $d['id'] ?>, '<?= htmlspecialchars(addslashes($d['nama'])) ?>')" style="<?= $border ?>">
+                                        <div class="dokter-avatar" style="width:52px;height:52px">
+                                            <img src="<?= htmlspecialchars($d['foto']) ?>">
+                                        </div>
+                                        <div style="flex:1">
+                                            <div class="dokter-name"><?= htmlspecialchars($d['nama']) ?></div>
+                                            <div class="dokter-spec"><?= htmlspecialchars($d['spesialisasi']) ?></div>
+                                            <div class="dokter-rating">⭐ <?= number_format($d['rating'], 1) ?> · <?= htmlspecialchars($d['bio']) ?></div>
+                                        </div>
+                                        <span class="badge <?= $badge ?>"><?= $badgeTxt ?></span>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
-                    </div>
-                    <div style="display:flex; justify-content:flex-end">
-                        <button class="btn-primary" onclick="nextStep(2)">Lanjut: Pilih Jadwal →</button>
-                    </div>
-                </div>
-
-                <!-- STEP 2: Pilih Jadwal -->
-                <div id="step-panel-2" style="display:none">
-                    <div class="two-col" style="margin-bottom:20px">
-                        <div class="card">
-                            <div class="card-header"><div class="card-title">Pilih <em>Tanggal</em></div></div>
-                            <div class="cal-header">
-                                <div class="cal-month">Mei 2026</div>
-                                <div class="cal-nav">
-                                    <button class="cal-nav-btn">←</button>
-                                    <button class="cal-nav-btn">→</button>
-                                </div>
-                            </div>
-                            <div class="cal-grid">
-                                <div class="cal-day-label">Min</div><div class="cal-day-label">Sen</div><div class="cal-day-label">Sel</div><div class="cal-day-label">Rab</div><div class="cal-day-label">Kam</div><div class="cal-day-label">Jum</div><div class="cal-day-label">Sab</div>
-                                <div class="cal-day other-month">27</div><div class="cal-day other-month">28</div><div class="cal-day other-month">29</div><div class="cal-day other-month">30</div><div class="cal-day">1</div><div class="cal-day today">2</div><div class="cal-day">3</div>
-                                <div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day">10</div>
-                                <div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day has-appointment">13</div><div class="cal-day">14</div><div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day">17</div>
-                                <div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div><div class="cal-day selected" onclick="pickDate(this)">23</div><div class="cal-day">24</div>
-                                <div class="cal-day">25</div><div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div><div class="cal-day">30</div><div class="cal-day">31</div>
-                            </div>
-                            <div style="padding:0 20px 16px; font-size:11px; color:#b89098; display:flex; gap:16px">
-                                <span style="display:flex; align-items:center; gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#c55085;display:inline-block"></span>Ada appointment</span>
-                                <span style="display:flex; align-items:center; gap:5px"><span style="width:16px;height:16px;border-radius:50%;background:#c55085;display:inline-block;opacity:0.8"></span>Hari ini</span>
-                            </div>
+                        <div style="display:flex; justify-content:flex-end">
+                            <button type="button" class="btn-primary" onclick="nextStep(2)">Lanjut: Pilih Jadwal →</button>
                         </div>
+                    </div>
 
-                        <div class="card">
-                            <div class="card-header"><div class="card-title">Pilih <em>Jam</em></div></div>
-                            <div class="slot-section">
-                                <div class="slot-date-title">Senin, 23 Mei 2026 · Dr. Anisa Putri</div>
-                                <div class="slot-grid">
-                                    <div class="slot-btn selected" onclick="selectSlot(this)">09:00</div>
-                                    <div class="slot-btn" onclick="selectSlot(this)">10:00</div>
-                                    <div class="slot-btn full">11:00<br><span style="font-size:9px">penuh</span></div>
-                                    <div class="slot-btn" onclick="selectSlot(this)">13:00</div>
-                                    <div class="slot-btn full">14:00<br><span style="font-size:9px">penuh</span></div>
-                                    <div class="slot-btn" onclick="selectSlot(this)">15:00</div>
-                                    <div class="slot-btn" onclick="selectSlot(this)">16:00</div>
-                                    <div class="slot-btn full">17:00<br><span style="font-size:9px">penuh</span></div>
+                    <!-- STEP 2: Pilih Jadwal -->
+                    <div id="step-panel-2" style="display:none">
+                        <div class="two-col" style="margin-bottom:20px">
+                            <div class="card">
+                                <div class="card-header"><div class="card-title">Pilih <em>Tanggal</em></div></div>
+                                <div style="padding:26px">
+                                    <label class="form-label" style="margin-bottom:8px; display:block">Tanggal Konsultasi</label>
+                                    <input class="form-input" type="date" id="booking-date-picker" min="<?= date('Y-m-d') ?>" value="<?= date('Y-m-d') ?>" style="background:#fff; font-size:14px;" onchange="updateTanggalBooking(this.value)">
+                                    <p style="font-size:11px; color:#7a7571; margin-top:10px">Silakan pilih tanggal kerja klinik (Senin s.d Sabtu).</p>
                                 </div>
-                                <div style="margin-top:16px; background:#fdf0f5; border-radius:8px; padding:12px 14px; font-size:12px; color:#7a4d5c; font-weight:300; line-height:1.7">
-                                     <strong style="color:#3d1a22">Jam 09:00</strong> tersedia · Durasi 60 menit · Ruang A-1
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header"><div class="card-title">Pilih <em>Jam</em></div></div>
+                                <div class="slot-section">
+                                    <div class="slot-date-title" id="slot-preview-header">Hari ini · Dokter Terpilih</div>
+                                    <div class="slot-grid">
+                                        <div class="slot-btn selected" onclick="selectSlotBtn(this, '09:00')">09:00</div>
+                                        <div class="slot-btn" onclick="selectSlotBtn(this, '10:00')">10:00</div>
+                                        <div class="slot-btn" onclick="selectSlotBtn(this, '11:00')">11:00</div>
+                                        <div class="slot-btn" onclick="selectSlotBtn(this, '13:00')">13:00</div>
+                                        <div class="slot-btn" onclick="selectSlotBtn(this, '14:00')">14:00</div>
+                                        <div class="slot-btn" onclick="selectSlotBtn(this, '15:00')">15:00</div>
+                                        <div class="slot-btn" onclick="selectSlotBtn(this, '16:00')">16:00</div>
+                                    </div>
+                                    <div style="margin-top:16px; background:#F9F7F2; border-radius:8px; padding:12px 14px; font-size:12px; color:#585552; font-weight:300; line-height:1.7">
+                                         Janji temu berdurasi 45-60 menit di <strong style="color:#2D3436">GlowCare Clinic Mataram</strong>.
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <div style="display:flex; justify-content:space-between">
+                            <button type="button" class="btn-outline" onclick="nextStep(1)">← Kembali</button>
+                            <button type="button" class="btn-primary" onclick="nextStep(3)">Lanjut: Isi Keluhan →</button>
+                        </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between">
-                        <button class="btn-outline" onclick="nextStep(1)">← Kembali</button>
-                        <button class="btn-primary" onclick="nextStep(3)">Lanjut: Isi Keluhan →</button>
-                    </div>
-                </div>
 
-                <!-- STEP 3: Isi Keluhan -->
-                <div id="step-panel-3" style="display:none">
-                    <div class="card" style="margin-bottom:20px">
-                        <div class="card-header"><div class="card-title">Isi <em>Keluhan</em></div></div>
-                        <div style="padding:0 26px 26px">
-                            <div class="form-row-2">
-                                <div class="form-group">
-                                    <label class="form-label">Treatment yang Diinginkan</label>
-                                    <select class="form-select">
-                                        <option>Facelift Consultation</option>
-                                        <option>Rhinoplasty</option>
-                                        <option>Blepharoplasty</option>
-                                        <option>Konsultasi Umum</option>
-                                    </select>
+                    <!-- STEP 3: Isi Keluhan -->
+                    <div id="step-panel-3" style="display:none">
+                        <div class="card" style="margin-bottom:20px">
+                            <div class="card-header"><div class="card-title">Isi <em>Keluhan & Layanan</em></div></div>
+                            <div style="padding:0 26px 26px">
+                                <div class="form-row-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Layanan / Treatment yang Diinginkan</label>
+                                        <select class="form-select" name="treatment_id" id="booking-treatment-select" onchange="updateTreatmentPreview(this)">
+                                            <option value="">Konsultasi Estetika Umum</option>
+                                            <?php foreach ($treatment_list as $t): ?>
+                                                <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['nama']) ?> (<?= htmlspecialchars($t['kategori']) ?>)</option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Pernah Berkunjung Sebelumnya?</label>
+                                        <select class="form-select">
+                                            <option>Ya, pasien lama</option>
+                                            <option>Tidak, kunjungan pertama</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Pernah Berkunjung Sebelumnya?</label>
-                                    <select class="form-select">
-                                        <option>Ya, pasien lama</option>
-                                        <option>Tidak, kunjungan pertama</option>
-                                    </select>
+                                    <label class="form-label">Keluhan Utama & Keinginan</label>
+                                    <textarea class="form-textarea" name="keluhan" placeholder="Ceritakan keluhan kulit atau bagian wajah yang ingin dikonsultasikan secara singkat..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Riwayat Alergi / Kondisi Khusus</label>
+                                    <input class="form-input" name="alergi" placeholder="Contoh: alergi penisilin, riwayat keloid, dsb. (kosongkan jika tidak ada)" value="Tidak ada">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Keluhan Utama</label>
-                                <textarea class="form-textarea" placeholder="Ceritakan keluhan atau hal yang ingin Anda konsultasikan secara singkat...">Kulit wajah mulai kendur di area pipi dan leher. Ingin konsultasi mengenai opsi facelift yang tepat untuk usia saya.</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Riwayat Alergi / Kondisi Khusus</label>
-                                <input class="form-input" placeholder="Contoh: alergi penisilin, riwayat keloid, dsb." value="Tidak ada">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Catatan Tambahan</label>
-                                <textarea class="form-textarea" style="min-height:60px" placeholder="Pertanyaan atau catatan khusus untuk dokter..."></textarea>
-                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between">
+                            <button type="button" class="btn-outline" onclick="nextStep(2)">← Kembali</button>
+                            <button type="button" class="btn-primary" onclick="nextStep(4); generateSummary();">Lanjut: Konfirmasi →</button>
                         </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between">
-                        <button class="btn-outline" onclick="nextStep(2)">← Kembali</button>
-                        <button class="btn-primary" onclick="nextStep(4)">Lanjut: Konfirmasi →</button>
-                    </div>
-                </div>
 
-                <!-- STEP 4: Konfirmasi -->
-                <div id="step-panel-4" style="display:none">
-                    <div class="card" style="margin-bottom:20px">
-                        <div class="card-header"><div class="card-title">Konfirmasi <em>Pendaftaran</em></div></div>
-                        <div style="padding:0 26px 26px">
-                            <div class="confirm-box">
-                                <div class="confirm-row"><span>Pasien</span><span>Siti Rahayu (#P-0041)</span></div>
-                                <div class="confirm-row"><span>Dokter</span><span>Dr. Anisa Putri · Plastic Surgeon</span></div>
-                                <div class="confirm-row"><span>Treatment</span><span>Facelift Consultation</span></div>
-                                <div class="confirm-row"><span>Tanggal</span><span>Senin, 23 Mei 2026</span></div>
-                                <div class="confirm-row"><span>Jam</span><span>09:00 WIB (60 menit)</span></div>
-                                <div class="confirm-row"><span>Ruangan</span><span>Ruang A-1</span></div>
-                                <div class="confirm-row"><span>Keluhan</span><span style="max-width:280px; text-align:right">Kulit wajah mulai kendur di area pipi dan leher</span></div>
+                    <!-- STEP 4: Konfirmasi -->
+                    <div id="step-panel-4" style="display:none">
+                        <div class="card" style="margin-bottom:20px">
+                            <div class="card-header"><div class="card-title">Konfirmasi <em>Pendaftaran</em></div></div>
+                            <div style="padding:0 26px 26px">
+                                <div class="confirm-box">
+                                    <div class="confirm-row"><span>Pasien</span><span><?= htmlspecialchars($pasien['nama']) ?> (#<?= htmlspecialchars($pasien['no_pasien']) ?>)</span></div>
+                                    <div class="confirm-row"><span>Dokter</span><span id="sum-dokter">dr. Anisa Putri</span></div>
+                                    <div class="confirm-row"><span>Treatment</span><span id="sum-treatment">Konsultasi Estetika Umum</span></div>
+                                    <div class="confirm-row"><span>Tanggal</span><span id="sum-tanggal"><?= date('Y-m-d') ?></span></div>
+                                    <div class="confirm-row"><span>Jam</span><span id="sum-jam">09:00 WIB</span></div>
+                                    <div class="confirm-row"><span>Ruangan</span><span>Ruang A-1</span></div>
+                                </div>
+                                <div style="background:#e8f9f1; border-radius:8px; padding:14px 16px; font-size:12px; color:#3dab74; line-height:1.7; margin-bottom:20px">
+                                    Jadwal tersedia. Setelah klik <strong>Konfirmasi Pendaftaran</strong>, sistem akan menyimpan janji temu Anda.
+                                </div>
+                                <label style="display:flex; align-items:flex-start; gap:10px; font-size:12px; color:#585552; font-weight:300; cursor:pointer; margin-bottom:8px">
+                                    <input type="checkbox" checked required style="margin-top:2px"> Saya menyetujui syarat &amp; ketentuan layanan GlowCare Clinic
+                                </label>
                             </div>
-                            <div style="background:#e8f9f1; border-radius:8px; padding:14px 16px; font-size:12px; color:#3dab74; line-height:1.7; margin-bottom:20px">
-                                Jadwal tersedia. Setelah klik <strong>Konfirmasi</strong>, sistem akan mengirimkan notifikasi dan pengingat ke email Anda.
-                            </div>
-                            <label style="display:flex; align-items:flex-start; gap:10px; font-size:12px; color:#7a4d5c; font-weight:300; cursor:pointer; margin-bottom:8px">
-                                <input type="checkbox" checked style="margin-top:2px"> Saya menyetujui syarat &amp; ketentuan layanan GlowCare Clinic
-                            </label>
-                            <label style="display:flex; align-items:flex-start; gap:10px; font-size:12px; color:#7a4d5c; font-weight:300; cursor:pointer">
-                                <input type="checkbox" checked style="margin-top:2px"> Kirim pengingat ke email dan SMS saya
-                            </label>
+                        </div>
+                        <div style="display:flex; justify-content:space-between">
+                            <button type="button" class="btn-outline" onclick="nextStep(3)">← Kembali</button>
+                            <button type="submit" class="btn-primary">✓ Konfirmasi Pendaftaran</button>
                         </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between">
-                        <button class="btn-outline" onclick="nextStep(3)">← Kembali</button>
-                        <button class="btn-primary" onclick="submitPendaftaran()">✓ Konfirmasi Pendaftaran</button>
-                    </div>
-                </div>
 
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -565,82 +533,43 @@ $initial = strtoupper(substr($username, 0, 1));
         </div>
 
         <div class="content-area">
-
-            <!-- Filter -->
-            <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap">
-                <input class="form-input" style="width:220px; background:#fff" placeholder="🔍 Cari treatment...">
-                <select class="form-select" style="width:auto; background:#fff">
-                    <option>Semua Status</option>
-                    <option>Selesai</option>
-                    <option>Dibatalkan</option>
-                </select>
-                <select class="form-select" style="width:auto; background:#fff">
-                    <option>Semua Tahun</option>
-                    <option>2026</option>
-                    <option>2025</option>
-                </select>
-            </div>
-
             <div class="card">
                 <table class="data-table">
                     <thead>
-                        <tr><th>Tanggal</th><th>Dokter</th><th>Treatment</th><th>Durasi</th><th>Status</th><th>Aksi</th></tr>
+                        <tr><th>Tanggal</th><th>Dokter</th><th>Treatment</th><th>Ruangan</th><th>Status</th><th>Aksi</th></tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><div style="font-size:13px; font-weight:400">02 Mei 2026</div><div class="td-sub">09:00 WIB</div></td>
-                            <td><span class="td-name">Dr. Anisa Putri</span><span class="td-sub">Plastic Surgeon</span></td>
-                            <td>Facelift Consultation</td>
-                            <td>60 menit</td>
-                            <td><span class="badge badge-green">Selesai</span></td>
-                            <td><button class="btn-outline btn-sm" onclick="openModal('modal-detail-riwayat')">Detail</button></td>
-                        </tr>
-                        <tr>
-                            <td><div style="font-size:13px; font-weight:400">02 Apr 2026</div><div class="td-sub">10:00 WIB</div></td>
-                            <td><span class="td-name">Dr. Anisa Putri</span><span class="td-sub">Plastic Surgeon</span></td>
-                            <td>Botox Forehead</td>
-                            <td>30 menit</td>
-                            <td><span class="badge badge-green">Selesai</span></td>
-                            <td><button class="btn-outline btn-sm" onclick="openModal('modal-detail-riwayat')">Detail</button></td>
-                        </tr>
-                        <tr>
-                            <td><div style="font-size:13px; font-weight:400">12 Mar 2026</div><div class="td-sub">13:00 WIB</div></td>
-                            <td><span class="td-name">Dr. Michael Chen</span><span class="td-sub">Dermatologist</span></td>
-                            <td>Laser Treatment</td>
-                            <td>45 menit</td>
-                            <td><span class="badge badge-green">Selesai</span></td>
-                            <td><button class="btn-outline btn-sm" onclick="openModal('modal-detail-riwayat')">Detail</button></td>
-                        </tr>
-                        <tr>
-                            <td><div style="font-size:13px; font-weight:400">05 Feb 2026</div><div class="td-sub">09:30 WIB</div></td>
-                            <td><span class="td-name">Dr. Marina Crystine</span><span class="td-sub">Aesthetic Physician</span></td>
-                            <td>CoolSculpting</td>
-                            <td>90 menit</td>
-                            <td><span class="badge badge-green">Selesai</span></td>
-                            <td><button class="btn-outline btn-sm" onclick="openModal('modal-detail-riwayat')">Detail</button></td>
-                        </tr>
-                        <tr>
-                            <td><div style="font-size:13px; font-weight:400">10 Jan 2026</div><div class="td-sub">15:00 WIB</div></td>
-                            <td><span class="td-name">Dr. Anisa Putri</span><span class="td-sub">Plastic Surgeon</span></td>
-                            <td>Konsultasi Awal</td>
-                            <td>60 menit</td>
-                            <td><span class="badge badge-green">Selesai</span></td>
-                            <td><button class="btn-outline btn-sm" onclick="openModal('modal-detail-riwayat')">Detail</button></td>
-                        </tr>
-                        <tr>
-                            <td><div style="font-size:13px; font-weight:400">15 Des 2025</div><div class="td-sub">11:00 WIB</div></td>
-                            <td><span class="td-name">Dr. Michael Chen</span><span class="td-sub">Dermatologist</span></td>
-                            <td>Botox</td>
-                            <td>30 menit</td>
-                            <td><span class="badge badge-gray">Dibatalkan</span></td>
-                            <td><button class="btn-outline btn-sm">Detail</button></td>
-                        </tr>
+                        <?php if (empty($riwayat_list)): ?>
+                            <tr><td colspan="6" style="text-align:center; color:#7a7571; padding:24px">Belum ada riwayat kunjungan.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($riwayat_list as $r): ?>
+                                <tr>
+                                    <td>
+                                        <div style="font-size:13px; font-weight:400"><?= date('d M Y', strtotime($r['tanggal'])) ?></div>
+                                        <div class="td-sub"><?= substr($r['jam'], 0, 5) ?> WIB</div>
+                                    </td>
+                                    <td>
+                                        <span class="td-name"><?= htmlspecialchars($r['nama_dokter']) ?></span>
+                                        <span class="td-sub"><?= htmlspecialchars($r['spesialisasi']) ?></span>
+                                    </td>
+                                    <td><?= htmlspecialchars($r['nama_treatment'] ?: 'Konsultasi Umum') ?></td>
+                                    <td><?= htmlspecialchars($r['ruangan'] ?: 'Ruang A-1') ?></td>
+                                    <td>
+                                        <span class="badge <?= $r['status'] === 'Selesai' ? 'badge-green' : ($r['status'] === 'Dibatalkan' ? 'badge-gray' : 'badge-yellow') ?>">
+                                            <?= htmlspecialchars($r['status']) ?>
+                                        </span>
+                                    </td>
+                                    <td style="display: flex; gap: 4px;">
+                                        <button class="btn-outline btn-sm" onclick="openModalDetailRM('<?= date('d M Y', strtotime($r['tanggal'])) ?>', '<?= htmlspecialchars(addslashes($r['nama_dokter'])) ?>', '<?= htmlspecialchars(addslashes($r['nama_treatment'] ?: 'Konsultasi')) ?>', '<?= htmlspecialchars(addslashes($r['ruangan'] ?: 'Ruang A-1')) ?>', '<?= htmlspecialchars(addslashes($r['anamnesis'] ?: 'Tidak ada keluhan tertulis.')) ?>', '<?= htmlspecialchars(addslashes($r['pemeriksaan'] ?: 'Hasil pemeriksaan atau resep obat belum diinput oleh dokter.')) ?>', '<?= htmlspecialchars(addslashes($r['tindak_lanjut'] ?: 'Tidak ada instruksi khusus.')) ?>', <?= $r['status'] === 'Selesai' ? 'true' : 'false' ?>, <?= (int)$r['id'] ?>)">Detail</button>
+                                        <?php if ($r['status'] !== 'Dibatalkan'): ?>
+                                            <button class="btn-primary btn-sm" onclick="window.location.href='chat.php?appt_id=<?= (int)$r['id'] ?>'" style="padding: 6px 12px; font-size: 11px;">Chat</button>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
-                <div style="padding:14px 22px; border-top:1px solid #fdf0f5; font-size:12px; color:#b89098; display:flex; justify-content:space-between; align-items:center">
-                    <span>Menampilkan 6 dari 12 kunjungan</span>
-                    <button class="btn-outline btn-sm">Muat lebih banyak</button>
-                </div>
             </div>
 
         </div>
@@ -658,67 +587,21 @@ $initial = strtoupper(substr($username, 0, 1));
         </div>
 
         <div class="content-area">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
-                <div style="display:flex; gap:8px">
-                    <button class="btn-primary btn-sm">Semua</button>
-                    <button class="btn-outline btn-sm">Belum Dibaca (3)</button>
-                    <button class="btn-outline btn-sm">Jadwal</button>
-                    <button class="btn-outline btn-sm">Pembayaran</button>
-                </div>
-                <button class="btn-outline btn-sm" onclick="showToast('Semua notifikasi ditandai dibaca')">Tandai semua dibaca</button>
-            </div>
-
-            <div class="card">
-                <div class="notif-item unread">
-                    <div class="notif-icon pink"></div>
-                    <div style="flex:1">
-                        <div class="notif-title">Pengingat Jadwal Konsultasi</div>
-                        <div class="notif-desc">Jadwal konsultasi Anda dengan <strong>Dr. Anisa Putri</strong> pada Senin, 23 Mei 2026 pukul 09:00 WIB akan segera tiba. Harap datang 15 menit lebih awal untuk registrasi ulang.</div>
-                        <div class="notif-time">Hari ini, 08:00</div>
+            <div class="card" style="padding: 24px;">
+                <?php if ($nextAppt): ?>
+                    <div style="padding: 16px; background:#fbf9f4; border:1px solid #F9F7F2; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:center;">
+                        <span style="font-size:24px;">⏰</span>
+                        <div>
+                            <div style="font-weight:500; color:#2D3436;">Pengingat Janji Temu Estetika</div>
+                            <div style="font-size:12px; color:#585552; margin-top:3px;">Anda memiliki konsultasi medis terjadwal dengan <strong><?= htmlspecialchars($nextAppt['nama_dokter']) ?></strong> pada <?= date('d M Y', strtotime($nextAppt['tanggal'])) ?> pukul <?= substr($nextAppt['jam'], 0, 5) ?> WIB.</div>
+                        </div>
                     </div>
-                    <div class="unread-dot"></div>
-                </div>
-                <div class="notif-item unread">
-                    <div class="notif-icon green"></div>
-                    <div style="flex:1">
-                        <div class="notif-title">Pendaftaran Dikonfirmasi</div>
-                        <div class="notif-desc">Pendaftaran konsultasi Anda pada 23 Mei 2026 dengan Dr. Anisa Putri telah <strong>dikonfirmasi</strong> oleh admin klinik. Nomor antrian Anda: <strong>#A-003</strong>.</div>
-                        <div class="notif-time">Kemarin, 15:30</div>
-                    </div>
-                    <div class="unread-dot"></div>
-                </div>
-                <div class="notif-item unread">
-                    <div class="notif-icon yellow"></div>
-                    <div style="flex:1">
-                        <div class="notif-title">Beri Ulasan untuk Dr. Anisa Putri</div>
-                        <div class="notif-desc">Bagaimana kunjungan Anda pada 02 Mei 2026? Bantu pasien lain dengan memberikan ulasan dan rating.</div>
-                        <div class="notif-time">2 hari lalu</div>
-                        <button class="btn-primary btn-sm" style="margin-top:10px" onclick="openModal('modal-ulasan')">Beri Ulasan</button>
-                    </div>
-                    <div class="unread-dot"></div>
-                </div>
-                <div class="notif-item">
-                    <div class="notif-icon blue"></div>
-                    <div style="flex:1">
-                        <div class="notif-title">Pembayaran Berhasil</div>
-                        <div class="notif-desc">Pembayaran konsultasi tanggal 02 Mei 2026 sebesar <strong>Rp 350.000</strong> telah berhasil diproses. Terima kasih telah mempercayakan perawatan Anda kepada GlowCare.</div>
-                        <div class="notif-time">3 hari lalu</div>
-                    </div>
-                </div>
-                <div class="notif-item">
-                    <div class="notif-icon pink"></div>
-                    <div style="flex:1">
-                        <div class="notif-title">Pengingat Jadwal (Lampau)</div>
-                        <div class="notif-desc">Jadwal konsultasi Anda dengan Dr. Anisa Putri pada 02 Mei 2026 pukul 09:00 WIB.</div>
-                        <div class="notif-time">4 hari lalu</div>
-                    </div>
-                </div>
-                <div class="notif-item">
-                    <div class="notif-icon green"></div>
-                    <div style="flex:1">
-                        <div class="notif-title">Pendaftaran Dikonfirmasi</div>
-                        <div class="notif-desc">Pendaftaran konsultasi Anda pada 02 Mei 2026 telah dikonfirmasi. Nomor antrian: <strong>#A-001</strong>.</div>
-                        <div class="notif-time">5 hari lalu</div>
+                <?php endif; ?>
+                <div style="padding: 16px; background:#fbf9f4; border:1px solid #F9F7F2; border-radius:10px; display:flex; gap:15px; align-items:center;">
+                    <span style="font-size:24px;">🎉</span>
+                    <div>
+                        <div style="font-weight:500; color:#2D3436;">Selamat Bergabung!</div>
+                        <div style="font-size:12px; color:#585552; margin-top:3px;">Pendaftaran akun Anda di sistem klinik kecantikan GlowCare Clinic Mataram berhasil. Nikmati layanan premium kami!</div>
                     </div>
                 </div>
             </div>
@@ -731,153 +614,96 @@ $initial = strtoupper(substr($username, 0, 1));
     <div class="page" id="page-akun">
 
         <div class="hero-banner" style="padding-bottom:50px">
-            <div class="hero-greeting">Kelola Profil</div>
-            <div class="hero-name">Pengaturan <em>Akun</em></div>
-            <div class="hero-sub">Perbarui data diri dan kelola keamanan akun Anda.</div>
+            <div class="hero-greeting">Pengaturan Profil</div>
+            <div class="hero-name">Informasi <em>Akun</em></div>
+            <div class="hero-sub">Kelola informasi kontak medis Anda agar memudahkan dokter dalam mendiagnosa.</div>
         </div>
 
         <div class="content-area">
+            <div class="two-col">
 
-            <!-- Profil strip -->
-            <div class="profil-strip">
-                <div class="profil-avatar-wrap">
-                    <div class="profil-avatar">S</div>
-                    <div class="profil-edit-btn"></div>
-                </div>
-                <div style="flex:1">
-                    <div class="profil-name">Siti Rahayu</div>
-                    <div class="profil-id">ID Pasien: #P-0041</div>
-                    <div class="profil-chips">
-                        <span class="profil-chip">Pasien Aktif</span>
-                        <span class="profil-chip">12 Kunjungan</span>
-                        <span class="profil-chip">Bergabung Jan 2025</span>
-                    </div>
-                </div>
-                <button class="btn-primary" onclick="showToast('Data berhasil disimpan ✓')">Simpan Perubahan</button>
-                <a href="../../backend/logout.php" 
-                style="background:#e8716d; color:#fff; border:none; padding:10px 24px; border-radius:50px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer; text-decoration:none; display:inline-block;">
-                Keluar
-                </a>
-            </div>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
-
-                <!-- Data diri -->
+                <!-- Data Pribadi -->
                 <div class="akun-section">
                     <div class="akun-section-header">
-                        <div class="akun-section-title">Data <em style="color:#c55085;font-style:italic">Pribadi</em></div>
+                        <div class="akun-section-title">Data Diri Medis</div>
                     </div>
-                    <div class="akun-section-body">
-                        <div class="form-row-2">
+                    <form method="POST" action="../../backend/user/update_profil_user.php">
+                        <div class="akun-section-body">
                             <div class="form-group">
                                 <label class="form-label">Nama Lengkap</label>
-                                <input class="form-input" value="Siti Rahayu">
+                                <input class="form-input" name="nama" value="<?= htmlspecialchars($pasien['nama']) ?>" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">No Pasien / Rekam</label>
+                                <input class="form-input" value="<?= htmlspecialchars($pasien['no_pasien']) ?> (<?= htmlspecialchars($pasien['no_rekam']) ?>)" disabled style="background:#fcfcfc">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Tanggal Lahir</label>
-                                <input class="form-input" type="date" value="1998-04-15">
+                                <input class="form-input" type="date" name="tanggal_lahir" value="<?= $pasien['tanggal_lahir'] ?>">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Jenis Kelamin</label>
-                                <select class="form-select"><option selected>Perempuan</option><option>Laki-laki</option></select>
+                                <select class="form-select" name="jenis_kelamin">
+                                    <option <?= $pasien['jenis_kelamin'] === 'Perempuan' ? 'selected' : '' ?>>Perempuan</option>
+                                    <option <?= $pasien['jenis_kelamin'] === 'Laki-laki' ? 'selected' : '' ?>>Laki-laki</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Golongan Darah</label>
-                                <select class="form-select"><option>O+</option><option>A</option><option>B</option><option>AB</option></select>
+                                <label class="form-label">Alamat Lengkap</label>
+                                <textarea class="form-textarea" name="alamat" style="min-height:70px"><?= htmlspecialchars($pasien['alamat'] ?? '') ?></textarea>
                             </div>
+                            <button type="submit" class="btn-primary" style="width:100%; margin-top:10px;">Simpan Perubahan Data Diri</button>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Alamat Lengkap</label>
-                            <input class="form-input" value="Jl. Udayana No. 22, Mataram, NTB">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Alergi / Kondisi Khusus</label>
-                            <input class="form-input" value="Tidak ada">
-                        </div>
-                    </div>
+                    </form>
                 </div>
 
-                <!-- Kontak & keamanan -->
+                <!-- Kontak & Keamanan -->
                 <div style="display:flex; flex-direction:column; gap:20px">
                     <div class="akun-section">
                         <div class="akun-section-header">
-                            <div class="akun-section-title">Kontak</div>
+                            <div class="akun-section-title">Kontak Medis</div>
                         </div>
-                        <div class="akun-section-body">
-                            <div class="form-group">
-                                <label class="form-label">No. Telepon</label>
-                                <input class="form-input" value="+62 812 1234 5678">
+                        <form method="POST" action="../../backend/user/update_profil_user.php">
+                            <input type="hidden" name="nama" value="<?= htmlspecialchars($pasien['nama']) ?>">
+                            <div class="akun-section-body">
+                                <div class="form-group">
+                                    <label class="form-label">No. Telepon / WhatsApp</label>
+                                    <input class="form-input" name="telepon" value="<?= htmlspecialchars($pasien['telepon'] ?? '') ?>" placeholder="+62 8...">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email Aktif</label>
+                                    <input class="form-input" type="email" value="<?= htmlspecialchars($pasien['email']) ?>" disabled style="background:#fcfcfc">
+                                </div>
+                                <button type="submit" class="btn-primary" style="width:100%; margin-top:10px;">Simpan Perubahan Kontak</button>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Email</label>
-                                <input class="form-input" type="email" value="siti.rahayu@email.com">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Kontak Darurat</label>
-                                <input class="form-input" placeholder="Nama dan nomor kontak darurat">
-                            </div>
-                        </div>
+                        </form>
                     </div>
 
                     <div class="akun-section">
                         <div class="akun-section-header">
-                            <div class="akun-section-title">Keamanan <em style="color:#c55085;font-style:italic">Password</em></div>
+                            <div class="akun-section-title">Keamanan Akun</div>
                         </div>
-                        <div class="akun-section-body">
-                            <div class="form-group">
-                                <label class="form-label">Password Saat Ini</label>
-                                <input class="form-input" type="password" placeholder="••••••••">
+                        <form method="POST" action="../../backend/user/update_profil_user.php">
+                            <div class="akun-section-body">
+                                <div class="form-group">
+                                    <label class="form-label">Password Saat Ini</label>
+                                    <input class="form-input" type="password" name="password_lama" placeholder="••••••••" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Password Baru</label>
+                                    <input class="form-input" type="password" name="password_baru" placeholder="Minimal 8 karakter" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Konfirmasi Password Baru</label>
+                                    <input class="form-input" type="password" name="konfirmasi" placeholder="Ulangi password baru" required>
+                                </div>
+                                <button type="submit" class="btn-primary" style="width:100%">Perbarui Password</button>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Password Baru</label>
-                                <input class="form-input" type="password" placeholder="Min. 8 karakter">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Konfirmasi Password Baru</label>
-                                <input class="form-input" type="password" placeholder="Ulangi password baru">
-                            </div>
-                            <button class="btn-primary" style="width:100%" onclick="showToast('Password berhasil diubah ✓')">Ubah Password</button>
-                        </div>
+                        </form>
                     </div>
                 </div>
 
             </div>
-
-            <!-- Preferensi notifikasi -->
-            <div class="akun-section" style="margin-top:20px">
-                <div class="akun-section-header">
-                    <div class="akun-section-title">Preferensi <em style="color:#c55085;font-style:italic">Notifikasi</em></div>
-                </div>
-                <div class="akun-section-body">
-                    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px">
-                        <label style="display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#3d1a22; cursor:pointer; padding:12px 16px; background:#fdf0f5; border-radius:8px">
-                            Email Pengingat Jadwal
-                            <input type="checkbox" checked>
-                        </label>
-                        <label style="display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#3d1a22; cursor:pointer; padding:12px 16px; background:#fdf0f5; border-radius:8px">
-                            SMS / WhatsApp
-                            <input type="checkbox" checked>
-                        </label>
-                        <label style="display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#3d1a22; cursor:pointer; padding:12px 16px; background:#fdf0f5; border-radius:8px">
-                            Notifikasi Promosi
-                            <input type="checkbox">
-                        </label>
-                        <label style="display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#3d1a22; cursor:pointer; padding:12px 16px; background:#fdf0f5; border-radius:8px">
-                            Konfirmasi Pembayaran
-                            <input type="checkbox" checked>
-                        </label>
-                        <label style="display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#3d1a22; cursor:pointer; padding:12px 16px; background:#fdf0f5; border-radius:8px">
-                            Pengingat Follow-up
-                            <input type="checkbox" checked>
-                        </label>
-                        <label style="display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#3d1a22; cursor:pointer; padding:12px 16px; background:#fdf0f5; border-radius:8px">
-                            Ulasan & Rating
-                            <input type="checkbox" checked>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
@@ -885,54 +711,57 @@ $initial = strtoupper(substr($username, 0, 1));
     <div class="modal-overlay" id="modal-batalkan" onclick="closeModalOutside(event,'modal-batalkan')">
         <div class="modal">
             <h3 class="modal-title">Batalkan <em>Konsultasi?</em></h3>
-            <p class="modal-sub">Anda akan membatalkan jadwal berikut:</p>
-            <div class="confirm-box" style="margin-bottom:20px">
-                <div class="confirm-row"><span>Dokter</span><span>Dr. Anisa Putri</span></div>
-                <div class="confirm-row"><span>Tanggal</span><span>Senin, 23 Mei 2026</span></div>
-                <div class="confirm-row"><span>Jam</span><span>09:00 WIB</span></div>
-                <div class="confirm-row"><span>Treatment</span><span>Facelift Consultation</span></div>
-            </div>
-            <div style="background:#fef9e7; border-radius:8px; padding:12px 14px; font-size:12px; color:#c9970e; margin-bottom:20px">
-                 Pembatalan kurang dari 24 jam sebelum jadwal mungkin dikenakan biaya administrasi.
-            </div>
-            <div class="form-group">
-                <label class="form-label">Alasan Pembatalan</label>
-                <select class="form-select">
-                    <option>Pilih alasan...</option>
-                    <option>Ada halangan mendadak</option>
-                    <option>Ingin ganti jadwal</option>
-                    <option>Kondisi kesehatan</option>
-                    <option>Lainnya</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-outline" onclick="closeModal('modal-batalkan')">Batal</button>
-                <button style="background:#e8716d; color:#fff; border:none; padding:10px 24px; border-radius:50px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;" onclick="closeModal('modal-batalkan'); showToast('Jadwal berhasil dibatalkan')">Ya, Batalkan</button>
-            </div>
+            <p class="modal-sub">Anda yakin ingin membatalkan janji temu berikut?</p>
+            <form method="POST" action="../../backend/user/batal_booking.php">
+                <input type="hidden" name="appointment_id" id="batal-appt-id">
+                <div class="confirm-box" style="margin-bottom:20px">
+                    <div class="confirm-row"><span>Dokter</span><span id="batal-dokter-preview">-</span></div>
+                    <div class="confirm-row"><span>Tanggal</span><span id="batal-tanggal-preview">-</span></div>
+                    <div class="confirm-row"><span>Jam</span><span id="batal-jam-preview">-</span></div>
+                    <div class="confirm-row"><span>Layanan</span><span id="batal-layanan-preview">-</span></div>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="form-label">Alasan Pembatalan</label>
+                    <select class="form-select" name="alasan">
+                        <option>Ada halangan mendadak</option>
+                        <option>Ingin ganti jadwal tanggal lain</option>
+                        <option>Kondisi tubuh kurang fit</option>
+                        <option>Lainnya</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('modal-batalkan')">Batal</button>
+                    <button type="submit" style="background:#e8716d; color:#fff; border:none; padding:10px 24px; border-radius:50px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;">Ya, Batalkan</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- ══ MODAL: DETAIL RIWAYAT ══ -->
     <div class="modal-overlay" id="modal-detail-riwayat" onclick="closeModalOutside(event,'modal-detail-riwayat')">
-        <div class="modal">
-            <h3 class="modal-title">Detail <em>Kunjungan</em></h3>
-            <p class="modal-sub">02 Mei 2026 · Dr. Anisa Putri · Facelift Consultation</p>
+        <div class="modal" style="width: 550px;">
+            <h3 class="modal-title">Detail <em>Kunjungan Medis</em></h3>
+            <p class="modal-sub" id="det-tgl-dokter">-</p>
             <div class="confirm-box" style="margin-bottom:20px">
-                <div class="confirm-row"><span>Dokter</span><span>Dr. Anisa Putri, Sp.BP-RE</span></div>
-                <div class="confirm-row"><span>Treatment</span><span>Facelift Consultation</span></div>
-                <div class="confirm-row"><span>Durasi</span><span>60 menit</span></div>
-                <div class="confirm-row"><span>Ruangan</span><span>Ruang A-1</span></div>
-                <div class="confirm-row"><span>Status</span><span><span class="badge badge-green">Selesai</span></span></div>
+                <div class="confirm-row"><span>Dokter</span><span id="det-dokter">-</span></div>
+                <div class="confirm-row"><span>Layanan</span><span id="det-layanan">-</span></div>
+                <div class="confirm-row"><span>Ruangan</span><span id="det-ruangan">-</span></div>
             </div>
-            <div style="background:#fdf0f5; border-radius:10px; padding:16px; margin-bottom:20px">
-                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#b89098; margin-bottom:8px">Catatan Dokter</div>
-                <div style="font-size:13px; color:#7a4d5c; font-weight:300; line-height:1.8">
-                    Konsultasi mengenai rencana mini facelift. Direncanakan prosedur SMAS technique untuk mengencangkan area mid-face dan cervical. Follow-up pre-operasi dijadwalkan 23 Mei 2026.
+            <div style="background:#F9F7F2; border-radius:10px; padding:16px; margin-bottom:15px">
+                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#7a7571; margin-bottom:4px; font-weight:500;">Anamnesis / Keluhan Medis</div>
+                <div style="font-size:12px; color:#585552; font-weight:300; line-height:1.7" id="det-anamnesis">
+                    -
+                </div>
+            </div>
+            <div style="background:#F9F7F2; border-radius:10px; padding:16px; margin-bottom:20px">
+                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#7a7571; margin-bottom:4px; font-weight:500;">Diagnosa &amp; Hasil Pemeriksaan Dokter</div>
+                <div style="font-size:12px; color:#585552; font-weight:300; line-height:1.7" id="det-pemeriksaan">
+                    -
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn-outline" onclick="closeModal('modal-detail-riwayat')">Tutup</button>
-                <button class="btn-primary" onclick="closeModal('modal-detail-riwayat'); openModal('modal-ulasan')"> Beri Ulasan</button>
+                <button type="button" class="btn-outline" onclick="closeModal('modal-detail-riwayat')">Tutup</button>
+                <button type="button" class="btn-primary" id="btn-beri-ulasan" onclick="triggerReviewModal()">Beri Ulasan</button>
             </div>
         </div>
     </div>
@@ -940,45 +769,173 @@ $initial = strtoupper(substr($username, 0, 1));
     <!-- ══ MODAL: ULASAN ══ -->
     <div class="modal-overlay" id="modal-ulasan" onclick="closeModalOutside(event,'modal-ulasan')">
         <div class="modal">
-            <h3 class="modal-title">Beri <em>Ulasan</em></h3>
-            <p class="modal-sub">Kunjungan 02 Mei 2026 · Dr. Anisa Putri</p>
-            <div style="text-align:center; margin-bottom:24px">
-                <div style="font-size:13px; color:#7a4d5c; font-weight:300; margin-bottom:14px">Bagaimana pengalaman konsultasi Anda?</div>
-                <div style="font-size:36px; letter-spacing:8px; cursor:pointer" id="star-rating"></div>
-                <div style="font-size:11px; color:#c55085; margin-top:6px; letter-spacing:1px">5 / 5 — Sangat Puas</div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Ulasan Anda</label>
-                <textarea class="form-textarea" placeholder="Ceritakan pengalaman konsultasi Anda...">Dr. Anisa sangat profesional dan detail dalam menjelaskan rencana treatment. Saya merasa sangat nyaman berkonsultasi. Sangat direkomendasikan!</textarea>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-outline" onclick="closeModal('modal-ulasan')">Batal</button>
-                <button class="btn-primary" onclick="closeModal('modal-ulasan'); showToast('Ulasan berhasil dikirim ✓ Terima kasih!')">Kirim Ulasan</button>
-            </div>
+            <h3 class="modal-title">Beri <em>Ulasan &amp; Rating</em></h3>
+            <p class="modal-sub" id="ulasan-dokter-sub">Berikan tanggapan untuk Dokter</p>
+            <form method="POST" action="../../backend/user/simpan_ulasan.php">
+                <input type="hidden" name="dokter_id" id="ulasan-dokter-id">
+                <div style="text-align:center; margin-bottom:24px">
+                    <div style="font-size:13px; color:#585552; font-weight:300; margin-bottom:14px">Pilih Rating Bintang:</div>
+                    <select name="rating" class="form-select" style="max-width:240px; margin:0 auto; font-size:15px; text-align:center;">
+                        <option value="5">⭐⭐⭐⭐⭐ 5 / 5 (Sangat Puas)</option>
+                        <option value="4">⭐⭐⭐⭐ 4 / 5 (Puas)</option>
+                        <option value="3">⭐⭐⭐ 3 / 5 (Cukup)</option>
+                        <option value="2">⭐⭐ 2 / 5 (Kurang)</option>
+                        <option value="1">⭐ 1 / 5 (Sangat Kurang)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="form-label">Tulis Ulasan Anda</label>
+                    <textarea class="form-textarea" name="ulasan" placeholder="Ceritakan pengalaman perawatan kulit Anda..." required style="min-height:80px;"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('modal-ulasan')">Batal</button>
+                    <button type="submit" class="btn-primary">Kirim Ulasan Medis</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- ══ MODAL: SUKSES PENDAFTARAN ══ -->
-    <div class="modal-overlay" id="modal-sukses">
-        <div class="modal">
-            <div class="success-card">
-                <div class="success-icon"></div>
-                <div class="success-title">Pendaftaran Berhasil!</div>
-                <div class="success-desc">Jadwal konsultasi Anda telah berhasil didaftarkan. Konfirmasi dan pengingat akan segera dikirim ke email Anda.</div>
-                <div class="confirm-box">
-                    <div class="confirm-row"><span>Dokter</span><span>Dr. Anisa Putri</span></div>
-                    <div class="confirm-row"><span>Tanggal</span><span>Senin, 23 Mei 2026</span></div>
-                    <div class="confirm-row"><span>Jam</span><span>09:00 WIB</span></div>
-                    <div class="confirm-row"><span>No. Antrian</span><span style="color:#c55085; font-weight:500">#A-004</span></div>
+    <?php if (isset($_GET['success_booking'])): ?>
+        <div class="modal-overlay open" id="modal-sukses" onclick="closeModal('modal-sukses')">
+            <div class="modal">
+                <div class="success-card">
+                    <div class="success-icon" style="font-size:48px; text-align:center; margin-bottom:10px;">✅</div>
+                    <div class="success-title" style="font-family:'Playfair Display',serif; font-size:24px; color:#2D3436; text-align:center; margin-bottom:10px;">Pendaftaran Berhasil!</div>
+                    <div class="success-desc" style="font-size:13px; color:#585552; text-align:center; line-height:1.7; margin-bottom:20px;">Jadwal konsultasi estetika Anda telah terdaftar. Detail janji temu Anda:</div>
+                    <div class="confirm-box" style="background:#F9F7F2; padding:16px; border-radius:10px; margin-bottom:20px;">
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Dokter</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['dokter']) ?></span></div>
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Tanggal</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['tanggal']) ?></span></div>
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Jam</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['jam']) ?> WIB</span></div>
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px;"><span>No. Antrian</span><span style="color:#064e3b; font-weight:600;"><?= htmlspecialchars($_GET['antrian']) ?></span></div>
+                    </div>
+                    <button class="btn-primary" style="width:100%" onclick="closeModal('modal-sukses')">Kembali ke Beranda</button>
                 </div>
-                <button class="btn-primary" style="width:100%" onclick="closeModal('modal-sukses'); showPage('beranda', document.querySelector('[onclick*=beranda]'))">Kembali ke Beranda</button>
             </div>
         </div>
-    </div>
+    <?php endif; ?>
 
     <!-- Toast -->
     <div class="toast" id="toast"><span id="toast-msg"></span></div>
 
-    <script src="../../asset/js/user.js"></script>
+    <script src="../../asset/js/user.js?v=2"></script>
+    <script>
+        // Set variables for booking wizard
+        let selectedDocId = <?= $dokter_list[0]['id'] ?? 0 ?>;
+        let selectedDocName = "<?= htmlspecialchars(addslashes($dokter_list[0]['nama'] ?? '')) ?>";
+        let selectedDate = "<?= date('Y-m-d') ?>";
+        let selectedJam = "09:00";
+        let selectedTreatment = "Konsultasi Estetika Umum";
+        
+        let reviewDocId = 0;
+        let reviewDocName = "";
+
+        function selectDokterCard(id, name) {
+            selectedDocId = id;
+            selectedDocName = name;
+            document.getElementById('booking-dokter-id').value = id;
+
+            // Highlight card
+            document.querySelectorAll('.dokter-card').forEach(c => {
+                c.style.border = '1px solid #a7f3d0';
+                const b = c.querySelector('.badge');
+                if (b) {
+                    b.className = 'badge badge-gray';
+                    b.textContent = 'Pilih';
+                }
+            });
+
+            const card = document.getElementById('dokter-option-' + id);
+            if (card) {
+                card.style.border = '2px solid #064e3b';
+                const b = card.querySelector('.badge');
+                if (b) {
+                    b.className = 'badge badge-green';
+                    b.textContent = 'Terpilih ✓';
+                }
+            }
+        }
+
+        function startBookingDokter(docId) {
+            const d = <?= json_encode($dokter_list) ?>;
+            const doc = d.find(x => x.id == docId);
+            if (doc) {
+                selectDokterCard(docId, doc.nama);
+                showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'));
+                nextStep(2);
+            }
+        }
+
+        function updateTanggalBooking(val) {
+            selectedDate = val;
+            document.getElementById('booking-tanggal').value = val;
+            document.getElementById('slot-preview-header').textContent = val + " · " + selectedDocName;
+        }
+
+        function selectSlotBtn(el, time) {
+            selectedJam = time;
+            document.getElementById('booking-jam').value = time;
+            
+            document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function updateTreatmentPreview(el) {
+            if (el.selectedIndex === 0) {
+                selectedTreatment = "Konsultasi Estetika Umum";
+            } else {
+                selectedTreatment = el.options[el.selectedIndex].text;
+            }
+        }
+
+        function generateSummary() {
+            document.getElementById('sum-dokter').textContent = selectedDocName;
+            document.getElementById('sum-treatment').textContent = selectedTreatment;
+            document.getElementById('sum-tanggal').textContent = selectedDate;
+            document.getElementById('sum-jam').textContent = selectedJam + " WIB";
+        }
+
+        function openModalBatal(id, doc, tgl, jam, layanan) {
+            document.getElementById('batal-appt-id').value = id;
+            document.getElementById('batal-dokter-preview').textContent = doc;
+            document.getElementById('batal-tanggal-preview').textContent = tgl;
+            document.getElementById('batal-jam-preview').textContent = jam + " WIB";
+            document.getElementById('batal-layanan-preview').textContent = layanan;
+            openModal('modal-batalkan');
+        }
+
+        function openModalDetailRM(tgl, doc, layanan, ruangan, anamnesis, pemeriksaan, tindak_lanjut, isSelesai, id) {
+            document.getElementById('det-tgl-dokter').textContent = tgl + " · " + doc + " · " + layanan;
+            document.getElementById('det-dokter').textContent = doc;
+            document.getElementById('det-layanan').textContent = layanan;
+            document.getElementById('det-ruangan').textContent = ruangan;
+            document.getElementById('det-anamnesis').innerHTML = anamnesis.replace(/\n/g, '<br>');
+            document.getElementById('det-pemeriksaan').innerHTML = pemeriksaan.replace(/\n/g, '<br>') + (tindak_lanjut ? '<br><br><strong>Rencana Lanjut:</strong><br>' + tindak_lanjut.replace(/\n/g, '<br>') : '');
+            
+            // Cari dokter_id
+            const d = <?= json_encode($dokter_list) ?>;
+            const docObj = d.find(x => x.nama.toLowerCase() === doc.toLowerCase());
+            if (docObj) {
+                reviewDocId = docObj.id;
+                reviewDocName = docObj.nama;
+            }
+
+            const btn = document.getElementById('btn-beri-ulasan');
+            if (isSelesai) {
+                btn.style.display = 'inline-block';
+            } else {
+                btn.style.display = 'none';
+            }
+
+            openModal('modal-detail-riwayat');
+        }
+
+        function triggerReviewModal() {
+            closeModal('modal-detail-riwayat');
+            document.getElementById('ulasan-dokter-id').value = reviewDocId;
+            document.getElementById('ulasan-dokter-sub').textContent = "Berikan ulasan dan rating untuk " + reviewDocName;
+            openModal('modal-ulasan');
+        }
+    </script>
 </body>
 </html>

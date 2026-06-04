@@ -1,0 +1,149 @@
+const titles = {dashboard:'Dashboard',pasien:'Data Pasien',dokter:'Data Dokter',jadwal:'Jadwal Dokter',aktivitas:'Aktivitas',pesan:'Pesan Kontak',laporan:'Laporan',treatment:'Treatment',profil:'Profil'};
+
+function showPanel(id,el){
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    if(el) el.classList.add('active');
+    document.getElementById('topbar-title').textContent=titles[id]||id;
+    document.getElementById('topbar-bc').textContent='GlowCare Admin → '+(titles[id]||id);
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeModalOutside(e,id){if(e.target.classList.contains('modal-overlay'))closeModal(id);}
+function showToast(msg,ok=true){
+    const t=document.getElementById('toast');
+    t.innerHTML=(ok?'✅ ':'❌ ')+'<span>'+msg+'</span>';
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ── PASIEN ──
+function editPasien(p){
+    document.getElementById('mp-title').innerHTML='Edit <em>Pasien</em>';
+    document.getElementById('form-pasien').action='../../backend/admin/simpan_pasien.php';
+    document.getElementById('mp-id').value=p.id;
+    document.getElementById('mp-nama').value=p.nama;
+    document.getElementById('mp-no').value=p.no_pasien;
+    document.getElementById('mp-tgl').value=p.tanggal_lahir||'';
+    document.getElementById('mp-jk').value=p.jenis_kelamin;
+    document.getElementById('mp-telp').value=p.telepon||'';
+    document.getElementById('mp-email').value=p.email||'';
+    document.getElementById('mp-alamat').value=p.alamat||'';
+    document.getElementById('mp-status').value=p.status;
+    document.getElementById('mp-catatan').value=p.catatan_medis||'';
+    openModal('modal-pasien');
+}
+document.getElementById('modal-pasien').addEventListener('click',function(e){
+    if(e.target===this) closeModal('modal-pasien');
+});
+document.querySelector('#form-pasien button[type=submit]').addEventListener('click',function(){
+    const f=document.getElementById('form-pasien');
+    if(!f.action.includes('simpan_pasien')) f.action='../../backend/admin/simpan_pasien.php';
+});
+// Reset modal pasien saat tambah baru
+document.querySelector('[onclick="openModal(\'modal-pasien\')"]') && document.querySelectorAll('[onclick="openModal(\'modal-pasien\')"]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        document.getElementById('mp-title').innerHTML='Tambah <em>Pasien</em>';
+        document.getElementById('form-pasien').action='../../backend/admin/simpan_pasien.php';
+        document.getElementById('form-pasien').reset();
+        document.getElementById('mp-id').value='';
+    });
+});
+
+// ── DOKTER ──
+function editDokter(d){
+    document.getElementById('md-title').innerHTML='Edit <em>Dokter</em>';
+    document.getElementById('form-dokter').action='../../backend/admin/simpan_dokter.php';
+    document.getElementById('md-id').value=d.id;
+    document.getElementById('md-nama').value=d.nama;
+    document.getElementById('md-str').value=d.no_str||'';
+    document.getElementById('md-spesialis').value=d.spesialisasi;
+    document.getElementById('md-telp').value=d.telepon||'';
+    document.getElementById('md-email').value=d.email||'';
+    document.getElementById('md-exp').value=d.pengalaman||0;
+    document.getElementById('md-rating').value=d.rating||5;
+    document.getElementById('md-status').value=d.status;
+    document.getElementById('md-bio').value=d.bio||'';
+    openModal('modal-dokter');
+}
+
+// ── JADWAL ──
+function editJadwal(j){
+    document.getElementById('mj-title').innerHTML='Edit <em>Jadwal</em>';
+    document.getElementById('form-jadwal').action='../../backend/admin/simpan_jadwal.php';
+    document.getElementById('mj-id').value=j.id;
+    document.getElementById('mj-dokter').value=j.dokter_id;
+    document.getElementById('mj-hari').value=j.hari;
+    document.getElementById('mj-mulai').value=j.jam_mulai;
+    document.getElementById('mj-selesai').value=j.jam_selesai;
+    document.getElementById('mj-max').value=j.max_pasien;
+    document.getElementById('mj-treatment').value=j.treatment_id||'';
+    document.getElementById('mj-status').value=j.status;
+    openModal('modal-jadwal');
+}
+
+// ── TREATMENT ──
+function editTreatment(t){
+    document.getElementById('mt-title').innerHTML='Edit <em>Treatment</em>';
+    document.getElementById('form-treatment').action='../../backend/admin/simpan_treatment.php';
+    document.getElementById('mt-id').value=t.id;
+    document.getElementById('mt-nama').value=t.nama;
+    document.getElementById('mt-kategori').value=t.kategori;
+    document.getElementById('mt-urutan').value=t.urutan;
+    document.getElementById('mt-gambar').value=t.gambar_url||'';
+    document.getElementById('mt-link').value=t.link_halaman||'';
+    document.getElementById('mt-desc').value=t.deskripsi||'';
+    document.getElementById('mt-desc-panjang').value=t.deskripsi_panjang||'';
+    document.getElementById('mt-status').value=t.status;
+    openModal('modal-treatment');
+}
+
+function lihatPesan(pk) {
+    document.getElementById('mp-detail-nama').textContent  = pk.nama  || '-';
+    document.getElementById('mp-detail-telp').textContent  = pk.telepon || '-';
+    document.getElementById('mp-detail-email').textContent = pk.email  || '-';
+    document.getElementById('mp-detail-pesan').textContent = pk.pesan  || '-';
+    document.getElementById('mp-pengirim-sub').textContent =
+        'Dikirim pada ' + new Date(pk.created_at.replace(' ','T')).toLocaleString('id-ID');
+ 
+    // Tombol "Tandai Baca" jika belum dibaca
+    const footer = document.getElementById('mp-detail-footer');
+    const existing = footer.querySelector('form.baca-form');
+    if (existing) existing.remove();
+ 
+    if (!pk.sudah_baca || pk.sudah_baca == 0) {
+        const f = document.createElement('form');
+        f.method = 'POST';
+        f.action = '../../backend/admin/kelola_pesan.php';
+        f.className = 'baca-form';
+        f.style.display = 'inline';
+        f.innerHTML = `
+            <input type="hidden" name="aksi" value="baca">
+            <input type="hidden" name="id"   value="${pk.id}">
+            <button type="submit" class="btn-save">✅ Tandai Sudah Dibaca</button>
+        `;
+        footer.insertBefore(f, footer.querySelector('button.btn-cancel'));
+    }
+ 
+    openModal('modal-pesan');
+}
+// Set form action untuk Tambah baru
+document.getElementById('form-pasien').action='../../backend/admin/simpan_pasien.php';
+document.getElementById('form-dokter').action='../../backend/admin/simpan_dokter.php';
+document.getElementById('form-jadwal').action='../../backend/admin/simpan_jadwal.php';
+document.getElementById('form-treatment').action='../../backend/admin/simpan_treatment.php';
+
+// ── CONFIRM DELETE ──
+function confirmDelete(file,id,nama){
+    document.getElementById('confirm-desc').textContent='Data '+nama+' akan dihapus permanen dan tidak bisa dikembalikan.';
+    document.getElementById('confirm-form').action='../../backend/admin/'+file;
+    document.getElementById('confirm-id').value=id;
+    document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirm-overlay').classList.remove('open');}
+
+// Toast dari URL param
+const up=new URLSearchParams(window.location.search);
+if(up.get('success')) showToast(decodeURIComponent(up.get('success')));
+if(up.get('error'))   showToast(decodeURIComponent(up.get('error')),false);

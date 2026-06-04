@@ -1,345 +1,498 @@
+<?php
+// Entry point
+?>
 <!DOCTYPE html>
-<html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Landing_Page</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-        <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
-        <link rel="stylesheet" href="asset/css/style.css">
-    </head>
-    <body>
-        <?php
-        $error = $_GET['error'] ?? '';
-        $success = $_GET['success'] ?? '';
-        ?>
-        <?php include 'backend/nav.php'; ?>
+<html class="scroll-smooth" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>GlowCare - Clinical Aesthetics</title>
+    <!-- Google Fonts: Inter & Playfair Display -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Theme Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#e1c198",
+                        "surface-tint": "#064e3b",
+                        "on-secondary-fixed-variant": "#1e4e4c",
+                        "on-background": "#1b1c19",
+                        "surface-dim": "#dbdad5",
+                        "on-primary-container": "#654d2d",
+                        "on-secondary-container": "#3e6c69",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#dde4e6",
+                        "on-tertiary-container": "#4b5355",
+                        "on-tertiary-fixed": "#161d1f",
+                        "tertiary-container": "#bfc6c8",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f2f1ec",
+                        "background": "#fbf9f4",
+                        "surface-bright": "#fbf9f4",
+                        "secondary": "#386663",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e4e2dd",
+                        "on-primary-fixed": "#291800",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#022c22",
+                        "primary-container": "#e0c097",
+                        "secondary-container": "#bbece8",
+                        "outline": "#7f756a",
+                        "inverse-surface": "#30312e",
+                        "secondary-fixed-dim": "#a0cfcc",
+                        "inverse-primary": "#e1c198",
+                        "outline-variant": "#a7f3d0",
+                        "surface-container": "#f0eee9",
+                        "primary-fixed": "#ffddb2",
+                        "surface": "#fbf9f4",
+                        "tertiary": "#586062",
+                        "surface-container-high": "#eae8e3",
+                        "primary": "#064e3b",
+                        "on-surface": "#1b1c19",
+                        "surface-container-low": "#f5f3ee",
+                        "surface-variant": "#e4e2dd",
+                        "on-secondary-fixed": "#00201f",
+                        "secondary-fixed": "#bbece8",
+                        "on-surface-variant": "#4e453c",
+                        "tertiary-fixed-dim": "#c1c8ca",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#41484a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "sm": "12px",
+                        "lg": "48px",
+                        "xl": "80px",
+                        "md": "24px",
+                        "margin-mobile": "16px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Playfair Display"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom warm ambient shadow as per style guide */
+        .shadow-ambient {
+            box-shadow: 0 8px 32px rgba(115, 90, 57, 0.06);
+        }
+        .shadow-ambient-hover {
+            box-shadow: 0 16px 48px rgba(115, 90, 57, 0.1);
+            transform: translateY(-2px);
+        }
+        /* Smooth transitions */
+        .transition-ambient {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased selection:bg-primary-container selection:text-on-primary-container font-body-md text-body-md">
+    <!-- Header -->
+    <header class="fixed w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out top-0" data-aos="fade-down">
+        <div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-base max-w-[1200px] mx-auto">
+            <!-- Brand Logo -->
+            <a class="font-headline-lg text-headline-lg text-primary inline-flex items-center" href="index.php">
+                <span class="material-symbols-outlined text-primary text-3xl mr-2 align-middle" style="font-variation-settings: 'FILL' 1;">spa</span>GlowCare
+            </a>
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-sm">
+                <a class="font-label-md text-label-md px-4 py-2 text-primary font-bold border-b-2 border-primary pb-1 hover:bg-primary-container/20 rounded-t-lg transition-all duration-300 ease-in-out" href="#home">Home</a>
+                <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="about.php">About Us</a>
+                <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="treatment.php">Services</a>
+                <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="spesialis.php">Doctors</a>
+                <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="kontak.php">Contact</a>
+            </nav>
+            <!-- Actions -->
+            <div class="flex items-center gap-sm">
+                <a href="pages/auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
+                <a href="pages/auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
+            </div>
+        </div>
+    </header>
 
-        <main>
-            <!-- ══ HERO ══ -->
-            <article id="beranda" class="hero">
-                <section class="hero-left" data-aos="fade-up" data-aos-duration="900">
-                    <p class="hero-eyebrow">Premium Beauty Clinic</p>
-                    <h1 class="hero-title">
-                        Enhance Your
-                        <em>Natural Beauty</em>
-                    </h1>
-                    <div class="hero-divider"><div class="divider-dot"></div></div>
-                    <p class="hero-text">
-                        Rasakan pengalaman perawatan kecantikan eksklusif yang dirancang untuk menonjolkan
-                        kecantikan alami Anda.
+    <!-- Main Content Canvas -->
+    <main class="pt-24 md:pt-32 pb-xl space-y-xl md:space-y-[120px]">
+        <!-- Hero Section -->
+        <section class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop" id="home">
+            <div class="relative rounded-2xl overflow-hidden min-h-[819px] md:min-h-[600px] flex items-center shadow-ambient bg-surface-container-lowest" data-aos="fade-up" data-aos-duration="1000">
+                <!-- Background Imagery -->
+                <div class="absolute inset-0 z-0">
+                    <img alt="Luxurious clinic interior" class="w-full h-full object-cover object-[70%_50%]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfpoHeV63Iv1D1ZlhEEFmWj4n4zzoqCjKJvQU474pO3D-8f25a3AQezpMahHj0DZsfni_YYVbaL4qWdGAlkIJTbkEHAJ2HLZYyLYbjTpejNPsnCAcCoIbFHSM4LpEyTw7HzlvCj1uJusjJX8g5g7Uh694G8SEFhAb22HPdlLrp6RvYi5fkuzAflI5XAypKz-BmRua_8d-7JDhTJ7vcAN34DQP2K3LwOT50_jiHQm_AAJn7I8lDQlGitWj553LF0q5f84k3CnhKaJ4">
+                    <div class="absolute inset-0 bg-gradient-to-r from-surface/95 via-surface/80 to-transparent md:w-2/3"></div>
+                </div>
+                <!-- Content Container -->
+                <div class="relative z-10 w-full md:w-1/2 p-lg md:p-xl ml-0 md:ml-gutter" data-aos="fade-right" data-aos-delay="200" data-aos-duration="1000">
+                    <span class="inline-block px-3 py-1 mb-sm rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm uppercase tracking-wider">Clinical Aesthetics</span>
+                    <h1 class="font-display-lg text-display-lg text-on-background mb-md">Pancarkan Pesona Kulit Sehat Alami.</h1>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant mb-lg max-w-md">Klinik dermatologi profesional dengan perawatan eksklusif untuk kulit impian Anda.</p>
+                    <div class="flex flex-row items-center gap-md">
+                        <a href="jadwal.php" class="font-label-md text-label-md bg-primary text-on-primary px-8 py-3 hover:bg-on-primary-fixed-variant transition-colors shadow-sm flex items-center justify-center gap-xs rounded-full">
+                            <span>Book Appointment</span>
+                        </a>
+                        <a href="treatment.php" class="font-label-md text-label-md border-2 border-secondary text-secondary px-8 py-3 hover:bg-secondary-container hover:text-on-secondary-container transition-colors flex items-center justify-center rounded-full">
+                            Explore Services
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop" id="about">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+                <div class="md:col-span-5 order-2 md:order-1 relative rounded-2xl overflow-hidden shadow-ambient h-[400px] md:h-[700px]" data-aos="fade-right" data-aos-duration="1000">
+                    <img alt="Dermatologist examining skin" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGm1ofEjZoDRttOV-P3hbmbBj3RUu2IpRT7K4yFxsgT3UIap-bjfh5jh2TOGuxat2CQOGXpfx9XusLqqL8JdlkfjIhh3aUd_QfybLcfCwbVuBvpEP2sDlEuVgBz-ZlftJYJe9G9lHFkGxq98YRqDovj0ZdIQ3WtdzLq42aGkUEElwJoN0wwAstQ1d8mB5bKi7m-LrNtr9tz67909tArV5RTeHh7xp8L7XParRGjdc3J5Et6-5B0x6vP5zWUFuzq4X4dh8tebTH0yQ">
+                </div>
+                <div class="md:col-span-6 md:col-start-7 order-1 md:order-2 space-y-md" data-aos="fade-left" data-aos-duration="1000">
+                    <h2 class="font-headline-lg text-headline-lg text-primary">Tentang GlowCare</h2>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant">
+                        Visi kami adalah menjadikan setiap individu merasa percaya diri dengan kulit sehat yang natural. Kami memadukan standar medis tertinggi dengan sentuhan perawatan personal.
                     </p>
-                    <div class="hero-buttons">
-                        <a href="#jadwal" class="btn-primary">Book Appointment</a>
-                        <a href="#treatment" class="btn-secondary">Explore Services</a>
-                    </div>
-                </section>
-
-                <section class="hero-right">
-                    <img src="asset/img/beauty2.png" alt="Beauty"/>
-                </section>
-
-                <section class="hero-stats-bar">
-                    <div class="stat-item" data-aos="fade-up" data-aos-delay="0">
-                        <div class="stat-num">5.000+</div><div class="stat-label">Happy Clients</div>
-                    </div>
-                    <div class="stat-item" data-aos="fade-up" data-aos-delay="100">
-                        <div class="stat-num">15+</div><div class="stat-label">Treatments</div>
-                    </div>
-                    <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
-                        <div class="stat-num">8+</div><div class="stat-label">Specialists</div>
-                    </div>
-                    <div class="stat-item" data-aos="fade-up" data-aos-delay="300">
-                        <div class="stat-num">6 Thn</div><div class="stat-label">Pengalaman</div>
-                    </div>
-                </section>
-            </article>
-
-            <!-- Tentang -->
-            <section id="tentang">
-                <div class="tentang-wrapper">
-                    <div class="tentang-kiri" data-aos="fade-right" data-aos-duration="900">
-                        <img src="asset/img/spa.jpg" alt="GlowCare Clinic" class="tentang-img">
-                    </div>
-                    <div class="tentang-kanan" data-aos="fade-left" data-aos-duration="900" data-aos-delay="150">
-                        <h2 class="tentang-judul">Tentang <em>Kami</em></h2>
-                        <p class="tentang-desc">Kami adalah klinik kecantikan premium yang berdedikasi untuk memberikan perawatan terbaik. Dengan teknologi modern dan tenaga ahli berpengalaman, kami hadir untuk menonjolkan kecantikan alami Anda.</p>
-                        <p class="tentang-approach">Our Approach</p>
-                        <ul class="tentang-list">
-                            <li>Perawatan personal yang disesuaikan dengan kebutuhan kulit Anda</li>
-                            <li>Teknologi terkini dengan hasil yang terbukti klinis</li>
-                            <li>Tim dokter dan estetisian bersertifikat internasional</li>
-                        </ul>
-                        <a href="#treatment" class="btn-primary">Meet Our Specialists</a>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Services -->
-            <section id="services">
-                <h2 class="section-header" data-aos="fade-up">Pilihan <em>Services</em></h2>
-                <p class="section-subheader" data-aos="fade-up" data-aos-delay="100">Perawatan profesional untuk setiap kebutuhan kulit, ditangani oleh tenaga ahli bersertifikat.</p>
-
-                <div class="services-grid">
-
-                    <!-- Facelift -->
-                    <div class="service-card" data-aos="fade-up" data-aos-delay="0">
-                        <div class="service-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=700&auto=format&fit=crop&q=80" alt="Facelift Procedures" class="service-img"/>
-                            <div class="service-img-overlay"></div>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md">
+                        Keunggulan Layanan Kami:
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md pt-sm">
+                        <!-- Advantage 1 -->
+                        <div class="flex flex-col items-start p-md bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 transition-ambient hover:shadow-ambient-hover" data-aos="fade-up" data-aos-delay="100">
+                            <div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined text-secondary" style="font-size: 28px;">medical_services</span>
+                            </div>
+                            <div class="space-y-xs">
+                                <h4 class="font-headline-md text-label-md text-on-background">Dokter Spesialis Berpengalaman</h4>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Ditangani langsung oleh ahlinya.</p>
+                            </div>
                         </div>
-                        <div class="service-body">
-                            <span class="service-tag">Surgical</span>
-                            <h3 class="service-name">Facelift Procedures</h3>
-                            <p class="service-desc">Teknik bedah canggih untuk memulihkan kontur wajah yang tampak muda.</p>
-                            <a href="pages/treatment/facelift.php" class="service-link">Learn more <span class="service-link-arrow">→</span></a>
+                        <!-- Advantage 2 -->
+                        <div class="flex flex-col items-start p-md bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 transition-ambient hover:shadow-ambient-hover" data-aos="fade-up" data-aos-delay="200">
+                            <div class="w-12 h-12 rounded-full bg-primary-container/30 flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined text-primary" style="font-size: 28px;">verified_user</span>
+                            </div>
+                            <div class="space-y-xs">
+                                <h4 class="font-headline-md text-label-md text-on-background">Bahan & Produk Bersertifikasi Aman</h4>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Standar BPOM dan klinis.</p>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Botox & Fillers -->
-                    <div class="service-card" data-aos="fade-up" data-aos-delay="100">
-                        <div class="service-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=700&auto=format&fit=crop&q=80" alt="Botox & Fillers" class="service-img"/>
-                            <div class="service-img-overlay"></div>
+                        <!-- Advantage 3 -->
+                        <div class="flex flex-col items-start p-md bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 transition-ambient hover:shadow-ambient-hover" data-aos="fade-up" data-aos-delay="300">
+                            <div class="w-12 h-12 rounded-full bg-primary-container/30 flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined text-primary" style="font-size: 28px;">biotech</span>
+                            </div>
+                            <div class="space-y-xs">
+                                <h4 class="font-headline-md text-label-md text-on-background">Teknologi Perawatan Modern</h4>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Inovasi terkini untuk hasil optimal.</p>
+                            </div>
                         </div>
-                        <div class="service-body">
-                            <span class="service-tag">Injectable</span>
-                            <h3 class="service-name">Botox & Fillers</h3>
-                            <p class="service-desc">Perawatan suntik yang disetujui FDA untuk menghaluskan kerutan wajah secara alami.</p>
-                            <a href="pages/treatment/botox.php" class="service-link">Learn more <span class="service-link-arrow">→</span></a>
-                        </div>
-                    </div>
-
-                    <!-- Laser Treatments -->
-                    <div class="service-card" data-aos="fade-up" data-aos-delay="200">
-                        <div class="service-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=700&auto=format&fit=crop&q=80" alt="Laser Treatments" class="service-img"/>
-                            <div class="service-img-overlay"></div>
-                        </div>
-                        <div class="service-body">
-                            <span class="service-tag">Technology</span>
-                            <h3 class="service-name">Laser Treatments</h3>
-                            <p class="service-desc">Teknologi laser untuk mengatasi pigmentasi, bekas jerawat, dan tanda penuaan.</p>
-                            <a href="pages/treatment/laser.php" class="service-link">Learn more <span class="service-link-arrow">→</span></a>
-                        </div>
-                    </div>
-
-                    <!-- Body Contouring -->
-                    <div class="service-card" data-aos="fade-up" data-aos-delay="300">
-                        <div class="service-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=700&auto=format&fit=crop&q=80" alt="Body Contouring" class="service-img"/>
-                            <div class="service-img-overlay"></div>
-                        </div>
-                        <div class="service-body">
-                            <span class="service-tag">Contouring</span>
-                            <h3 class="service-name">Body Contouring</h3>
-                            <p class="service-desc">Perawatan khusus untuk membentuk dan merampingkan tubuh dengan presisi.</p>
-                            <a href="pages/treatment/contouring.php" class="service-link">Learn more <span class="service-link-arrow">→</span></a>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- CTA -->
-                <div class="services-cta" data-aos="zoom-in" data-aos-delay="100">
-                    <h3 class="services-cta-title"><b>Siap untuk transformasi kecantikan Anda?</b></h3>
-                    <a href="#kontak" class="btn-primary">Book a Consultation Now</a>
-                </div>
-            </section>
-
-            <!-- Spesialis -->
-            <section id="spesialis">
-                <h2 class="section-header" data-aos="fade-up">Kenali Tim <em>Spesialis Kami</em></h2>
-                <p class="section-subheader" data-aos="fade-up" data-aos-delay="100">Dokter dan estetisian bersertifikat kami menggabungkan keahlian medis dengan sentuhan artistik</p>
-
-                <div class="spesialis-grid">
-
-                    <!-- Dr. 1 -->
-                    <div class="spesialis-card" data-aos="zoom-in" data-aos-delay="0">
-                        <div class="spesialis-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=600&q=80" alt="Dr. Anisa Putri" class="spesialis-img">
-                            <div class="spesialis-rating">★★★★★ 5.0</div>
-                            <div class="spesialis-quote">*</div>
-                        </div>
-                        <div class="spesialis-body">
-                            <h3 class="spesialis-nama">Dr. Anisa Putri</h3>
-                            <p class="spesialis-jabatan">Plastic Surgeon</p>
-                            <p class="spesialis-desc">Berpengalaman lebih dari 10 tahun dalam prosedur bedah wajah dan rekonstruksi estetika.</p>
-                            <div class="spesialis-tags">
-                                <span class="spesialis-tag">Facelift</span>
-                                <span class="spesialis-tag">Rhinoplasty</span>
-                                <span class="spesialis-tag">Blepharoplasty</span>
+                        <!-- Advantage 4 -->
+                        <div class="flex flex-col items-start p-md bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 transition-ambient hover:shadow-ambient-hover" data-aos="fade-up" data-aos-delay="400">
+                            <div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined text-secondary" style="font-size: 28px;">forum</span>
+                            </div>
+                            <div class="space-y-xs">
+                                <h4 class="font-headline-md text-label-md text-on-background">Konsultasi Pasca-Tindakan Gratis</h4>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">Layanan chat dukungan pasien.</p>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Dr. 2 -->
-                    <div class="spesialis-card" data-aos="zoom-in" data-aos-delay="150">
-                        <div class="spesialis-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80" alt="Dr. Marina Crystine" class="spesialis-img">
-                            <div class="spesialis-rating">★★★★★ 5.0</div>
-                            <div class="spesialis-quote">*</div>
-                        </div>
-                        <div class="spesialis-body">
-                            <h3 class="spesialis-nama">Dr. Marina Crystine</h3>
-                            <p class="spesialis-jabatan">Aesthetic Physician</p>
-                            <p class="spesialis-desc">Spesialis perawatan non-invasif dengan pendekatan personal untuk setiap pasien.</p>
-                            <div class="spesialis-tags">
-                                <span class="spesialis-tag">CoolSculpting</span>
-                                <span class="spesialis-tag">Ultherapy</span>
-                                <span class="spesialis-tag">Thread Lifts</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dr. 3 -->
-                    <div class="spesialis-card" data-aos="zoom-in" data-aos-delay="300">
-                        <div class="spesialis-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80" alt="Dr. Michael Chen" class="spesialis-img">
-                            <div class="spesialis-rating">★★★★★ 5.0</div>
-                            <div class="spesialis-quote">*</div>
-                        </div>
-                        <div class="spesialis-body">
-                            <h3 class="spesialis-nama">Dr. Michael Chen</h3>
-                            <p class="spesialis-jabatan">Dermatologist</p>
-                            <p class="spesialis-desc">Ahli dermatologi dengan keahlian khusus dalam perawatan kulit berbasis teknologi laser.</p>
-                            <div class="spesialis-tags">
-                                <span class="spesialis-tag">Laser Treatment</span>
-                                <span class="spesialis-tag">Botox</span>
-                                <span class="spesialis-tag">Fillers</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-
-            <!-- Kontak -->
-            <section id="kontak">
-                <h2 class="section-header" data-aos="fade-up">Hubungi <em>Kami</em></h2>
-                <div class="kontak-wrapper">
-
-                    <!-- Kiri: Info -->
-                    <div data-aos="fade-right" data-aos-duration="900">
-                        <p class="kontak-card-title">Informasi Klinik</p>
-                        <table class="kontak-table">
-                            <tr>
-                                <td class="kontak-td-icon">📍</td>
-                                <td class="kontak-td-label">Alamat</td>
-                                <td class="kontak-td-value">Jl. Kecantikan No. 12,<br>Mataram, NTB</td>
-                            </tr>
-                            <tr>
-                                <td class="kontak-td-icon">📞</td>
-                                <td class="kontak-td-label">Telepon</td>
-                                <td class="kontak-td-value">+62 812 3456 7890</td>
-                            </tr>
-                            <tr>
-                                <td class="kontak-td-icon">✉️</td>
-                                <td class="kontak-td-label">Email</td>
-                                <td class="kontak-td-value">hello@glowcareclinic.com</td>
-                            </tr>
-                            <tr>
-                                <td class="kontak-td-icon">🕐</td>
-                                <td class="kontak-td-label">Jam Buka</td>
-                                <td class="kontak-td-value">Sen-Sab: 09.00-20.00<br>Minggu: 10.00-17.00</td>
-                            </tr>
-                        </table>
-                        <img src="asset/img/Contact.png" alt="GlowCare Clinic" class="kontak-img">
-                    </div>
-                    <!-- Kanan: Form -->
-                    <div data-aos="fade-left" data-aos-duration="900" data-aos-delay="150">
-                        <?php if ($success): ?>
-                            <div style="padding:12px 18px;border-radius:8px;background:#e8f9f1;color:#2d7a55;border:1px solid #b6e8d0;font-size:13px;margin-bottom:16px">
-                                ✅ <?= htmlspecialchars($success) ?>
-                            </div>
-                        <?php elseif ($error): ?>
-                            <div style="padding:12px 18px;border-radius:8px;background:#fde8f2;color:#a33060;border:1px solid #f2b8d4;font-size:13px;margin-bottom:16px">
-                                ❌ <?= htmlspecialchars($error) ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <p class="kontak-card-title">Kirim Pesan</p>
-                        <form class="kontak-form" method="POST" action="backend/kirim_pesan.php">
-                            <div class="form-group">
-                                <label class="form-label">Nama Lengkap</label>
-                                <input type="text" class="form-input" name="nama"
-                                    placeholder="Nama kamu" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Telepon</label>
-                                <input type="tel" class="form-input" name="telp"
-                                    placeholder="+62">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-input" name="email"
-                                    placeholder="email@contoh.com">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Pesan</label>
-                                <textarea class="form-textarea" name="pesan"
-                                        placeholder="Ceritakan keluhan atau pertanyaan kamu..."
-                                        required></textarea>
-                            </div>
-                            <button type="submit" class="btn">Kirim Pesan</button>
-                        </form>
-                    </div>
-
-                </div>
-            </section>
-        </main>
-
-        <!-- FOOTER -->
-        <footer>
-            <div class="footer-top">
-                <div class="footer-brand" data-aos="fade-up" data-aos-delay="0">
-                    <div class="logo">GlowCare Clinic</div>
-                    <p class="footer-desc">Klinik kecantikan premium yang berdedikasi untuk menonjolkan kecantikan alami Anda dengan perawatan terkini dan tim ahli berpengalaman.</p>
-                    <div class="footer-socials">
-                        <a href="#" class="footer-social">f</a>
-                        <a href="#" class="footer-social">in</a>
-                        <a href="#" class="footer-social">ig</a>
-                        <a href="#" class="footer-social">yt</a>
-                    </div>
-                </div>
-                <div class="footer-links" data-aos="fade-up" data-aos-delay="100">
-                    <h4 class="footer-heading">Quick Links</h4>
-                    <ul>
-                        <li><a href="#beranda">Beranda</a></li>
-                        <li><a href="#tentang">Tentang Kami</a></li>
-                        <li><a href="#services">Treatment</a></li>
-                        <li><a href="#spesialis">Spesialis</a></li>
-                        <li><a href="jadwal.php">Jadwal</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links" data-aos="fade-up" data-aos-delay="200">
-                    <h4 class="footer-heading">Kontak</h4>
-                    <ul>
-                        <li>📍 Jl. Kecantikan No. 12, Mataram</li>
-                        <li>📞 +62 812 3456 7890</li>
-                        <li>✉️ hello@glowcareclinic.com</li>
-                        <li>🕐 Sen-Sab: 09.00-20.00</li>
-                    </ul>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p class="footer-copy">© 2025 GlowCare Clinic. All rights reserved.</p>
-                <div class="footer-legal">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
+        </section>
+
+        <!-- Services Section -->
+        <section class="bg-surface-container-low py-xl" id="services">
+            <div class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop">
+                <div class="text-center mb-lg" data-aos="fade-up">
+                    <h2 class="font-headline-lg text-headline-lg text-primary mb-xs">Layanan Kami</h2>
+                    <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">Solusi komprehensif untuk berbagai kebutuhan kulit Anda.</p>
+                </div>
+                <div class="space-y-xl md:space-y-[120px]">
+                    <!-- Service 1: Acne Care -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center group">
+                        <div class="md:col-span-7 relative overflow-hidden rounded-2xl shadow-ambient transition-ambient group-hover:shadow-ambient-hover" data-aos="fade-right">
+                            <img alt="Acne Care Treatment" class="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvrhAThQxDTgZrCDVovPmwdRJKolhluPDE91UUWSi2Oqe5DXfHZDGqvzC37MeK0nPrAUCXL8AsPAnaaLMf82DtVsq0z1LqRd8dfi8QkXxJXPyXi-W-Jf23o6mH65P430faGYNYfZ22YnMR6pbArgkgqaRXvomeMiuw3PjzfnHaGF56rQYy5PuU85j-jEEuoox5GaLYv5EAd9VQaL3QAUyJ5iRswc_Bpsz6ufFZksAVA5A1dsj43Kqu_Flh2bE7EfJpsyRwy3wdpb0">
+                            <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        </div>
+                        <div class="md:col-span-5 md:pl-lg space-y-md" data-aos="fade-left">
+                            <span class="inline-block px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm uppercase tracking-wider">Acne & Pores</span>
+                            <h3 class="font-headline-lg text-display-lg text-on-background">Acne Care</h3>
+                            <p class="font-body-lg text-body-lg text-on-surface-variant">Perawatan intensif untuk mengatasi jerawat membandel dan komedo, menenangkan peradangan, dan mencegah bekas luka dengan teknologi terkini.</p>
+                            <a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="treatment.php">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
+                        </div>
+                    </div>
+                    <!-- Service 2: Brightening Therapy -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center group">
+                        <div class="md:col-span-5 md:pr-lg order-2 md:order-1 space-y-md" data-aos="fade-right">
+                            <span class="inline-block px-3 py-1 rounded-full bg-primary-container/30 text-on-primary-container font-label-sm text-label-sm uppercase tracking-wider">Pigmentation</span>
+                            <h3 class="font-headline-lg text-display-lg text-on-background">Brightening Therapy</h3>
+                            <p class="font-body-lg text-body-lg text-on-surface-variant">Solusi efektif untuk mencerahkan kulit kusam, memudarkan flek hitam, dan meratakan warna kulit untuk kilau alami yang sehat.</p>
+                            <a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="treatment.php">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
+                        </div>
+                        <div class="md:col-span-7 order-1 md:order-2 relative overflow-hidden rounded-2xl shadow-ambient transition-ambient group-hover:shadow-ambient-hover" data-aos="fade-left">
+                            <img alt="Brightening Therapy" class="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoqh0qnJ_ZtymedJ_mDDK4ofHRObnvt1AXIV5D6j9_JwwOjN1qRI2AwedAaOnnK91ZZ7q8GOeyf4sbgechDVBpIKF_G4sCXPTd_cHCGOnwdpBmta0ZTofnzX6Mk7PNM8jhzUkWz2FprCWO_kHHUvnbOGFTv1f_IMyL3IFRQzZqxyujQivTi47nUsMMsD3r_iP3O3otaX3NVkdskXaUldXM5lTIgxf0p-bNCpiQ8k3wORggrq47zVrtF_7E3b39OeCjwrxnVzurIjQ">
+                            <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        </div>
+                    </div>
+                    <!-- Service 3: Anti-Aging -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center group">
+                        <div class="md:col-span-7 relative overflow-hidden rounded-2xl shadow-ambient transition-ambient group-hover:shadow-ambient-hover" data-aos="fade-right">
+                            <img alt="Anti-Aging Treatment" class="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHIyaZtHgB9-8Ma1wRI2qdpQ_mlBW4TikgxWo1v7SyJH2mL2ITRUYHmKl0LLqJl2wCu4IntY92a6WhnHFqhBUGeoCTQ7RcOzho9RhuIgFpZ4eElJgMh8Wx-bL67tXt95vgfRxQL530ZJ8LsJTP6H2Qy6QnjVGyIlylVcY2V1Gq2sJlZ-qzmoAG8vSndsSQMGwLMn89aX9JGN5PmIEddRGB8_KZCnp-xniPpcWoYaue8yID0bsmTa2Zw3h3pZQso8YKNrm53JwGW54">
+                            <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        </div>
+                        <div class="md:col-span-5 md:pl-lg space-y-md" data-aos="fade-left">
+                            <span class="inline-block px-3 py-1 rounded-full bg-tertiary-container/50 text-on-tertiary-container font-label-sm text-label-sm uppercase tracking-wider">Rejuvenation</span>
+                            <h3 class="font-headline-lg text-display-lg text-on-background">Anti-Aging</h3>
+                            <p class="font-body-lg text-body-lg text-on-surface-variant">Terapi peremajaan kulit premium untuk mengurangi garis halus, mengencangkan kerutan, dan mengembalikan elastisitas kulit muda Anda.</p>
+                            <a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="treatment.php">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </footer>
+        </section>
 
-        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-        <script>
-            AOS.init({
-                duration: 800,
-                easing: 'ease-out-cubic',
-                once: false,
-                offset: 80
-            });
-        </script>
-        <script src="asset/js/script.js"></script>
-    </body>
+        <!-- Doctors Section -->
+        <section class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop" id="doctors">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-lg border-b border-outline-variant/30 pb-sm" data-aos="fade-up">
+                <div>
+                    <h2 class="font-headline-lg text-headline-lg text-primary mb-xs">Dokter Spesialis Kami</h2>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Tim medis profesional yang siap memberikan perawatan terbaik.</p>
+                </div>
+                <a class="hidden md:flex font-label-md text-label-md text-secondary items-center gap-xs hover:underline mt-sm" href="spesialis.php">Lihat Semua <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-gutter">
+                <!-- Profile Card -->
+                <div class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group p-md flex flex-col" data-aos="zoom-in" data-aos-delay="0">
+                    <div class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative">
+                        <img alt="dr. Amanda" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida/AP1WRLtqYVrVZRcEUjyHZiPim3o896Qkzddhvj8yeDnf1E3hynvZ6UE0alLeRJEf3aSSS3jB5Gf7-p_eYNrwciSAF871GY_FaMIduWwqi0pHrY9iXRyIzfo052lg-do4qjvV55p5xbw0_DTy1DULZBUSgFPrqdYaBLI1SeiyrGUQA5qLAK7K8YVVpkUwnRshw-yUop4w0awArjDsNws0eyevNaezYypEJ8yK0SCFO0vXoZkUzGWbDsEjclTmkCk">
+                    </div>
+                    <h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Amanda, Sp.DVE</h3>
+                    <p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Plastic Surgeon</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mb-6 leading-relaxed text-left">Berpengalaman lebih dari 10 tahun dalam prosedur bedah wajah dan rekonstruksi estetika.</p>
+                    <div class="flex flex-wrap gap-2 mt-auto justify-center">
+                        <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Facelift</span>
+                        <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Rhinoplasty</span>
+                        <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Blepharoplasty</span>
+                    </div>
+                </div>
+                <!-- Profile Card -->
+                <div class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group p-md flex flex-col" data-aos="zoom-in" data-aos-delay="150">
+                    <div class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative">
+                        <img alt="Dr. Chen" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida/AP1WRLvQSg-zHxNVIGXcrsTCYE7xcL-jJMZUPLOyDE9HSCixhp-PGDawwCkdlS98gjbVnDamKa91WKwj9sPyC6Fd7J0sLjjA3rFcgIlrDse5njvnrnnbuj7lvvwoGSoFFEkBhExFpO-I5ZI4IO249Kz2SxR4GOGOLhXeeZxIzf-XD-eYEkjfJ7j9eq6ICdrya2JeGTg1GyteHKqDDxcbhMYgsrQCC3HMMmlo9EKS4_cX6lShP5XOgWM6dfUu17w">
+                    </div>
+                    <h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Marcus Chen, Sp.KK</h3>
+                    <p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Aesthetic Physician</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mb-6 leading-relaxed text-left">Spesialis perawatan non-invasif dengan pendekatan personal untuk setiap pasien.</p>
+                    <div class="flex flex-wrap gap-2 mt-auto justify-center">
+                        <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">CoolSculpting</span>
+                        <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Ultherapy</span>
+                        <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Thread Lifts</span>
+                    </div>
+                </div>
+                <!-- Profile Card -->
+                <div class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group sm:hidden md:block p-md flex flex-col" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative">
+                        <img alt="Sarah Jenkins" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida/AP1WRLt57bQyEadvo7J8CgYJMLJfprE3nRtv4dRHrv8NycS1ByPFfDjLlqOLyXGMf2Wzd0rx6r8majECDbgPvDV4wwQ6WmevOeHr47xCvU5RaLAbfjUwpvfyo5h0belAA7IhbvsZt_fuz3KKHZWZLdPjVvcRFDpRvVIhIkU8oQt99rIrA8FqZMBtJIPP5Gc4ppmqs5aOsAIW2_iy3C9bPKDkhgGFjlMItWUm9-HQH3F44VNZ09cslK0KOqfxcSE">
+                    </div>
+                    <h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Sarah Jenkins, Dipl. AAAM</h3>
+                    <p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Dermatologist</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mb-6 leading-relaxed text-left">Ahli dermatologi dengan keahlian khusus dalam perawatan kulit berbasis teknologi laser.</p>
+                    <div class="flex flex-wrap gap-2 mt-auto justify-center">
+                        <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Laser Treatment</span>
+                        <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Botox</span>
+                        <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Fillers</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center md:hidden mt-md" data-aos="fade-up">
+                <a class="inline-flex font-label-md text-label-md text-secondary items-center gap-xs hover:underline" href="spesialis.php">Lihat Semua Spesialis <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-xl" id="testimonials">
+            <div class="text-center mb-lg" data-aos="fade-up">
+                <h2 class="font-headline-lg text-headline-lg text-primary mb-xs">Cerita Pasien Kami</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">Pengalaman nyata dari mereka yang telah mempercayakan perawatan kulitnya kepada GlowCare.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-xl">
+                <!-- Testimonials Carousel -->
+                <div class="space-y-md relative overflow-hidden" data-aos="fade-right">
+                    <div class="flex gap-md overflow-x-auto snap-x snap-mandatory pb-4 hide-scrollbar">
+                        <!-- Testimonial Card 1 -->
+                        <div class="bg-surface-container-lowest p-md rounded-2xl shadow-ambient relative min-w-full md:min-w-[80%] snap-center">
+                            <span class="material-symbols-outlined absolute top-4 right-4 text-primary-container opacity-50" style="font-size: 48px;">format_quote</span>
+                            <div class="flex items-center gap-sm mb-sm">
+                                <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center font-headline-md text-primary">E</div>
+                                <div>
+                                    <div class="font-label-md text-label-md text-on-background">Elena R.</div>
+                                    <div class="font-label-sm text-label-sm text-on-surface-variant">Pasien Brightening</div>
+                                </div>
+                            </div>
+                            <p class="font-body-md text-body-md text-on-surface-variant italic relative z-10">
+                                "Perawatan di GlowCare sangat luar biasa. Dokter Amanda sangat detail menjelaskan progres perawatan. Flek hitam saya memudar signifikan dalam 2 bulan."
+                            </p>
+                        </div>
+                        <!-- Testimonial Card 2 -->
+                        <div class="bg-surface-container-lowest p-md rounded-2xl shadow-ambient relative min-w-full md:min-w-[80%] snap-center">
+                            <span class="material-symbols-outlined absolute top-4 right-4 text-primary-container opacity-50" style="font-size: 48px;">format_quote</span>
+                            <div class="flex items-center gap-sm mb-sm">
+                                <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center font-headline-md text-secondary">D</div>
+                                <div>
+                                    <div class="font-label-md text-label-md text-on-background">Dina K.</div>
+                                    <div class="font-label-sm text-label-sm text-on-surface-variant">Pasien Acne Care</div>
+                                </div>
+                            </div>
+                            <p class="font-body-md text-body-md text-on-surface-variant italic relative z-10">
+                                "Setelah berjuang dengan jerawat bertahun-tahun, program Acne Care di sini benar-benar menyelamatkan kulit saya. Sangat merekomendasikan!"
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Carousel Controls -->
+                    <div class="flex justify-center gap-2 mt-sm">
+                        <button class="w-3 h-3 rounded-full bg-primary"></button>
+                        <button class="w-3 h-3 rounded-full bg-outline-variant"></button>
+                        <button class="w-3 h-3 rounded-full bg-outline-variant"></button>
+                    </div>
+                </div>
+                <!-- Before-After Gallery -->
+                <div class="bg-surface-container-low rounded-2xl p-md shadow-ambient" data-aos="fade-left">
+                    <h3 class="font-headline-md text-headline-md text-primary mb-md text-center">Progres Perawatan</h3>
+                    <div class="grid grid-cols-2 gap-sm">
+                        <div class="rounded-xl overflow-hidden shadow-sm relative">
+                            <img alt="Before Treatment" class="w-full h-32 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA54gz8EO7o4nazftgRWh1TBuJFeimh6QSbSIs3hrSYxK_-AJkJWq4Tg7QtXibTMk2mVhgkA5I2kCyz1dSoOtpF7g7k9uNhzXFtRcWzuaFOtdxOx9-qpxVoqliAyMwT_j6ranOJf-gItnlyg7dmYdt0qG0DOcU8FyIW5RPAHdh78EgpSN7blQ2yVZaGHUpDht4bIIB0L5rqCJtcLoKboCvzE6ciUZSAGPJ0j9LM-ZFI5KyoT4ygV9pEFB7hbl7rwWsw_dr-mLuOfL4">
+                            <span class="absolute bottom-2 left-2 bg-background/80 text-on-background px-2 py-0.5 text-xs rounded">Sebelum</span>
+                        </div>
+                        <div class="rounded-xl overflow-hidden shadow-sm relative">
+                            <img alt="After Treatment" class="w-full h-32 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAu67DDOlaWkjvufMPzUL0qo-huhaLtLqeGkwMwksBKAYfngVmP9FYHaSPVbt8wfo1AsFzJnkDS-BA7ipMh0B7ympSaVFeFWQHv4efFEixE5kDVGElmcXeXTLg4YHb-EX-nBJCfl5xCnQyWvRqAS5C9jvhOcsKAL3asSf0GggblAcHJEPWUYJx-P1nB4pXDiRiAMkr0Mkn3MaUX5cj2FzU8C6p6MXfNpyM6knOp2uGgEGVJYX8dDSIo6ELviDuBlO-jMJXRmeRI-7U">
+                            <span class="absolute bottom-2 right-2 bg-primary/90 text-on-primary px-2 py-0.5 text-xs rounded">Sesudah</span>
+                        </div>
+                    </div>
+                    <p class="text-center text-xs text-on-surface-variant mt-4">*Hasil dapat bervariasi pada setiap individu.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-highest w-full py-lg px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-4 items-start gap-lg bottom mt-xl" id="contact" data-aos="fade-up">
+        <!-- Branding & Social -->
+        <div class="col-span-1 md:col-span-1 space-y-md">
+            <a class="font-headline-lg text-headline-lg text-primary" href="#">GlowCare</a>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">Klinik kecantikan tepercaya untuk kulit sehat alami Anda.</p>
+            <div class="flex gap-sm">
+                <a class="text-primary hover:text-on-primary-fixed-variant transition-colors" href="#" aria-label="Instagram">
+                    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+                </a>
+                <a class="text-primary hover:text-on-primary-fixed-variant transition-colors" href="#" aria-label="YouTube">
+                    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path></svg>
+                </a>
+                <a class="text-primary hover:text-on-primary-fixed-variant transition-colors" href="#" aria-label="Facebook">
+                    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"></path></svg>
+                </a>
+            </div>
+        </div>
+        <!-- Contact Info -->
+        <div class="col-span-1 md:col-span-1 space-y-sm">
+            <h4 class="font-label-md text-label-md text-on-background mb-xs">Hubungi Kami</h4>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary text-sm">call</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant">+62 811-1234-5678</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary text-sm">mail</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant">hello@glowcare.clinic</span>
+            </div>
+            <div class="flex items-start gap-2 mt-2">
+                <span class="material-symbols-outlined text-secondary text-sm mt-1">schedule</span>
+                <div>
+                    <div class="font-body-sm text-body-sm text-on-surface-variant font-bold">Jam Operasional:</div>
+                    <div class="font-body-sm text-body-sm text-on-surface-variant">Senin - Sabtu: 09.00 - 20.00</div>
+                </div>
+            </div>
+        </div>
+        <!-- Links -->
+        <div class="col-span-1 md:col-span-1 space-y-sm flex flex-col">
+            <h4 class="font-label-md text-label-md text-on-background mb-xs">Tautan Cepat</h4>
+            <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#home">Beranda</a>
+            <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="treatment.php">Layanan</a>
+            <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="spesialis.php">Dokter</a>
+            <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="kontak.php">Contact</a>
+        </div>
+        <!-- Map Placeholder -->
+        <div class="col-span-1 md:col-span-1">
+            <h4 class="font-label-md text-label-md text-on-background mb-xs">Lokasi Kami</h4>
+            <div class="w-full h-32 rounded-lg bg-surface-container-high overflow-hidden relative">
+                <iframe allowfullscreen="" class="w-full h-full border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63123.123456789!2d116.1165!3d-8.5833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dcdbf406173076b%3A0x4030bf45e4b27a0!2sMataram%2C%20Kota%20Mataram%2C%20Nusa%20Tenggara%20Bar.!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"></iframe>
+            </div>
+        </div>
+        <!-- Copyright Line -->
+        <div class="col-span-1 md:col-span-4 pt-md border-t border-outline-variant/30 text-center mt-md">
+            <span class="font-body-sm text-body-sm text-on-surface-variant">© 2026 GlowCare Clinical Aesthetics. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 50
+        });
+    </script>
+</body>
 </html>

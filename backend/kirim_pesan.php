@@ -1,6 +1,4 @@
 <?php
-// backend/kirim_pesan.php
-// Handler form kontak dari landing page (index.php)
 
 $conn = require 'koneksi.php';
 

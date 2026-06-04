@@ -5,20 +5,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Jadwal Dokter - GlowCare Clinic</title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-        <link rel="stylesheet" href="asset/css/style.css">
+        <link rel="stylesheet" href="asset/css/style.css?v=4">
         <style>
             body {
                 min-height: 100vh;
-                background: #f9e7ef;
-                padding: 48px;
+                background: #e6f0f0;
+                padding-top: 100px;
             }
         </style>
     </head>
     <body>
-        <div class="page-top">
-            <div class="logo">GlowCare Clinic</div>
-            <a href="index.php" class="back-home">Back to Home</a>
-        </div>
+        <?php include 'backend/nav.php'; ?>
         <main>
             <h1 class="page-title">Jadwal <em>Dokter & Spesialis</em></h1>
             <p class="page-sub">Jadwal praktik dokter minggu ini.</p>

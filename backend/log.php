@@ -40,7 +40,7 @@ if ($result && mysqli_num_rows($result) === 1) {
 
         switch ($role) {
             case 'dokter':
-                header('Location: ../pages/dokter/dashboard.php');
+                header('Location: ../pages/dokter/dashboardDokter.php');
                 break;
             case 'admin':
                 header('Location: ../pages/admin/dashboard.php');

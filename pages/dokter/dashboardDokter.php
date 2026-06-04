@@ -190,7 +190,7 @@ $tanggalHariIni = formatTanggal($today);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GlowCare — Dashboard Dokter</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="../../asset/css/dokter.css">
+    <link rel="stylesheet" href="../../asset/css/dokter.css?v=4">
 </head>
 <body>
 
@@ -215,32 +215,32 @@ $tanggalHariIni = formatTanggal($today);
     <nav class="sidebar-nav">
         <div class="nav-section-label">Menu Utama</div>
         <a class="nav-item active" onclick="showPanel('overview', this)">
-            <span class="nav-icon"></span> Overview
+            Overview
         </a>
         <a class="nav-item" onclick="showPanel('jadwal', this)">
-            <span class="nav-icon"></span> Jadwal Praktik
+            Jadwal Praktik
         </a>
 
         <div class="nav-section-label" style="margin-top:8px">Pasien</div>
         <a class="nav-item" onclick="showPanel('daftar-pasien', this)">
-            <span class="nav-icon">👥</span> Daftar Pasien
+            Daftar Pasien
             <?php if (count($daftarPasien) > 0): ?>
                 <span class="nav-badge"><?= count($daftarPasien) ?></span>
             <?php endif; ?>
         </a>
         <a class="nav-item" onclick="showPanel('rekam-medis', this)">
-            <span class="nav-icon"></span> Rekam Medis
+            Rekam Medis
         </a>
 
         <div class="nav-section-label" style="margin-top:8px">Akun</div>
         <a class="nav-item" onclick="showPanel('profil', this)">
-            <span class="nav-icon"></span> Profil Saya
+            Profil Saya
         </a>
     </nav>
 
     <div class="sidebar-footer">
         <a class="logout-btn" href="../../backend/logout.php">
-            <span>↩</span> Keluar
+            Keluar
         </a>
     </div>
 </aside>
@@ -256,7 +256,10 @@ $tanggalHariIni = formatTanggal($today);
         </div>
         <div class="topbar-right">
             <div class="topbar-date"><?= $hariIni ?>, <?= $tanggalHariIni ?></div>
-            <div class="notif-btn"><div class="notif-dot"></div></div>
+            <button style="border: 1px solid #a7f3d0; padding: 4px 10px; background: transparent; color: #7a7571; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; position: relative;">
+                Notifikasi
+                <div class="notif-dot" style="top: 0; right: 0; position: absolute; width: 6px; height: 6px; background: #064e3b; border-radius: 50%;"></div>
+            </button>
         </div>
     </div>
 
@@ -313,7 +316,7 @@ $tanggalHariIni = formatTanggal($today);
                     </div>
                     <div class="schedule-list">
                         <?php if (empty($jadwalHariIni)): ?>
-                            <div style="padding:24px; text-align:center; color:#b89098; font-size:13px;">
+                            <div style="padding:24px; text-align:center; color:#7a7571; font-size:13px;">
                                 Tidak ada jadwal hari ini.
                             </div>
                         <?php else: ?>
@@ -349,10 +352,10 @@ $tanggalHariIni = formatTanggal($today);
                                     <?= inisial($pasienBerikutnya['nama_pasien']) ?>
                                 </div>
                                 <div>
-                                    <div style="font-family:'Playfair Display',serif; font-size:16px; color:#3d1a22">
+                                    <div style="font-family:'Playfair Display',serif; font-size:16px; color:#2D3436">
                                         <?= htmlspecialchars($pasienBerikutnya['nama_pasien']) ?>
                                     </div>
-                                    <div style="font-size:11px; color:#b89098">
+                                    <div style="font-size:11px; color:#7a7571">
                                         <?= htmlspecialchars($pasienBerikutnya['usia'] ?? '-') ?> Tahun
                                         <?= !empty($pasienBerikutnya['jenis_kelamin']) ? '· ' . htmlspecialchars($pasienBerikutnya['jenis_kelamin']) : '' ?>
                                     </div>
@@ -362,8 +365,8 @@ $tanggalHariIni = formatTanggal($today);
                                 </span>
                             </div>
                             <?php if (!empty($pasienBerikutnya['keluhan'])): ?>
-                            <div style="background:#fdf0f5; border-radius:8px; padding:14px; font-size:12px; color:#7a4d5c; line-height:1.7; font-weight:300">
-                                <strong style="color:#3d1a22; font-size:11px; letter-spacing:1px; text-transform:uppercase">Keluhan:</strong><br>
+                            <div style="background:#F9F7F2; border-radius:8px; padding:14px; font-size:12px; color:#585552; line-height:1.7; font-weight:300">
+                                <strong style="color:#2D3436; font-size:11px; letter-spacing:1px; text-transform:uppercase">Keluhan:</strong><br>
                                 <?= htmlspecialchars($pasienBerikutnya['keluhan']) ?>
                             </div>
                             <?php endif; ?>
@@ -378,7 +381,7 @@ $tanggalHariIni = formatTanggal($today);
                                 </button>
                             </div>
                             <?php else: ?>
-                                <div style="padding:8px 0; color:#b89098; font-size:13px;">Tidak ada pasien berikutnya.</div>
+                                <div style="padding:8px 0; color:#7a7571; font-size:13px;">Tidak ada pasien berikutnya.</div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -388,28 +391,28 @@ $tanggalHariIni = formatTanggal($today);
                         <div class="card-header"><div class="card-title">Statistik Bulan Ini</div></div>
                         <div style="padding:0 24px 20px; display:flex; flex-direction:column; gap:14px">
                             <div style="display:flex; justify-content:space-between; align-items:center">
-                                <span style="font-size:12px; color:#7a4d5c">Total Pasien Ditangani</span>
-                                <span style="font-family:'Playfair Display',serif; font-size:18px; color:#c55085">
+                                <span style="font-size:12px; color:#585552">Total Pasien Ditangani</span>
+                                <span style="font-family:'Playfair Display',serif; font-size:18px; color:#064e3b">
                                     <?= (int)$statBulan['total_rm'] ?>
                                 </span>
                             </div>
-                            <div style="height:1px; background:#fdf0f5"></div>
+                            <div style="height:1px; background:#F9F7F2"></div>
                             <div style="display:flex; justify-content:space-between; align-items:center">
-                                <span style="font-size:12px; color:#7a4d5c">Treatment Facelift</span>
-                                <span style="font-size:14px; color:#3d1a22; font-weight:500"><?= (int)$statBulan['facelift'] ?></span>
+                                <span style="font-size:12px; color:#585552">Treatment Facelift</span>
+                                <span style="font-size:14px; color:#2D3436; font-weight:500"><?= (int)$statBulan['facelift'] ?></span>
                             </div>
                             <div style="display:flex; justify-content:space-between; align-items:center">
-                                <span style="font-size:12px; color:#7a4d5c">Rhinoplasty</span>
-                                <span style="font-size:14px; color:#3d1a22; font-weight:500"><?= (int)$statBulan['rhinoplasty'] ?></span>
+                                <span style="font-size:12px; color:#585552">Rhinoplasty</span>
+                                <span style="font-size:14px; color:#2D3436; font-weight:500"><?= (int)$statBulan['rhinoplasty'] ?></span>
                             </div>
                             <div style="display:flex; justify-content:space-between; align-items:center">
-                                <span style="font-size:12px; color:#7a4d5c">Blepharoplasty</span>
-                                <span style="font-size:14px; color:#3d1a22; font-weight:500"><?= (int)$statBulan['blepharoplasty'] ?></span>
+                                <span style="font-size:12px; color:#585552">Blepharoplasty</span>
+                                <span style="font-size:14px; color:#2D3436; font-weight:500"><?= (int)$statBulan['blepharoplasty'] ?></span>
                             </div>
-                            <div style="height:1px; background:#fdf0f5"></div>
+                            <div style="height:1px; background:#F9F7F2"></div>
                             <div style="display:flex; justify-content:space-between; align-items:center">
-                                <span style="font-size:12px; color:#7a4d5c">Rating Rata-rata</span>
-                                <span style="font-size:14px; color:#3d1a22; font-weight:500"> <?= $rating ?></span>
+                                <span style="font-size:12px; color:#585552">Rating Rata-rata</span>
+                                <span style="font-size:14px; color:#2D3436; font-weight:500"> <?= $rating ?></span>
                             </div>
                         </div>
                     </div>
@@ -425,7 +428,7 @@ $tanggalHariIni = formatTanggal($today);
                     <h2 class="section-title">Jadwal <em>Praktik</em></h2>
                     <p class="section-sub">Jadwal yang telah ditentukan oleh admin klinik</p>
                 </div>
-                <div style="font-size:11px; color:#b89098; padding:8px 14px; background:#fff; border:1px solid #f2c4ce; border-radius:50px">
+                <div style="font-size:11px; color:#7a7571; padding:8px 14px; background:#fff; border:1px solid #a7f3d0; border-radius:50px">
                     <?= formatTanggal($senin) ?> - <?= formatTanggal($sabtu) ?>
                 </div>
             </div>
@@ -444,7 +447,7 @@ $tanggalHariIni = formatTanggal($today);
                 <?php foreach ($hariList as $idx => $tgl): ?>
                     <div class="wg-head">
                         <?= $namaHari[$idx] ?><br>
-                        <span style="font-size:10px; <?= $tgl === $today ? 'color:#c55085' : '' ?>">
+                        <span style="font-size:10px; <?= $tgl === $today ? 'color:#064e3b' : '' ?>">
                             <?= date('d M', strtotime($tgl)) ?><?= $tgl === $today ? ' ●' : '' ?>
                         </span>
                     </div>
@@ -484,11 +487,11 @@ $tanggalHariIni = formatTanggal($today);
                     </thead>
                     <tbody>
                         <?php if (empty($jadwalHariIni)): ?>
-                        <tr><td colspan="7" style="text-align:center; color:#b89098; padding:24px">Tidak ada jadwal hari ini.</td></tr>
+                        <tr><td colspan="7" style="text-align:center; color:#7a7571; padding:24px">Tidak ada jadwal hari ini.</td></tr>
                         <?php else: ?>
                         <?php foreach ($jadwalHariIni as $j): ?>
                         <tr>
-                            <td class="td-jam" style="<?= $j['status'] === 'Berlangsung' ? 'color:#c55085; font-weight:500' : '' ?>">
+                            <td class="td-jam" style="<?= $j['status'] === 'Berlangsung' ? 'color:#064e3b; font-weight:500' : '' ?>">
                                 <?= substr($j['jam_mulai'], 0, 5) ?>
                             </td>
                             <td>
@@ -500,9 +503,9 @@ $tanggalHariIni = formatTanggal($today);
                             <td><?= htmlspecialchars($j['durasi'] ?? '-') ?></td>
                             <td><span class="badge <?= badgeClass($j['status']) ?>"><?= htmlspecialchars($j['status']) ?></span></td>
                             <td>
-                                <button class="act-btn"
+                                <button class="act-btn" style="border: 1px solid #a7f3d0; padding: 4px 10px;"
                                     onclick="openModal('modal-rm-baru', <?= (int)$j['pasien_id'] ?>)"
-                                    title="Tambah rekam medis"></button>
+                                    title="Tambah rekam medis">Rekam Medis</button>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -548,7 +551,7 @@ $tanggalHariIni = formatTanggal($today);
                     </thead>
                     <tbody>
                         <?php if (empty($daftarPasien)): ?>
-                        <tr><td colspan="8" style="text-align:center; color:#b89098; padding:24px">Belum ada data pasien.</td></tr>
+                        <tr><td colspan="8" style="text-align:center; color:#7a7571; padding:24px">Belum ada data pasien.</td></tr>
                         <?php else: ?>
                         <?php foreach ($daftarPasien as $p): ?>
                         <tr data-nama="<?= htmlspecialchars(strtolower($p['nama'])) ?>"
@@ -564,7 +567,7 @@ $tanggalHariIni = formatTanggal($today);
                             <td><?= htmlspecialchars($p['usia'] ?? '-') ?> Thn</td>
                             <td><div style="font-size:12px"><?= htmlspecialchars($p['no_telp'] ?? '-') ?></div></td>
                             <td><?= htmlspecialchars($p['treatment'] ?? '-') ?></td>
-                            <td style="font-size:12px; <?= $p['tanggal'] === $today ? 'color:#c55085' : '' ?>">
+                            <td style="font-size:12px; <?= $p['tanggal'] === $today ? 'color:#064e3b' : '' ?>">
                                 <?= $p['tanggal'] === $today ? 'Hari ini ' : (htmlspecialchars($p['tanggal'] ?? '')) ?>
                                 <?= !empty($p['jam_mulai']) ? substr($p['jam_mulai'], 0, 5) : '' ?>
                             </td>
@@ -575,10 +578,10 @@ $tanggalHariIni = formatTanggal($today);
                                 </span>
                             </td>
                             <td>
-                                <button class="act-btn" title="Lihat detail"
-                                    onclick="showPasienDetail(<?= (int)$p['id'] ?>)"></button>
-                                <button class="act-btn" title="Rekam medis"
-                                    onclick="openModal('modal-rm-baru', <?= (int)$p['id'] ?>)"></button>
+                                <button class="act-btn" style="border: 1px solid #a7f3d0; padding: 4px 10px; margin-right: 4px;" title="Lihat detail"
+                                    onclick="showPasienDetail(<?= (int)$p['id'] ?>)">Detail</button>
+                                <button class="act-btn" style="border: 1px solid #064e3b; padding: 4px 10px; color: #064e3b;" title="Rekam medis"
+                                    onclick="openModal('modal-rm-baru', <?= (int)$p['id'] ?>)">Rekam Medis</button>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -651,7 +654,7 @@ $tanggalHariIni = formatTanggal($today);
             <!-- Tab: List -->
             <div class="rm-content active" id="tab-rm-list">
                 <?php if (empty($daftarRM)): ?>
-                    <div style="padding:32px; text-align:center; color:#b89098">Belum ada rekam medis.</div>
+                    <div style="padding:32px; text-align:center; color:#7a7571">Belum ada rekam medis.</div>
                 <?php else: ?>
                 <?php foreach ($daftarRM as $rm): ?>
                 <div class="rm-card"
@@ -663,7 +666,7 @@ $tanggalHariIni = formatTanggal($today);
                             <div class="rm-card-title">
                                 <?= htmlspecialchars($rm['nama_pasien']) ?> · <?= htmlspecialchars($rm['treatment'] ?? '-') ?>
                             </div>
-                            <div style="font-size:11px; color:#b89098; margin-top:3px">
+                            <div style="font-size:11px; color:#7a7571; margin-top:3px">
                                 <?= htmlspecialchars($rm['no_pasien'] ?? '') ?>
                                 <?= !empty($rm['ruangan']) ? ' · ' . htmlspecialchars($rm['ruangan']) : '' ?>
                             </div>
@@ -677,12 +680,12 @@ $tanggalHariIni = formatTanggal($today);
                     </div>
                     <div class="rm-body">
                         <?php if (!empty($rm['anamnesis'])): ?>
-                            <strong style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#3d1a22">Anamnesis:</strong><br>
+                            <strong style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#2D3436">Anamnesis:</strong><br>
                             <?= nl2br(htmlspecialchars($rm['anamnesis'])) ?>
                             <br><br>
                         <?php endif; ?>
                         <?php if (!empty($rm['pemeriksaan'])): ?>
-                            <strong style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#3d1a22">Hasil Pemeriksaan & Tindakan:</strong><br>
+                            <strong style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#2D3436">Hasil Pemeriksaan & Tindakan:</strong><br>
                             <?= nl2br(htmlspecialchars($rm['pemeriksaan'])) ?>
                         <?php endif; ?>
                     </div>
@@ -710,7 +713,7 @@ $tanggalHariIni = formatTanggal($today);
             <!-- Tab: Timeline -->
             <div class="rm-content" id="tab-rm-timeline">
                 <div style="margin-bottom:16px; display:flex; gap:10px; align-items:center">
-                    <span style="font-size:12px; color:#7a4d5c">Pasien:</span>
+                    <span style="font-size:12px; color:#585552">Pasien:</span>
                     <select class="filter-select" id="timeline-pasien" onchange="loadTimeline(this.value)">
                         <option value="">-- Pilih Pasien --</option>
                         <?php foreach ($pasienDropdown as $pd): ?>
@@ -721,7 +724,7 @@ $tanggalHariIni = formatTanggal($today);
                     </select>
                 </div>
                 <div class="timeline" id="timeline-container">
-                    <div style="color:#b89098; font-size:13px;">Pilih pasien untuk melihat riwayat.</div>
+                    <div style="color:#7a7571; font-size:13px;">Pilih pasien untuk melihat riwayat.</div>
                 </div>
             </div>
         </div><!-- /panel-rekam-medis -->
@@ -997,6 +1000,6 @@ $tanggalHariIni = formatTanggal($today);
 <!-- Toast -->
 <div class="toast" id="toast"><span id="toast-msg">Berhasil disimpan</span></div>
 
-    <script src="../../asset/js/dokter.js"></script>
+    <script src="../../asset/js/dokter.js?v=2"></script>
 </body>
 </html>

@@ -31,7 +31,7 @@ var header = document.querySelector('header');
 if (header) {
     window.addEventListener('scroll', function() {
         if (window.scrollY > 60) {
-            header.style.background = '#c55085';
+            header.style.background = '#458b8b';
             header.style.boxShadow = '0 2px 24px rgba(0,0,0,0.06)';
             document.querySelectorAll('nav a').forEach(function(a) {
                 a.style.color = '#ffffff';
