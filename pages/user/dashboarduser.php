@@ -84,7 +84,7 @@ $success = $_GET['success'] ?? '';
     <style>
         .slot-btn {
             padding: 10px 14px;
-            border: 1px solid #a7f3d0;
+            border: 1px solid #d1c4b8;
             border-radius: 8px;
             text-align: center;
             background: #fff;
@@ -97,9 +97,9 @@ $success = $_GET['success'] ?? '';
             background: #F9F7F2;
         }
         .slot-btn.selected {
-            background: #064e3b;
+            background: #735a39;
             color: #fff;
-            border-color: #064e3b;
+            border-color: #735a39;
         }
         .slot-btn.full {
             background: #F9F7F2;
@@ -132,7 +132,7 @@ $success = $_GET['success'] ?? '';
                 <div class="user-chip-avatar"><?= $initial ?></div>
                 <span class="user-chip-name"><?= htmlspecialchars($pasien['nama']) ?></span>
             </div>
-            <a href="../../backend/logout.php" class="logout-btn" style="background: #e05050; color: #ffffff; padding: 8px 16px; border-radius: 50px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; margin-left: 15px;">Logout</a>
+            <a href="#" onclick="showLogoutModal(); return false;" class="logout-btn" style="background: #e05050; color: #ffffff; padding: 8px 16px; border-radius: 50px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; margin-left: 15px;">Logout</a>
         </div>
     </nav>
 
@@ -191,10 +191,10 @@ $success = $_GET['success'] ?? '';
 
                         <div style="padding: 0 26px 26px">
                             <?php if ($nextAppt): ?>
-                                <div style="background:linear-gradient(135deg,#2D3436,#064e3b); border-radius:12px; padding:22px; color:#fff; position:relative; overflow:hidden">
+                                <div style="background:linear-gradient(135deg,#2D3436,#735a39); border-radius:12px; padding:22px; color:#fff; position:relative; overflow:hidden">
                                     <div style="font-size:9px; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:10px">JADWAL BERIKUTNYA</div>
                                     <div style="font-family:'Playfair Display',serif; font-size:20px; margin-bottom:4px"><?= htmlspecialchars($nextAppt['nama_dokter']) ?></div>
-                                    <div style="font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#a7f3d0; margin-bottom:14px"><?= htmlspecialchars($nextAppt['nama_treatment'] ?: 'Konsultasi') ?></div>
+                                    <div style="font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#d1c4b8; margin-bottom:14px"><?= htmlspecialchars($nextAppt['nama_treatment'] ?: 'Konsultasi') ?></div>
                                     <div style="display:flex; gap:20px">
                                         <div>
                                             <div style="font-size:9px; color:rgba(255,255,255,0.45); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px">Tanggal</div>
@@ -210,7 +210,7 @@ $success = $_GET['success'] ?? '';
                                         </div>
                                     </div>
                                     <div style="margin-top:16px; display:flex; gap:8px">
-                                        <button onclick="window.location.href='chat.php?appt_id=<?= $nextAppt['id'] ?>'" style="background:#fff; color:#064e3b; border:none; padding:7px 16px; border-radius:50px; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1)">Chat Dokter</button>
+                                        <button onclick="window.location.href='chat.php?appt_id=<?= $nextAppt['id'] ?>'" style="background:#fff; color:#735a39; border:none; padding:7px 16px; border-radius:50px; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1)">Chat Dokter</button>
                                         <button onclick="openModalBatal(<?= $nextAppt['id'] ?>, '<?= htmlspecialchars(addslashes($nextAppt['nama_dokter'])) ?>', '<?= $nextAppt['tanggal'] ?>', '<?= substr($nextAppt['jam'], 0, 5) ?>', '<?= htmlspecialchars(addslashes($nextAppt['nama_treatment'])) ?>')" style="background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); color:#fff; padding:7px 16px; border-radius:50px; font-size:10px; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;">Batalkan</button>
                                     </div>
                                 </div>
@@ -389,7 +389,7 @@ $success = $_GET['success'] ?? '';
                                 $idx = 0;
                                 foreach ($dokter_list as $d): 
                                     $idx++;
-                                    $border = $idx === 1 ? 'border:2px solid #064e3b' : '';
+                                    $border = $idx === 1 ? 'border:2px solid #735a39' : '';
                                     $badge = $idx === 1 ? 'badge-green' : 'badge-gray';
                                     $badgeTxt = $idx === 1 ? 'Terpilih ✓' : 'Pilih';
                                 ?>
@@ -807,7 +807,7 @@ $success = $_GET['success'] ?? '';
                         <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Dokter</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['dokter']) ?></span></div>
                         <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Tanggal</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['tanggal']) ?></span></div>
                         <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Jam</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['jam']) ?> WIB</span></div>
-                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px;"><span>No. Antrian</span><span style="color:#064e3b; font-weight:600;"><?= htmlspecialchars($_GET['antrian']) ?></span></div>
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px;"><span>No. Antrian</span><span style="color:#735a39; font-weight:600;"><?= htmlspecialchars($_GET['antrian']) ?></span></div>
                     </div>
                     <button class="btn-primary" style="width:100%" onclick="closeModal('modal-sukses')">Kembali ke Beranda</button>
                 </div>
@@ -837,7 +837,7 @@ $success = $_GET['success'] ?? '';
 
             // Highlight card
             document.querySelectorAll('.dokter-card').forEach(c => {
-                c.style.border = '1px solid #a7f3d0';
+                c.style.border = '1px solid #d1c4b8';
                 const b = c.querySelector('.badge');
                 if (b) {
                     b.className = 'badge badge-gray';
@@ -847,7 +847,7 @@ $success = $_GET['success'] ?? '';
 
             const card = document.getElementById('dokter-option-' + id);
             if (card) {
-                card.style.border = '2px solid #064e3b';
+                card.style.border = '2px solid #735a39';
                 const b = card.querySelector('.badge');
                 if (b) {
                     b.className = 'badge badge-green';
@@ -936,6 +936,27 @@ $success = $_GET['success'] ?? '';
             document.getElementById('ulasan-dokter-sub').textContent = "Berikan ulasan dan rating untuk " + reviewDocName;
             openModal('modal-ulasan');
         }
+    </script>
+    <!-- LOGOUT CONFIRMATION MODAL -->
+    <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:20px;padding:40px 36px;width:360px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.18);animation:logoutFadeIn .25s ease">
+            <div style="width:56px;height:56px;background:#fef0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:22px">&#x23FB;</div>
+            <div style="font-family:'Playfair Display',serif;font-size:20px;color:#2D3436;margin-bottom:10px">Yakin ingin <em>keluar</em>?</div>
+            <p style="font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.6">Sesi Anda sebagai <strong>Pasien</strong> akan diakhiri. Anda perlu login kembali untuk mengakses akun.</p>
+            <div style="display:flex;gap:12px;justify-content:center">
+                <button onclick="hideLogoutModal()" style="flex:1;padding:11px;border:1.5px solid #d1c4b8;border-radius:50px;background:#fff;color:#64748b;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">Batal</button>
+                <a href="../../backend/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#e05050;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
+            </div>
+        </div>
+    </div>
+    <style>
+    @keyframes logoutFadeIn { from { transform:scale(.92); opacity:0; } to { transform:scale(1); opacity:1; } }
+    #logout-modal.open { display:flex !important; }
+    </style>
+    <script>
+    function showLogoutModal() { document.getElementById('logout-modal').classList.add('open'); }
+    function hideLogoutModal() { document.getElementById('logout-modal').classList.remove('open'); }
+    document.getElementById('logout-modal').addEventListener('click', function(e) { if(e.target===this) hideLogoutModal(); });
     </script>
 </body>
 </html>

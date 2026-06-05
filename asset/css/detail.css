@@ -51,7 +51,7 @@
     font-size: 10px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: #a7f3d0;
+    color: #d1c4b8;
 }
 
 .detail-title {
@@ -64,7 +64,7 @@
 
 .detail-title em {
     font-style: italic;
-    color: #a7f3d0;
+    color: #d1c4b8;
 }
 
 .detail-subtitle {
@@ -93,7 +93,7 @@
 .stat-val {
     font-family: 'Playfair Display', serif;
     font-size: 22px;
-    color: #a7f3d0;
+    color: #d1c4b8;
     line-height: 1;
 }
 
@@ -128,7 +128,7 @@
     position: absolute;
     bottom: 0; left: 0;
     width: 48px; height: 1px;
-    background: #064e3b;
+    background: #735a39;
 }
 
 /* ── Overview grid ── */
@@ -156,7 +156,7 @@
 
 .overview-icon {
     font-size: 20px;
-    color: #064e3b;
+    color: #735a39;
 }
 
 .overview-card h3 {
@@ -178,7 +178,7 @@
     background: #ffffff;
     border-radius: 12px;
     padding: 36px 40px;
-    border-left: 3px solid #064e3b;
+    border-left: 3px solid #735a39;
 }
 
 .detail-why h3 {
@@ -210,7 +210,7 @@
     gap: 32px;
     align-items: flex-start;
     padding: 32px 0;
-    border-bottom: 1px solid #a7f3d0;
+    border-bottom: 1px solid #d1c4b8;
     transition: background 0.2s;
 }
 .process-step:last-child { border-bottom: none; }
@@ -218,7 +218,7 @@
 .process-num {
     font-family: 'Playfair Display', serif;
     font-size: 36px;
-    color: #a7f3d0;
+    color: #d1c4b8;
     line-height: 1;
     min-width: 56px;
     flex-shrink: 0;
@@ -228,7 +228,7 @@
 .process-body h3 {
     font-family: 'Playfair Display', serif;
     font-size: 20px;
-    color: #064e3b;
+    color: #735a39;
     margin-bottom: 10px;
     font-weight: 400;
 }
@@ -254,12 +254,12 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    border-top: 3px solid #a7f3d0;
+    border-top: 3px solid #d1c4b8;
     transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
 }
 
 .type-card:hover {
-    border-top-color: #064e3b;
+    border-top-color: #735a39;
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(6,78,59,0.1);
 }
@@ -283,7 +283,7 @@
     font-size: 10px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #064e3b;
+    color: #735a39;
     margin-top: 4px;
 }
 
@@ -322,7 +322,7 @@
 
 .faq-q span {
     font-size: 20px;
-    color: #064e3b;
+    color: #735a39;
     line-height: 1;
     transition: transform 0.3s;
     flex-shrink: 0;
@@ -343,7 +343,7 @@
 
 /* ── CTA ── */
 .detail-cta {
-    background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+    background: linear-gradient(135deg, #735a39 0%, #594323 100%);
     padding: 80px 72px;
     text-align: center;
     display: flex;
@@ -369,7 +369,7 @@
 
 .detail-cta .btn-primary {
     background: #ffffff;
-    color: #064e3b;
+    color: #735a39;
     margin-top: 8px;
 }
 

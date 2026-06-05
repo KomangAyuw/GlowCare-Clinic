@@ -239,7 +239,7 @@ $tanggalHariIni = formatTanggal($today);
     </nav>
 
     <div class="sidebar-footer">
-        <a class="logout-btn" href="../../backend/logout.php">
+        <a class="logout-btn" href="#" onclick="showLogoutModal(); return false;">
             Keluar
         </a>
     </div>
@@ -256,9 +256,9 @@ $tanggalHariIni = formatTanggal($today);
         </div>
         <div class="topbar-right">
             <div class="topbar-date"><?= $hariIni ?>, <?= $tanggalHariIni ?></div>
-            <button style="border: 1px solid #a7f3d0; padding: 4px 10px; background: transparent; color: #7a7571; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; position: relative;">
+            <button style="border: 1px solid #d1c4b8; padding: 4px 10px; background: transparent; color: #7a7571; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; position: relative;">
                 Notifikasi
-                <div class="notif-dot" style="top: 0; right: 0; position: absolute; width: 6px; height: 6px; background: #064e3b; border-radius: 50%;"></div>
+                <div class="notif-dot" style="top: 0; right: 0; position: absolute; width: 6px; height: 6px; background: #735a39; border-radius: 50%;"></div>
             </button>
         </div>
     </div>
@@ -392,7 +392,7 @@ $tanggalHariIni = formatTanggal($today);
                         <div style="padding:0 24px 20px; display:flex; flex-direction:column; gap:14px">
                             <div style="display:flex; justify-content:space-between; align-items:center">
                                 <span style="font-size:12px; color:#585552">Total Pasien Ditangani</span>
-                                <span style="font-family:'Playfair Display',serif; font-size:18px; color:#064e3b">
+                                <span style="font-family:'Playfair Display',serif; font-size:18px; color:#735a39">
                                     <?= (int)$statBulan['total_rm'] ?>
                                 </span>
                             </div>
@@ -428,7 +428,7 @@ $tanggalHariIni = formatTanggal($today);
                     <h2 class="section-title">Jadwal <em>Praktik</em></h2>
                     <p class="section-sub">Jadwal yang telah ditentukan oleh admin klinik</p>
                 </div>
-                <div style="font-size:11px; color:#7a7571; padding:8px 14px; background:#fff; border:1px solid #a7f3d0; border-radius:50px">
+                <div style="font-size:11px; color:#7a7571; padding:8px 14px; background:#fff; border:1px solid #d1c4b8; border-radius:50px">
                     <?= formatTanggal($senin) ?> - <?= formatTanggal($sabtu) ?>
                 </div>
             </div>
@@ -447,7 +447,7 @@ $tanggalHariIni = formatTanggal($today);
                 <?php foreach ($hariList as $idx => $tgl): ?>
                     <div class="wg-head">
                         <?= $namaHari[$idx] ?><br>
-                        <span style="font-size:10px; <?= $tgl === $today ? 'color:#064e3b' : '' ?>">
+                        <span style="font-size:10px; <?= $tgl === $today ? 'color:#735a39' : '' ?>">
                             <?= date('d M', strtotime($tgl)) ?><?= $tgl === $today ? ' ●' : '' ?>
                         </span>
                     </div>
@@ -491,7 +491,7 @@ $tanggalHariIni = formatTanggal($today);
                         <?php else: ?>
                         <?php foreach ($jadwalHariIni as $j): ?>
                         <tr>
-                            <td class="td-jam" style="<?= $j['status'] === 'Berlangsung' ? 'color:#064e3b; font-weight:500' : '' ?>">
+                            <td class="td-jam" style="<?= $j['status'] === 'Berlangsung' ? 'color:#735a39; font-weight:500' : '' ?>">
                                 <?= substr($j['jam_mulai'], 0, 5) ?>
                             </td>
                             <td>
@@ -503,7 +503,7 @@ $tanggalHariIni = formatTanggal($today);
                             <td><?= htmlspecialchars($j['durasi'] ?? '-') ?></td>
                             <td><span class="badge <?= badgeClass($j['status']) ?>"><?= htmlspecialchars($j['status']) ?></span></td>
                             <td>
-                                <button class="act-btn" style="border: 1px solid #a7f3d0; padding: 4px 10px;"
+                                <button class="act-btn" style="border: 1px solid #d1c4b8; padding: 4px 10px;"
                                     onclick="openModal('modal-rm-baru', <?= (int)$j['pasien_id'] ?>)"
                                     title="Tambah rekam medis">Rekam Medis</button>
                             </td>
@@ -567,7 +567,7 @@ $tanggalHariIni = formatTanggal($today);
                             <td><?= htmlspecialchars($p['usia'] ?? '-') ?> Thn</td>
                             <td><div style="font-size:12px"><?= htmlspecialchars($p['no_telp'] ?? '-') ?></div></td>
                             <td><?= htmlspecialchars($p['treatment'] ?? '-') ?></td>
-                            <td style="font-size:12px; <?= $p['tanggal'] === $today ? 'color:#064e3b' : '' ?>">
+                            <td style="font-size:12px; <?= $p['tanggal'] === $today ? 'color:#735a39' : '' ?>">
                                 <?= $p['tanggal'] === $today ? 'Hari ini ' : (htmlspecialchars($p['tanggal'] ?? '')) ?>
                                 <?= !empty($p['jam_mulai']) ? substr($p['jam_mulai'], 0, 5) : '' ?>
                             </td>
@@ -578,9 +578,9 @@ $tanggalHariIni = formatTanggal($today);
                                 </span>
                             </td>
                             <td>
-                                <button class="act-btn" style="border: 1px solid #a7f3d0; padding: 4px 10px; margin-right: 4px;" title="Lihat detail"
+                                <button class="act-btn" style="border: 1px solid #d1c4b8; padding: 4px 10px; margin-right: 4px;" title="Lihat detail"
                                     onclick="showPasienDetail(<?= (int)$p['id'] ?>)">Detail</button>
-                                <button class="act-btn" style="border: 1px solid #064e3b; padding: 4px 10px; color: #064e3b;" title="Rekam medis"
+                                <button class="act-btn" style="border: 1px solid #735a39; padding: 4px 10px; color: #735a39;" title="Rekam medis"
                                     onclick="openModal('modal-rm-baru', <?= (int)$p['id'] ?>)">Rekam Medis</button>
                             </td>
                         </tr>
@@ -1001,5 +1001,26 @@ $tanggalHariIni = formatTanggal($today);
 <div class="toast" id="toast"><span id="toast-msg">Berhasil disimpan</span></div>
 
     <script src="../../asset/js/dokter.js?v=2"></script>
+    <!-- LOGOUT CONFIRMATION MODAL -->
+    <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:20px;padding:40px 36px;width:360px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.18);animation:logoutFadeIn .25s ease">
+            <div style="width:56px;height:56px;background:#fef0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:22px">&#x23FB;</div>
+            <div style="font-family:'Playfair Display',serif;font-size:20px;color:#2D3436;margin-bottom:10px">Yakin ingin <em>keluar</em>?</div>
+            <p style="font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.6">Sesi Anda sebagai <strong>Dokter</strong> akan diakhiri. Anda perlu login kembali untuk mengakses portal.</p>
+            <div style="display:flex;gap:12px;justify-content:center">
+                <button onclick="hideLogoutModal()" style="flex:1;padding:11px;border:1.5px solid #d1c4b8;border-radius:50px;background:#fff;color:#64748b;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">Batal</button>
+                <a href="../../backend/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#e05050;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
+            </div>
+        </div>
+    </div>
+    <style>
+    @keyframes logoutFadeIn { from { transform:scale(.92); opacity:0; } to { transform:scale(1); opacity:1; } }
+    #logout-modal.open { display:flex !important; }
+    </style>
+    <script>
+    function showLogoutModal() { document.getElementById('logout-modal').classList.add('open'); }
+    function hideLogoutModal() { document.getElementById('logout-modal').classList.remove('open'); }
+    document.getElementById('logout-modal').addEventListener('click', function(e) { if(e.target===this) hideLogoutModal(); });
+    </script>
 </body>
 </html>

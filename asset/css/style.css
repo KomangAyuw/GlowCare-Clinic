@@ -27,7 +27,7 @@ header {
     font-family: 'Playfair Display', serif;
     font-size: 22px;
     font-style: italic;
-    color: #458b8b;
+    color: #735a39;
     letter-spacing: 1px; /* mengatur jarak antar huruf pada teks*/
 }
 nav {
@@ -37,7 +37,7 @@ nav {
 }
 nav a {
     text-decoration: none; /* menghapus underline pada hyperlink */
-    color: #458b8b;
+    color: #735a39;
     font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase; /* mengubah huruf menjadi kapital, walaupun pada html ditulis kecil */
@@ -46,7 +46,7 @@ nav a {
 }
 nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau style sesuai kondisi tertentu */
     color: #85c2c2;
-    border-bottom: 1px solid #458b8b;
+    border-bottom: 1px solid #735a39;
 }
 
 .profile-container {
@@ -63,7 +63,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: #458b8b;
+    background: #735a39;
     color: #fff;
     display: grid;
     place-items: center;
@@ -79,7 +79,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
 
 .btn {
     background: transparent;
-    color: #458b8b;
+    color: #735a39;
     padding: 14px 40px;
     padding: 9px 24px;
     border-radius: 50px;
@@ -88,11 +88,11 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
     text-decoration: none;
     font-family: 'DM Sans', sans-serif;
     font-weight: 400;
-    border: 1px solid #458b8b;
+    border: 1px solid #735a39;
     transition: background 0.3s, color 0.3s, transform 0.2s;
 }
 .btn:hover {
-    background: #458b8b;
+    background: #735a39;
     color: #ffffff;
     transform: translateY(-2px); /* akan berubah posisi ke atas karena Y negatif */
 }
@@ -199,7 +199,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
 
 /* Tombol primary (solid) */
 .btn-primary {
-    background: linear-gradient(135deg, #458b8b 0%, #326666 100%);
+    background: linear-gradient(135deg, #735a39 0%, #594323 100%);
     color: #ffffff;
     padding: 12px 32px;
     border-radius: 50px;
@@ -211,13 +211,13 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
     font-weight: 500;
     border: none;
     transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 15px rgba(69, 139, 139, 0.25);
+    box-shadow: 0 4px 15px rgba(115, 90, 57, 0.25);
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #326666 0%, #244c4c 100%);
+    background: linear-gradient(135deg, #594323 0%, #402a12 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(69, 139, 139, 0.35);
+    box-shadow: 0 6px 20px rgba(115, 90, 57, 0.35);
 }
 
 /* Tombol secondary (outline) */
@@ -325,7 +325,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
 
 .tentang-judul em {
     font-style: italic;
-    color: #458b8b;
+    color: #735a39;
 }
 
 .tentang-desc {
@@ -366,7 +366,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
     left: 0; top: 8px;
     width: 6px; height: 6px;
     border-radius: 50%;
-    background: #458b8b;
+    background: #735a39;
 }
 
 
@@ -388,7 +388,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
 
 .section-header em {
     font-style: italic;
-    color: #458b8b;
+    color: #735a39;
 }
  
 .section-subheader {
@@ -422,12 +422,12 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
     flex-direction: column;
     transition: transform 0.35s ease, box-shadow 0.35s ease;
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(69, 139, 139, 0.05);
+    box-shadow: 0 10px 30px rgba(115, 90, 57, 0.05);
 }
  
 .service-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 16px 40px rgba(69, 139, 139, 0.15);
+    box-shadow: 0 16px 40px rgba(115, 90, 57, 0.15);
 }
  
 /* ── Gambar ── */
@@ -453,7 +453,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
 .service-img-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(69,139,139,0.18) 0%, transparent 60%);
+    background: linear-gradient(to top, rgba(115, 90, 57,0.18) 0%, transparent 60%);
     pointer-events: none;
 }
  
@@ -478,7 +478,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
     font-family: 'Playfair Display', serif;
     font-size: 18px;
     font-weight: 400;
-    color: #458b8b;
+    color: #735a39;
     line-height: 1.3;
 }
  
@@ -497,7 +497,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
     font-size: 10px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #458b8b;
+    color: #735a39;
     text-decoration: none;
     font-weight: 500;
     margin-top: 6px;
@@ -505,7 +505,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
 }
  
 .service-link:hover {
-    color: #326666;
+    color: #594323;
     gap: 10px;
 }
  
@@ -558,7 +558,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
     overflow: hidden;
     transition: transform 0.35s ease, box-shadow 0.35s ease;
     position: relative;
-    box-shadow: 0 10px 30px rgba(69, 139, 139, 0.05);
+    box-shadow: 0 10px 30px rgba(115, 90, 57, 0.05);
 }
 
 .spesialis-img-wrap {
@@ -591,7 +591,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
     left: 24px;
     width: 36px; 
     height: 36px;
-    background: #458b8b;
+    background: #735a39;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -613,7 +613,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
 
 .spesialis-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 16px 40px rgba(69, 139, 139, 0.15);
+    box-shadow: 0 16px 40px rgba(115, 90, 57, 0.15);
 }
 
 
@@ -645,7 +645,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
     font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #458b8b;
+    color: #735a39;
     font-weight: 500;
     margin-bottom: 12px;
 }
@@ -666,7 +666,7 @@ nav a:hover { /* ini adalah pseudo class yang berfungsi memberikan efek atau sty
 
 .spesialis-tag {
     font-size: 11px;
-    color: #458b8b;
+    color: #735a39;
     letter-spacing: 0.5px;
 }
 
@@ -866,7 +866,7 @@ footer {
 }
 
 .footer-social:hover {
-    background: #458b8b;
+    background: #735a39;
 }
 
 .footer-heading {
@@ -875,7 +875,7 @@ footer {
     color: #fff;
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #458b8b;
+    border-bottom: 2px solid #735a39;
     display: inline-block;
 }
 
@@ -990,7 +990,7 @@ footer {
     font-size: 36px; font-weight: 400;
     color: #2c3e50; margin-bottom: 6px;
 }
-.page-title em { color: #458b8b; }
+.page-title em { color: #735a39; }
 .page-sub {
     font-size: 13px; color: #596b6b;
     font-weight: 300; margin-bottom: 40px;
@@ -1004,7 +1004,7 @@ footer {
     overflow: hidden; /* jika melebihi batas akan dipotong atau disembunyikan*/
 }
 .jadwal-table thead tr {
-    background: #458b8b;
+    background: #735a39;
 }
 .jadwal-table thead th {
     padding: 16px 20px;
@@ -1031,7 +1031,7 @@ footer {
     font-size: 10px; 
     letter-spacing: 2px; 
     text-transform: uppercase;
-    color: #458b8b; 
+    color: #735a39; 
     display: block; 
     margin-top: 3px;
     font-family: 'DM Sans', sans-serif;
@@ -1082,7 +1082,7 @@ body.page-auth {
 
 .kiri-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(to bottom, rgba(69,139,139,0.2) 0%, rgba(44,62,80,0.7) 100%);
+    background: linear-gradient(to bottom, rgba(115, 90, 57,0.2) 0%, rgba(44,62,80,0.7) 100%);
 }
 
 .kiri-teks {
@@ -1121,7 +1121,7 @@ body.page-auth {
 .k-logo {
     font-family: 'Playfair Display', serif;
     font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
-    color: #458b8b; margin-bottom: 28px;
+    color: #735a39; margin-bottom: 28px;
 }
 
 .k-judul {
@@ -1132,10 +1132,10 @@ body.page-auth {
     margin-bottom: 25px;
 }
 
-.k-judul em { font-style: italic; color: #458b8b; }
+.k-judul em { font-style: italic; color: #735a39; }
 
 
-.k-sub a { color: #458b8b; text-decoration: none; }
+.k-sub a { color: #735a39; text-decoration: none; }
 
 .grup { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
 
@@ -1155,7 +1155,7 @@ body.page-auth {
 .input:focus { border-color: #dce8e8; background: #fff; }
 
 .form-subtitle a {
-    color: #458b8b;
+    color: #735a39;
     text-decoration: none;
 }
 
@@ -1177,5 +1177,5 @@ body.page-auth {
 }
 
 .back-home:hover {
-    color: #458b8b;
+    color: #735a39;
 }

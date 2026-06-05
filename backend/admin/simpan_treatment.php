@@ -12,6 +12,7 @@ $deskripsi        = trim($_POST['deskripsi'] ?? '');
 $deskripsi_panjang= trim($_POST['deskripsi_panjang'] ?? '');
 $gambar_url       = trim($_POST['gambar_url'] ?? '');
 $link_halaman     = trim($_POST['link_halaman'] ?? '');
+$durasi           = trim($_POST['durasi'] ?? '60 Menit');
 $urutan           = (int)($_POST['urutan'] ?? 99);
 $status           = $_POST['status'] ?? 'Aktif';
 
@@ -27,17 +28,17 @@ if ($id > 0) {
     // fix: i for urutan, s for status, i for id
     mysqli_stmt_close($stmt);
     $stmt = mysqli_prepare($conn,
-        "UPDATE treatment SET nama=?,kategori=?,deskripsi=?,deskripsi_panjang=?,gambar_url=?,link_halaman=?,urutan=?,status=? WHERE id=?");
-    mysqli_stmt_bind_param($stmt, 'ssssssisi',
-        $nama,$kategori,$deskripsi,$deskripsi_panjang,$gambar_url,$link_halaman,$urutan,$status,$id);
+        "UPDATE treatment SET nama=?,kategori=?,durasi=?,deskripsi=?,deskripsi_panjang=?,gambar_url=?,link_halaman=?,urutan=?,status=? WHERE id=?");
+    mysqli_stmt_bind_param($stmt, 'sssssssisi',
+        $nama,$kategori,$durasi,$deskripsi,$deskripsi_panjang,$gambar_url,$link_halaman,$urutan,$status,$id);
     $ok  = mysqli_stmt_execute($stmt);
     $msg = $ok ? 'Treatment berhasil diperbarui.' : mysqli_error($conn);
     $judul = 'Treatment Diperbarui'; $desk = "$nama diperbarui.";
 } else {
     $stmt = mysqli_prepare($conn,
-        "INSERT INTO treatment (nama,kategori,deskripsi,deskripsi_panjang,gambar_url,link_halaman,urutan,status) VALUES (?,?,?,?,?,?,?,?)");
-    mysqli_stmt_bind_param($stmt, 'ssssssis',
-        $nama,$kategori,$deskripsi,$deskripsi_panjang,$gambar_url,$link_halaman,$urutan,$status);
+        "INSERT INTO treatment (nama,kategori,durasi,deskripsi,deskripsi_panjang,gambar_url,link_halaman,urutan,status) VALUES (?,?,?,?,?,?,?,?,?)");
+    mysqli_stmt_bind_param($stmt, 'sssssssis',
+        $nama,$kategori,$durasi,$deskripsi,$deskripsi_panjang,$gambar_url,$link_halaman,$urutan,$status);
     $ok  = mysqli_stmt_execute($stmt);
     $msg = $ok ? 'Treatment baru berhasil ditambahkan.' : mysqli_error($conn);
     $judul = 'Treatment Baru'; $desk = "$nama ditambahkan.";

@@ -1,4 +1,4 @@
-const titles = {dashboard:'Dashboard',pasien:'Data Pasien',dokter:'Data Dokter',jadwal:'Jadwal Dokter',aktivitas:'Aktivitas',pesan:'Pesan Kontak',laporan:'Laporan',treatment:'Treatment',profil:'Profil'};
+const titles = {dashboard:'Dashboard',pasien:'Data Pasien',dokter:'Data Dokter',jadwal:'Jadwal Dokter',aktivitas:'Aktivitas',pesan:'Pesan Kontak',laporan:'Laporan',treatment:'Treatment',profil:'Profil',keuangan:'Keuangan'};
 
 function showPanel(id,el){
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -90,9 +90,9 @@ function editTreatment(t){
     document.getElementById('mt-id').value=t.id;
     document.getElementById('mt-nama').value=t.nama;
     document.getElementById('mt-kategori').value=t.kategori;
+    document.getElementById('mt-durasi').value=t.durasi||'60 Menit';
     document.getElementById('mt-urutan').value=t.urutan;
     document.getElementById('mt-gambar').value=t.gambar_url||'';
-    document.getElementById('mt-link').value=t.link_halaman||'';
     document.getElementById('mt-desc').value=t.deskripsi||'';
     document.getElementById('mt-desc-panjang').value=t.deskripsi_panjang||'';
     document.getElementById('mt-status').value=t.status;
@@ -106,26 +106,51 @@ function lihatPesan(pk) {
     document.getElementById('mp-detail-pesan').textContent = pk.pesan  || '-';
     document.getElementById('mp-pengirim-sub').textContent =
         'Dikirim pada ' + new Date(pk.created_at.replace(' ','T')).toLocaleString('id-ID');
- 
+
+    // Isi ID untuk form balas
+    document.getElementById('mp-balas-id').value = pk.id || '';
+    document.getElementById('mp-balas-teks').value = '';
+
+    // Tampilkan balasan sebelumnya jika ada
+    const balasanBox  = document.getElementById('mp-balasan-box');
+    const balasanIsi  = document.getElementById('mp-balasan-isi');
+    const balasanInfo = document.getElementById('mp-balasan-info');
+    const labelBalas  = document.querySelector('#mp-form-balas > div:first-child');
+    const btnKirim    = document.getElementById('mp-btn-kirim');
+
+    if (pk.balasan && pk.balasan.trim() !== '') {
+        balasanBox.style.display = 'block';
+        balasanIsi.textContent   = pk.balasan;
+        balasanInfo.textContent  = 'Dibalas'
+            + (pk.dibalas_oleh ? ' oleh ' + pk.dibalas_oleh : '')
+            + (pk.dibalas_at   ? ' · ' + new Date(pk.dibalas_at.replace(' ','T')).toLocaleString('id-ID') : '');
+        if (labelBalas) labelBalas.textContent = 'Ubah Balasan';
+        if (btnKirim)   btnKirim.textContent   = 'Perbarui Balasan';
+    } else {
+        balasanBox.style.display = 'none';
+        if (labelBalas) labelBalas.textContent = 'Tulis Balasan';
+        if (btnKirim)   btnKirim.textContent   = 'Kirim Balasan';
+    }
+
     // Tombol "Tandai Baca" jika belum dibaca
-    const footer = document.getElementById('mp-detail-footer');
+    const footer   = document.getElementById('mp-detail-footer');
     const existing = footer.querySelector('form.baca-form');
     if (existing) existing.remove();
- 
+
     if (!pk.sudah_baca || pk.sudah_baca == 0) {
         const f = document.createElement('form');
-        f.method = 'POST';
-        f.action = '../../backend/admin/kelola_pesan.php';
+        f.method  = 'POST';
+        f.action  = '../../backend/admin/kelola_pesan.php';
         f.className = 'baca-form';
         f.style.display = 'inline';
         f.innerHTML = `
             <input type="hidden" name="aksi" value="baca">
             <input type="hidden" name="id"   value="${pk.id}">
-            <button type="submit" class="btn-save">✅ Tandai Sudah Dibaca</button>
+            <button type="submit" class="btn-save" style="font-size:11px;padding:7px 14px">Tandai Sudah Dibaca</button>
         `;
-        footer.insertBefore(f, footer.querySelector('button.btn-cancel'));
+        footer.appendChild(f);
     }
- 
+
     openModal('modal-pesan');
 }
 // Set form action untuk Tambah baru

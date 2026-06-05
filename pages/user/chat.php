@@ -70,7 +70,7 @@ if ($appt_id > 0) {
             backdrop-filter: blur(20px);
             border-radius: 16px;
             border: 1px solid rgba(220, 232, 232, 0.4);
-            box-shadow: 0 10px 30px rgba(69, 139, 139, 0.05);
+            box-shadow: 0 10px 30px rgba(115, 90, 57, 0.05);
             overflow: hidden;
             margin: 0 48px;
         }
@@ -121,7 +121,7 @@ if ($appt_id > 0) {
             border-bottom-left-radius: 4px;
         }
         .msg.sent {
-            background: linear-gradient(135deg, #458b8b 0%, #326666 100%);
+            background: linear-gradient(135deg, #735a39 0%, #594323 100%);
             color: #ffffff;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
@@ -152,11 +152,11 @@ if ($appt_id > 0) {
             background: #ffffff;
         }
         .chat-input:focus {
-            border-color: #458b8b;
-            box-shadow: 0 0 0 3px rgba(69, 139, 139, 0.1);
+            border-color: #735a39;
+            box-shadow: 0 0 0 3px rgba(115, 90, 57, 0.1);
         }
         .chat-btn {
-            background: linear-gradient(135deg, #458b8b 0%, #326666 100%);
+            background: linear-gradient(135deg, #735a39 0%, #594323 100%);
             color: white;
             border: none;
             width: 44px;
@@ -170,7 +170,7 @@ if ($appt_id > 0) {
         }
         .chat-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(69, 139, 139, 0.3);
+            box-shadow: 0 4px 12px rgba(115, 90, 57, 0.3);
         }
         .chat-sidebar-header {
             padding: 24px;
@@ -215,7 +215,7 @@ if ($appt_id > 0) {
                 <?php foreach($appointments as $app): ?>
                 <div class="chat-session-item <?= ($app['appt_id'] == $appt_id) ? 'active' : '' ?>" onclick="window.location.href='chat.php?appt_id=<?= $app['appt_id'] ?>'">
                     <div style="font-weight:500; font-size:14px; color:#2c3e50"><?= htmlspecialchars($app['nama_dokter']) ?></div>
-                    <div style="font-size:12px; color:#064e3b; margin-top:4px"><?= htmlspecialchars($app['nama_treatment'] ?? 'Konsultasi') ?></div>
+                    <div style="font-size:12px; color:#735a39; margin-top:4px"><?= htmlspecialchars($app['nama_treatment'] ?? 'Konsultasi') ?></div>
                     <div style="font-size:11px; color:#64748b; margin-top:6px"><?= date('d M Y, H:i', strtotime($app['tanggal'] . ' ' . $app['jam'])) ?></div>
                 </div>
                 <?php endforeach; ?>
@@ -229,7 +229,7 @@ if ($appt_id > 0) {
                     <div class="avatar" style="width:40px; height:40px; font-size:16px"><?= substr(htmlspecialchars($dokter['nama']), 0, 1) ?></div>
                     <div>
                         <div style="font-family:'Playfair Display', serif; font-size:18px; color:#2c3e50"><?= htmlspecialchars($dokter['nama']) ?></div>
-                        <div style="font-size:12px; color:#458b8b"><?= htmlspecialchars($dokter['spesialisasi']) ?></div>
+                        <div style="font-size:12px; color:#735a39"><?= htmlspecialchars($dokter['spesialisasi']) ?></div>
                     </div>
                 </div>
                 <span class="badge badge-yellow">Berlangsung</span>
@@ -241,7 +241,7 @@ if ($appt_id > 0) {
 
             <div class="chat-input-area">
                 <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="sendImage(this)">
-                <button type="button" class="chat-btn" style="background: #f0f5f5; color: #458b8b;" title="Upload Gambar" onclick="document.getElementById('imageUpload').click()">
+                <button type="button" class="chat-btn" style="background: #f0f5f5; color: #735a39;" title="Upload Gambar" onclick="document.getElementById('imageUpload').click()">
                     📷
                 </button>
                 <textarea class="chat-input" placeholder="Ketik pesan Anda di sini..." rows="1" id="chatInput"></textarea>
