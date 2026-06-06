@@ -161,12 +161,16 @@ while ($row = mysqli_fetch_assoc($qMinggu)) {
 
 // ── HELPER FUNCTIONS ──────────────────────────
 function badgeClass(string $status): string {
-    return match($status) {
-        'Selesai'    => 'badge-green',
-        'Berlangsung'=> 'badge-yellow',
-        'Menunggu'   => 'badge-pink',
-        default      => 'badge-gray',
-    };
+    switch ($status) {
+        case 'Selesai':
+            return 'badge-green';
+        case 'Berlangsung':
+            return 'badge-yellow';
+        case 'Menunggu':
+            return 'badge-pink';
+        default:
+            return 'badge-gray';
+    }
 }
 
 function inisial(string $nama): string {

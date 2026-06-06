@@ -89,13 +89,18 @@ function rupiah(float $n): string {
     return 'Rp '.number_format($n,0,',','.');
 }
 function badge_appt(string $s): string {
-    return match($s) {
-        'Selesai'     => '<span class="badge badge-green">Selesai</span>',
-        'Berlangsung' => '<span class="badge badge-yellow">Berlangsung</span>',
-        'Terjadwal'   => '<span class="badge badge-gray">Terjadwal</span>',
-        'Dibatalkan'  => '<span class="badge badge-pink">Dibatalkan</span>',
-        default       => '<span class="badge badge-gray">'.$s.'</span>',
-    };
+    switch ($s) {
+        case 'Selesai':
+            return '<span class="badge badge-green">Selesai</span>';
+        case 'Berlangsung':
+            return '<span class="badge badge-yellow">Berlangsung</span>';
+        case 'Terjadwal':
+            return '<span class="badge badge-gray">Terjadwal</span>';
+        case 'Dibatalkan':
+            return '<span class="badge badge-pink">Dibatalkan</span>';
+        default:
+            return '<span class="badge badge-gray">'.$s.'</span>';
+    }
 }
 $bln_ind = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 $hari_ind = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -314,7 +319,11 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     <thead><tr><th>ID</th><th>Nama</th><th>Spesialisasi</th><th>Pengalaman</th><th>Total Pasien</th><th>Rating</th><th>Status</th><th>Aksi</th></tr></thead>
                     <tbody>
                     <?php mysqli_data_seek($dokter_list,0); while($d=mysqli_fetch_assoc($dokter_list)):
-                        $badge_d=match($d['status']){'Aktif'=>'badge-green','Cuti'=>'badge-yellow',default=>'badge-gray'}; ?>
+                        switch($d['status']){
+                            case 'Aktif': $badge_d='badge-green'; break;
+                            case 'Cuti': $badge_d='badge-yellow'; break;
+                            default: $badge_d='badge-gray'; break;
+                        } ?>
                         <tr>
                             <td style="color:#7a7571;font-size:11px">#D-00<?= $d['id'] ?></td>
                             <td><div style="display:flex;align-items:center;gap:8px"><span class="avatar"><?= strtoupper(substr($d['nama'],0,1)) ?></span><span class="td-name"><?= htmlspecialchars($d['nama']) ?></span></div></td>

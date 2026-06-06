@@ -84,27 +84,27 @@ $success = $_GET['success'] ?? '';
     <style>
         .slot-btn {
             padding: 10px 14px;
-            border: 1px solid #d1c4b8;
+            border: 1px solid #c8a687;
             border-radius: 8px;
             text-align: center;
-            background: #fff;
-            color: #585552;
+            background: #fff5f0;
+            color: #7c5835;
             font-size: 13px;
             cursor: pointer;
             transition: all 0.15s ease-in-out;
         }
         .slot-btn:hover {
-            background: #F9F7F2;
+            background: #f7ede5;
         }
         .slot-btn.selected {
-            background: #735a39;
+            background: #7c5835;
             color: #fff;
-            border-color: #735a39;
+            border-color: #7c5835;
         }
         .slot-btn.full {
-            background: #F9F7F2;
-            color: #b0c4c4;
-            border-color: #F9F7F2;
+            background: #f7ede5;
+            color: #a89a8a;
+            border-color: #f7ede5;
             cursor: not-allowed;
         }
     </style>
@@ -122,7 +122,7 @@ $success = $_GET['success'] ?? '';
         </div>
 
         <div class="topnav-right">
-            <button class="topnav-item" style="position: relative; border: 1px solid #dce8e8; border-radius: 20px; padding: 6px 14px; margin-right: 8px;" onclick="showPage('notifikasi', document.querySelector('[onclick*=notifikasi]'))">
+            <button class="topnav-item" style="position: relative; border: 1px solid #c8a687; border-radius: 20px; padding: 6px 14px; margin-right: 8px;" onclick="showPage('notifikasi', document.querySelector('[onclick*=notifikasi]'))">
                 Notifikasi
                 <?php if ($notif_baru > 0): ?>
                     <div class="notif-dot" style="top: -2px; right: -2px; border: 2px solid #fff; width: 8px; height: 8px;"></div>
@@ -132,18 +132,18 @@ $success = $_GET['success'] ?? '';
                 <div class="user-chip-avatar"><?= $initial ?></div>
                 <span class="user-chip-name"><?= htmlspecialchars($pasien['nama']) ?></span>
             </div>
-            <a href="#" onclick="showLogoutModal(); return false;" class="logout-btn" style="background: #e05050; color: #ffffff; padding: 8px 16px; border-radius: 50px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; margin-left: 15px;">Logout</a>
+            <a href="#" onclick="showLogoutModal(); return false;" class="logout-btn" style="background: #7c5835; color: #ffffff; padding: 8px 16px; border-radius: 50px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; margin-left: 15px;">Logout</a>
         </div>
     </nav>
 
     <!-- ALERT SUCCESS/ERROR -->
     <?php if ($error): ?>
-        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; color: #721c24; font-size: 13px;">
+        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #fce4df; border: 1px solid #e8b5ac; border-radius: 8px; color: #6b3a2d; font-size: 13px;">
             ❌ <?= htmlspecialchars($error) ?>
         </div>
     <?php endif; ?>
     <?php if ($success): ?>
-        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; color: #155724; font-size: 13px;">
+        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #e8f5d8; border: 1px solid #c5daa8; border-radius: 8px; color: #5a6f2d; font-size: 13px;">
             ✅ <?= htmlspecialchars($success) ?>
         </div>
     <?php endif; ?>
@@ -191,10 +191,10 @@ $success = $_GET['success'] ?? '';
 
                         <div style="padding: 0 26px 26px">
                             <?php if ($nextAppt): ?>
-                                <div style="background:linear-gradient(135deg,#2D3436,#735a39); border-radius:12px; padding:22px; color:#fff; position:relative; overflow:hidden">
+                                <div style="background:linear-gradient(135deg,#5b3d28,#8e5a2e); border-radius:12px; padding:22px; color:#fff; position:relative; overflow:hidden">
                                     <div style="font-size:9px; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:10px">JADWAL BERIKUTNYA</div>
                                     <div style="font-family:'Playfair Display',serif; font-size:20px; margin-bottom:4px"><?= htmlspecialchars($nextAppt['nama_dokter']) ?></div>
-                                    <div style="font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#d1c4b8; margin-bottom:14px"><?= htmlspecialchars($nextAppt['nama_treatment'] ?: 'Konsultasi') ?></div>
+                                    <div style="font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#d8b39b; margin-bottom:14px"><?= htmlspecialchars($nextAppt['nama_treatment'] ?: 'Konsultasi') ?></div>
                                     <div style="display:flex; gap:20px">
                                         <div>
                                             <div style="font-size:9px; color:rgba(255,255,255,0.45); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px">Tanggal</div>
@@ -210,12 +210,12 @@ $success = $_GET['success'] ?? '';
                                         </div>
                                     </div>
                                     <div style="margin-top:16px; display:flex; gap:8px">
-                                        <button onclick="window.location.href='chat.php?appt_id=<?= $nextAppt['id'] ?>'" style="background:#fff; color:#735a39; border:none; padding:7px 16px; border-radius:50px; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1)">Chat Dokter</button>
+                                        <button onclick="window.location.href='chat.php?appt_id=<?= $nextAppt['id'] ?>'" style="background:#fff; color:#7c5835; border:none; padding:7px 16px; border-radius:50px; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1)">Chat Dokter</button>
                                         <button onclick="openModalBatal(<?= $nextAppt['id'] ?>, '<?= htmlspecialchars(addslashes($nextAppt['nama_dokter'])) ?>', '<?= $nextAppt['tanggal'] ?>', '<?= substr($nextAppt['jam'], 0, 5) ?>', '<?= htmlspecialchars(addslashes($nextAppt['nama_treatment'])) ?>')" style="background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); color:#fff; padding:7px 16px; border-radius:50px; font-size:10px; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;">Batalkan</button>
                                     </div>
                                 </div>
                             <?php else: ?>
-                                <div style="padding:24px; text-align:center; color:#7a7571; font-size:13px; background:#F9F7F2; border-radius:8px">
+                                <div style="padding:24px; text-align:center; color:#7d6756; font-size:13px; background:#f7ede5; border-radius:8px">
                                     Tidak ada jadwal konsultasi mendatang.<br>
                                     <button class="btn-primary" style="margin-top:12px; font-size:11px; padding:6px 14px;" onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))">Booking Online Sekarang</button>
                                 </div>
@@ -306,7 +306,7 @@ $success = $_GET['success'] ?? '';
             <div class="three-col">
                 <?php foreach ($dokter_list as $d): ?>
                     <div class="card">
-                        <div style="background:linear-gradient(135deg,#f5f3ee,#F9F7F2); padding:20px; display:flex; gap:14px; align-items:flex-start">
+                        <div style="background:linear-gradient(135deg,#f0dfd1,#f7ede5); padding:20px; display:flex; gap:14px; align-items:flex-start">
                             <div class="dokter-avatar" style="width:56px;height:56px">
                                 <img src="<?= htmlspecialchars($d['foto']) ?>">
                             </div>
@@ -317,12 +317,12 @@ $success = $_GET['success'] ?? '';
                             </div>
                             <span class="badge badge-green" style="margin-left:auto"><?= htmlspecialchars($d['status']) ?></span>
                         </div>
-                        <div style="padding:14px 20px; font-size:11px; color:#7a7571; letter-spacing:0.5px; border-bottom:1px solid #F9F7F2">
+                        <div style="padding:14px 20px; font-size:11px; color:#7d6756; letter-spacing:0.5px; border-bottom:1px solid #f7ede5">
                             Bio: <?= htmlspecialchars($d['bio']) ?>
                         </div>
                         <div class="slot-section" style="padding:16px 20px 20px">
                             <div class="slot-date-title">Jam Praktik Mingguan</div>
-                            <div style="font-size:12px; color:#585552; line-height:1.7; margin-bottom:12px">
+                            <div style="font-size:12px; color:#7c5835; line-height:1.7; margin-bottom:12px">
                                 Senin - Jumat: 09:00 - 16:00<br>
                                 Sabtu: 09:00 - 13:00 (dr. Marina, dr. Michael)
                             </div>
@@ -389,7 +389,7 @@ $success = $_GET['success'] ?? '';
                                 $idx = 0;
                                 foreach ($dokter_list as $d): 
                                     $idx++;
-                                    $border = $idx === 1 ? 'border:2px solid #735a39' : '';
+                                    $border = $idx === 1 ? 'border:2px solid #7c5835' : '';
                                     $badge = $idx === 1 ? 'badge-green' : 'badge-gray';
                                     $badgeTxt = $idx === 1 ? 'Terpilih ✓' : 'Pilih';
                                 ?>
@@ -420,7 +420,7 @@ $success = $_GET['success'] ?? '';
                                 <div style="padding:26px">
                                     <label class="form-label" style="margin-bottom:8px; display:block">Tanggal Konsultasi</label>
                                     <input class="form-input" type="date" id="booking-date-picker" min="<?= date('Y-m-d') ?>" value="<?= date('Y-m-d') ?>" style="background:#fff; font-size:14px;" onchange="updateTanggalBooking(this.value)">
-                                    <p style="font-size:11px; color:#7a7571; margin-top:10px">Silakan pilih tanggal kerja klinik (Senin s.d Sabtu).</p>
+                                    <p style="font-size:11px; color:#7d6756; margin-top:10px">Silakan pilih tanggal kerja klinik (Senin s.d Sabtu).</p>
                                 </div>
                             </div>
 
@@ -437,8 +437,8 @@ $success = $_GET['success'] ?? '';
                                         <div class="slot-btn" onclick="selectSlotBtn(this, '15:00')">15:00</div>
                                         <div class="slot-btn" onclick="selectSlotBtn(this, '16:00')">16:00</div>
                                     </div>
-                                    <div style="margin-top:16px; background:#F9F7F2; border-radius:8px; padding:12px 14px; font-size:12px; color:#585552; font-weight:300; line-height:1.7">
-                                         Janji temu berdurasi 45-60 menit di <strong style="color:#2D3436">GlowCare Clinic Mataram</strong>.
+                                    <div style="margin-top:16px; background:#f7ede5; border-radius:8px; padding:12px 14px; font-size:12px; color:#7c5835; font-weight:300; line-height:1.7">
+                                         Janji temu berdurasi 45-60 menit di <strong style="color:#4a321f">GlowCare Clinic Mataram</strong>.
                                     </div>
                                 </div>
                             </div>
@@ -502,10 +502,10 @@ $success = $_GET['success'] ?? '';
                                     <div class="confirm-row"><span>Jam</span><span id="sum-jam">09:00 WIB</span></div>
                                     <div class="confirm-row"><span>Ruangan</span><span>Ruang A-1</span></div>
                                 </div>
-                                <div style="background:#e8f9f1; border-radius:8px; padding:14px 16px; font-size:12px; color:#3dab74; line-height:1.7; margin-bottom:20px">
+                                <div style="background:#f5e7dc; border-radius:8px; padding:14px 16px; font-size:12px; color:#7c5835; line-height:1.7; margin-bottom:20px">
                                     Jadwal tersedia. Setelah klik <strong>Konfirmasi Pendaftaran</strong>, sistem akan menyimpan janji temu Anda.
                                 </div>
-                                <label style="display:flex; align-items:flex-start; gap:10px; font-size:12px; color:#585552; font-weight:300; cursor:pointer; margin-bottom:8px">
+                                <label style="display:flex; align-items:flex-start; gap:10px; font-size:12px; color:#7c5835; font-weight:300; cursor:pointer; margin-bottom:8px">
                                     <input type="checkbox" checked required style="margin-top:2px"> Saya menyetujui syarat &amp; ketentuan layanan GlowCare Clinic
                                 </label>
                             </div>
@@ -540,7 +540,7 @@ $success = $_GET['success'] ?? '';
                     </thead>
                     <tbody>
                         <?php if (empty($riwayat_list)): ?>
-                            <tr><td colspan="6" style="text-align:center; color:#7a7571; padding:24px">Belum ada riwayat kunjungan.</td></tr>
+                            <tr><td colspan="6" style="text-align:center; color:#7d6756; padding:24px">Belum ada riwayat kunjungan.</td></tr>
                         <?php else: ?>
                             <?php foreach ($riwayat_list as $r): ?>
                                 <tr>
@@ -589,19 +589,19 @@ $success = $_GET['success'] ?? '';
         <div class="content-area">
             <div class="card" style="padding: 24px;">
                 <?php if ($nextAppt): ?>
-                    <div style="padding: 16px; background:#fbf9f4; border:1px solid #F9F7F2; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:center;">
+                    <div style="padding: 16px; background:#f8ede3; border:1px solid #f7ede5; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:center;">
                         <span style="font-size:24px;">⏰</span>
                         <div>
-                            <div style="font-weight:500; color:#2D3436;">Pengingat Janji Temu Estetika</div>
-                            <div style="font-size:12px; color:#585552; margin-top:3px;">Anda memiliki konsultasi medis terjadwal dengan <strong><?= htmlspecialchars($nextAppt['nama_dokter']) ?></strong> pada <?= date('d M Y', strtotime($nextAppt['tanggal'])) ?> pukul <?= substr($nextAppt['jam'], 0, 5) ?> WIB.</div>
+                            <div style="font-weight:500; color:#4a321f;">Pengingat Janji Temu Estetika</div>
+                            <div style="font-size:12px; color:#7c5835; margin-top:3px;">Anda memiliki konsultasi medis terjadwal dengan <strong><?= htmlspecialchars($nextAppt['nama_dokter']) ?></strong> pada <?= date('d M Y', strtotime($nextAppt['tanggal'])) ?> pukul <?= substr($nextAppt['jam'], 0, 5) ?> WIB.</div>
                         </div>
                     </div>
                 <?php endif; ?>
-                <div style="padding: 16px; background:#fbf9f4; border:1px solid #F9F7F2; border-radius:10px; display:flex; gap:15px; align-items:center;">
+                <div style="padding: 16px; background:#f8ede3; border:1px solid #f7ede5; border-radius:10px; display:flex; gap:15px; align-items:center;">
                     <span style="font-size:24px;">🎉</span>
                     <div>
-                        <div style="font-weight:500; color:#2D3436;">Selamat Bergabung!</div>
-                        <div style="font-size:12px; color:#585552; margin-top:3px;">Pendaftaran akun Anda di sistem klinik kecantikan GlowCare Clinic Mataram berhasil. Nikmati layanan premium kami!</div>
+                        <div style="font-weight:500; color:#4a321f;">Selamat Bergabung!</div>
+                        <div style="font-size:12px; color:#7c5835; margin-top:3px;">Pendaftaran akun Anda di sistem klinik kecantikan GlowCare Clinic Mataram berhasil. Nikmati layanan premium kami!</div>
                     </div>
                 </div>
             </div>
@@ -635,7 +635,7 @@ $success = $_GET['success'] ?? '';
                             </div>
                             <div class="form-group">
                                 <label class="form-label">No Pasien / Rekam</label>
-                                <input class="form-input" value="<?= htmlspecialchars($pasien['no_pasien']) ?> (<?= htmlspecialchars($pasien['no_rekam']) ?>)" disabled style="background:#fcfcfc">
+                                <input class="form-input" value="<?= htmlspecialchars($pasien['no_pasien']) ?> (<?= htmlspecialchars($pasien['no_rekam']) ?>)" disabled style="background:#fdfaf5">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Tanggal Lahir</label>
@@ -672,7 +672,7 @@ $success = $_GET['success'] ?? '';
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Email Aktif</label>
-                                    <input class="form-input" type="email" value="<?= htmlspecialchars($pasien['email']) ?>" disabled style="background:#fcfcfc">
+                                    <input class="form-input" type="email" value="<?= htmlspecialchars($pasien['email']) ?>" disabled style="background:#fdfaf5">
                                 </div>
                                 <button type="submit" class="btn-primary" style="width:100%; margin-top:10px;">Simpan Perubahan Kontak</button>
                             </div>
@@ -731,7 +731,7 @@ $success = $_GET['success'] ?? '';
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-outline" onclick="closeModal('modal-batalkan')">Batal</button>
-                    <button type="submit" style="background:#e8716d; color:#fff; border:none; padding:10px 24px; border-radius:50px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;">Ya, Batalkan</button>
+                    <button type="submit" style="background:#7c5835; color:#fff; border:none; padding:10px 24px; border-radius:50px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;">Ya, Batalkan</button>
                 </div>
             </form>
         </div>
@@ -747,15 +747,15 @@ $success = $_GET['success'] ?? '';
                 <div class="confirm-row"><span>Layanan</span><span id="det-layanan">-</span></div>
                 <div class="confirm-row"><span>Ruangan</span><span id="det-ruangan">-</span></div>
             </div>
-            <div style="background:#F9F7F2; border-radius:10px; padding:16px; margin-bottom:15px">
-                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#7a7571; margin-bottom:4px; font-weight:500;">Anamnesis / Keluhan Medis</div>
-                <div style="font-size:12px; color:#585552; font-weight:300; line-height:1.7" id="det-anamnesis">
+            <div style="background:#f7ede5; border-radius:10px; padding:16px; margin-bottom:15px">
+                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#7d6756; margin-bottom:4px; font-weight:500;">Anamnesis / Keluhan Medis</div>
+                <div style="font-size:12px; color:#7c5835; font-weight:300; line-height:1.7" id="det-anamnesis">
                     -
                 </div>
             </div>
-            <div style="background:#F9F7F2; border-radius:10px; padding:16px; margin-bottom:20px">
-                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#7a7571; margin-bottom:4px; font-weight:500;">Diagnosa &amp; Hasil Pemeriksaan Dokter</div>
-                <div style="font-size:12px; color:#585552; font-weight:300; line-height:1.7" id="det-pemeriksaan">
+            <div style="background:#f7ede5; border-radius:10px; padding:16px; margin-bottom:20px">
+                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#7d6756; margin-bottom:4px; font-weight:500;">Diagnosa &amp; Hasil Pemeriksaan Dokter</div>
+                <div style="font-size:12px; color:#7c5835; font-weight:300; line-height:1.7" id="det-pemeriksaan">
                     -
                 </div>
             </div>
@@ -774,7 +774,7 @@ $success = $_GET['success'] ?? '';
             <form method="POST" action="../../backend/user/simpan_ulasan.php">
                 <input type="hidden" name="dokter_id" id="ulasan-dokter-id">
                 <div style="text-align:center; margin-bottom:24px">
-                    <div style="font-size:13px; color:#585552; font-weight:300; margin-bottom:14px">Pilih Rating Bintang:</div>
+                    <div style="font-size:13px; color:#7c5835; font-weight:300; margin-bottom:14px">Pilih Rating Bintang:</div>
                     <select name="rating" class="form-select" style="max-width:240px; margin:0 auto; font-size:15px; text-align:center;">
                         <option value="5">⭐⭐⭐⭐⭐ 5 / 5 (Sangat Puas)</option>
                         <option value="4">⭐⭐⭐⭐ 4 / 5 (Puas)</option>
@@ -801,13 +801,13 @@ $success = $_GET['success'] ?? '';
             <div class="modal">
                 <div class="success-card">
                     <div class="success-icon" style="font-size:48px; text-align:center; margin-bottom:10px;">✅</div>
-                    <div class="success-title" style="font-family:'Playfair Display',serif; font-size:24px; color:#2D3436; text-align:center; margin-bottom:10px;">Pendaftaran Berhasil!</div>
-                    <div class="success-desc" style="font-size:13px; color:#585552; text-align:center; line-height:1.7; margin-bottom:20px;">Jadwal konsultasi estetika Anda telah terdaftar. Detail janji temu Anda:</div>
-                    <div class="confirm-box" style="background:#F9F7F2; padding:16px; border-radius:10px; margin-bottom:20px;">
-                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Dokter</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['dokter']) ?></span></div>
-                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Tanggal</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['tanggal']) ?></span></div>
-                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Jam</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['jam']) ?> WIB</span></div>
-                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px;"><span>No. Antrian</span><span style="color:#735a39; font-weight:600;"><?= htmlspecialchars($_GET['antrian']) ?></span></div>
+                    <div class="success-title" style="font-family:'Playfair Display',serif; font-size:24px; color:#4a321f; text-align:center; margin-bottom:10px;">Pendaftaran Berhasil!</div>
+                    <div class="success-desc" style="font-size:13px; color:#7c5835; text-align:center; line-height:1.7; margin-bottom:20px;">Jadwal konsultasi estetika Anda telah terdaftar. Detail janji temu Anda:</div>
+                    <div class="confirm-box" style="background:#f7ede5; padding:16px; border-radius:10px; margin-bottom:20px;">
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Dokter</span><span style="font-weight:500; color:#4a321f;"><?= htmlspecialchars($_GET['dokter']) ?></span></div>
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Tanggal</span><span style="font-weight:500; color:#4a321f;"><?= htmlspecialchars($_GET['tanggal']) ?></span></div>
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Jam</span><span style="font-weight:500; color:#4a321f;"><?= htmlspecialchars($_GET['jam']) ?> WIB</span></div>
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px;"><span>No. Antrian</span><span style="color:#7c5835; font-weight:600;"><?= htmlspecialchars($_GET['antrian']) ?></span></div>
                     </div>
                     <button class="btn-primary" style="width:100%" onclick="closeModal('modal-sukses')">Kembali ke Beranda</button>
                 </div>
@@ -837,7 +837,7 @@ $success = $_GET['success'] ?? '';
 
             // Highlight card
             document.querySelectorAll('.dokter-card').forEach(c => {
-                c.style.border = '1px solid #d1c4b8';
+                c.style.border = '1px solid #c8a687';
                 const b = c.querySelector('.badge');
                 if (b) {
                     b.className = 'badge badge-gray';
@@ -847,7 +847,7 @@ $success = $_GET['success'] ?? '';
 
             const card = document.getElementById('dokter-option-' + id);
             if (card) {
-                card.style.border = '2px solid #735a39';
+                card.style.border = '2px solid #7c5835';
                 const b = card.querySelector('.badge');
                 if (b) {
                     b.className = 'badge badge-green';
@@ -940,12 +940,12 @@ $success = $_GET['success'] ?? '';
     <!-- LOGOUT CONFIRMATION MODAL -->
     <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center">
         <div style="background:#fff;border-radius:20px;padding:40px 36px;width:360px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.18);animation:logoutFadeIn .25s ease">
-            <div style="width:56px;height:56px;background:#fef0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:22px">&#x23FB;</div>
-            <div style="font-family:'Playfair Display',serif;font-size:20px;color:#2D3436;margin-bottom:10px">Yakin ingin <em>keluar</em>?</div>
-            <p style="font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.6">Sesi Anda sebagai <strong>Pasien</strong> akan diakhiri. Anda perlu login kembali untuk mengakses akun.</p>
+            <div style="width:56px;height:56px;background:#f5e7dc;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:22px">&#x23FB;</div>
+            <div style="font-family:'Playfair Display',serif;font-size:20px;color:#4a321f;margin-bottom:10px">Yakin ingin <em>keluar</em>?</div>
+            <p style="font-size:13px;color:#7d6756;margin-bottom:28px;line-height:1.6">Sesi Anda sebagai <strong>Pasien</strong> akan diakhiri. Anda perlu login kembali untuk mengakses akun.</p>
             <div style="display:flex;gap:12px;justify-content:center">
-                <button onclick="hideLogoutModal()" style="flex:1;padding:11px;border:1.5px solid #d1c4b8;border-radius:50px;background:#fff;color:#64748b;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">Batal</button>
-                <a href="../../backend/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#e05050;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
+                <button onclick="hideLogoutModal()" style="flex:1;padding:11px;border:1.5px solid #c8a687;border-radius:50px;background:#fff;color:#7d6756;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">Batal</button>
+                <a href="../../backend/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#7c5835;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
             </div>
         </div>
     </div>
