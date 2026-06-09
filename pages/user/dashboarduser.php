@@ -119,6 +119,7 @@ $success = $_GET['success'] ?? '';
             <button class="topnav-item" onclick="showPage('jadwal-dokter', this)">Jadwal Dokter</button>
             <button class="topnav-item" onclick="showPage('daftar-konsul', this)">Daftar Konsultasi</button>
             <button class="topnav-item" onclick="showPage('riwayat', this)">Riwayat</button>
+            <button class="topnav-item" onclick="window.location.href='chat.php'">Chat Dokter</button>
         </div>
 
         <div class="topnav-right">
@@ -281,6 +282,7 @@ $success = $_GET['success'] ?? '';
                             <button onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))" class="btn-outline" style="width:100%; text-align:center">Daftar Konsultasi</button>
                             <button onclick="showPage('jadwal-dokter', document.querySelector('[onclick*=jadwal-dokter]'))" class="btn-outline" style="width:100%; text-align:center">Lihat Jadwal</button>
                             <button onclick="showPage('riwayat', document.querySelector('[onclick*=riwayat]'))" class="btn-outline" style="width:100%; text-align:center">Riwayat Konsultasi</button>
+                            <button onclick="window.location.href='chat.php'" class="btn-outline" style="width:100%; text-align:center; background:#735a39; color:#fff; border-color:#735a39;">Chat Dokter</button>
                             <button onclick="showPage('akun', document.querySelector('[onclick*=akun]'))" class="btn-outline" style="width:100%; text-align:center">Kelola Akun</button>
                         </div>
                     </div>

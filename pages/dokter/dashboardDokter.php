@@ -69,10 +69,10 @@ $qStatBulan = mysqli_query($conn, "
 ");
 $statBulan = $qStatBulan ? mysqli_fetch_assoc($qStatBulan) : ['total_rm'=>0,'facelift'=>0,'rhinoplasty'=>0,'blepharoplasty'=>0];
 
-// ── 3. JADWAL HARI INI ────────────────────────
 $qJadwal = mysqli_query($conn, "
     SELECT j.*, p.nama AS nama_pasien, p.usia, p.jenis_kelamin,
-           p.keluhan, p.id AS pasien_id
+           p.keluhan, p.id AS pasien_id,
+           (SELECT id FROM appointment WHERE pasien_id = j.pasien_id AND dokter_id = j.dokter_id AND tanggal = j.tanggal AND TIME_FORMAT(jam, '%H:%i') = TIME_FORMAT(j.jam_mulai, '%H:%i') LIMIT 1) AS appt_id
     FROM   jadwal j
     JOIN   pasien p ON p.id = j.pasien_id
     WHERE  j.dokter_id = $dokter_id AND j.tanggal = '$today'
@@ -92,14 +92,14 @@ foreach ($jadwalHariIni as $j) {
     }
 }
 
-// ── 4. DAFTAR PASIEN ──────────────────────────
 $qPasien = mysqli_query($conn, "
     SELECT
         p.*,
         j.treatment,
         j.jam_mulai,
         j.status AS status_jadwal,
-        COUNT(rm.id) AS total_kunjungan
+        COUNT(rm.id) AS total_kunjungan,
+        (SELECT id FROM appointment WHERE pasien_id = p.id AND dokter_id = $dokter_id ORDER BY tanggal DESC, jam DESC LIMIT 1) AS appt_id
     FROM pasien p
     LEFT JOIN jadwal j ON j.pasien_id = p.id
         AND j.dokter_id = $dokter_id
@@ -256,9 +256,9 @@ $tanggalHariIni = formatTanggal($today);
         </div>
         <div class="topbar-right">
             <div class="topbar-date"><?= $hariIni ?>, <?= $tanggalHariIni ?></div>
-            <button style="border: 1px solid #d1c4b8; padding: 4px 10px; background: transparent; color: #7a7571; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; position: relative;">
+            <button class="btn-outline" style="font-size: 11px; padding: 6px 16px; position: relative; display: flex; align-items: center; gap: 8px;">
                 Notifikasi
-                <div class="notif-dot" style="top: 0; right: 0; position: absolute; width: 6px; height: 6px; background: #735a39; border-radius: 50%;"></div>
+                <span style="display: inline-block; width: 6px; height: 6px; background: #735a39; border-radius: 50%;"></span>
             </button>
         </div>
     </div>
@@ -700,10 +700,10 @@ $tanggalHariIni = formatTanggal($today);
                     <div style="display:flex; gap:8px; margin-top:16px">
                         <button class="btn-outline" style="font-size:10px; padding:7px 16px"
                             onclick="openModalEdit(<?= (int)$rm['id'] ?>, '<?= htmlspecialchars(addslashes($rm['anamnesis'] ?? ''), ENT_QUOTES) ?>', '<?= htmlspecialchars(addslashes($rm['pemeriksaan'] ?? ''), ENT_QUOTES) ?>', '<?= htmlspecialchars(addslashes($rm['tindak_lanjut'] ?? ''), ENT_QUOTES) ?>', '<?= htmlspecialchars($rm['status']) ?>', '<?= $rm['jadwal_followup'] ?? '' ?>')">
-                            ✏️ Edit
+                            Edit
                         </button>
                         <button class="btn-outline" style="font-size:10px; padding:7px 16px"
-                            onclick="window.print()">🖨️ Cetak</button>
+                            onclick="window.print()">Cetak</button>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -1000,7 +1000,7 @@ $tanggalHariIni = formatTanggal($today);
 <!-- Toast -->
 <div class="toast" id="toast"><span id="toast-msg">Berhasil disimpan</span></div>
 
-    <script src="../../asset/js/dokter.js?v=2"></script>
+    <script src="../../asset/js/dokter.js?v=5"></script>
     <!-- LOGOUT CONFIRMATION MODAL -->
     <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center">
         <div style="background:#fff;border-radius:20px;padding:40px 36px;width:360px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.18);animation:logoutFadeIn .25s ease">

@@ -154,8 +154,22 @@ while($r = mysqli_fetch_assoc($q)) {
 </nav>
 <!-- Actions -->
 <div class="flex items-center gap-sm">
-<a href="pages/auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
-<a href="pages/auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
+<?php if (isset($_SESSION['user_id'])): 
+    $dashboard_url = 'pages/user/dashboarduser.php';
+    if (isset($_SESSION['role'])) {
+        if ($_SESSION['role'] === 'admin') {
+            $dashboard_url = 'pages/admin/dashboard.php';
+        } elseif ($_SESSION['role'] === 'dokter') {
+            $dashboard_url = 'pages/dokter/dashboardDokter.php';
+        }
+    }
+?>
+    <a href="<?= $dashboard_url ?>" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
+    <a href="backend/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
+<?php else: ?>
+    <a href="pages/auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
+    <a href="pages/auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
+<?php endif; ?>
 </div>
 </div>
 </header>
@@ -163,28 +177,39 @@ while($r = mysqli_fetch_assoc($q)) {
 <!-- Hero Section -->
 <section class="relative w-full h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
 <div class="absolute inset-0 z-0">
-<img alt="Premium Aesthetic Services Hero" class="w-full h-full object-cover object-center" src="https://lh3.googleusercontent.com/aida/AP1WRLvx9aMlJNEa5OJ5ldw2XnCFFOxAzy94gxGdXsSe1lEdli7kKExY3agiZmi7qEW4xBn9VW-2Zmrm8PUO4OuMO5CGJijvdki2ha6m5LbEoKG9SaMKQRv8rH9GG2GuVLkBs7wjcwvpfNBQIPEOhJ3KyTpEMPT9Y3tJVb6Flt-9zNdoyNFT4SGXMshDnKrF6zE4YhCLixCu9QAdbh8iPaywwCynpZhZEyLN7XGIyHQhxlr1LdFrsL9R4Tl164I">
-<div class="absolute inset-0 bg-surface/40 backdrop-blur-[2px]"></div>
-<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<img alt="Premium Aesthetic Services Hero" class="w-full h-full object-cover object-center brightness-[0.85] contrast-[1.05]" src="https://lh3.googleusercontent.com/aida/AP1WRLvx9aMlJNEa5OJ5ldw2XnCFFOxAzy94gxGdXsSe1lEdli7kKExY3agiZmi7qEW4xBn9VW-2Zmrm8PUO4OuMO5CGJijvdki2ha6m5LbEoKG9SaMKQRv8rH9GG2GuVLkBs7wjcwvpfNBQIPEOhJ3KyTpEMPT9Y3tJVb6Flt-9zNdoyNFT4SGXMshDnKrF6zE4YhCLixCu9QAdbh8iPaywwCynpZhZEyLN7XGIyHQhxlr1LdFrsL9R4Tl164I">
+<div class="absolute inset-0 bg-surface/50 backdrop-blur-[1px]"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent"></div>
 </div>
 <div class="relative z-10 text-center max-w-3xl px-margin-desktop mx-auto">
-<span class="inline-block px-sm py-xs mb-md backdrop-blur-sm font-label-sm text-label-sm rounded-full tracking-wider uppercase bg-primary text-on-primary">Clinical Excellence</span>
-<h1 class="font-display-lg text-display-lg text-on-background mb-md">Our Clinical Treatments</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Experience the pinnacle of medical-grade aesthetics. Our treatments combine advanced clinical technology with a serene luxury experience, curated by expert practitioners for your skin's health.</p>
+<span class="inline-block px-4 py-1.5 mb-md backdrop-blur-md font-label-sm text-label-sm rounded-full tracking-widest uppercase bg-primary/10 text-primary border border-primary/25 shadow-sm">Clinical Excellence</span>
+<h1 class="font-display-lg text-display-lg md:text-[42px] text-on-background mb-md font-serif leading-tight">Our Clinical Treatments</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto leading-relaxed">Experience the pinnacle of medical-grade aesthetics. Our treatments combine advanced clinical technology with a serene luxury experience, curated by expert practitioners for your skin's health.</p>
 </div>
 </section>
-<!-- Category Filter Bar -->
-<section class="sticky top-[72px] z-40 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/30">
-<div class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop overflow-x-auto">
-<div class="flex items-center justify-start md:justify-center gap-xs py-4 whitespace-nowrap no-scrollbar" id="filter-container">
-<button data-target="all" class="filter-tab active font-label-md text-label-md px-6 py-2 rounded-full transition-all duration-300">All Treatments</button>
-<button data-target="acne" class="filter-tab text-on-surface-variant hover:text-primary font-label-md text-label-md px-6 py-2 rounded-full transition-all duration-300">Acne &amp; Clear Skin</button>
-<button data-target="anti-aging" class="filter-tab text-on-surface-variant hover:text-primary font-label-md text-label-md px-6 py-2 rounded-full transition-all duration-300">Anti-Aging</button>
-<button data-target="brightening" class="filter-tab text-on-surface-variant hover:text-primary font-label-md text-label-md px-6 py-2 rounded-full transition-all duration-300">Brightening</button>
-<button data-target="body" class="filter-tab text-on-surface-variant hover:text-primary font-label-md text-label-md px-6 py-2 rounded-full transition-all duration-300">Hair &amp; Body</button>
+
+<!-- Search & Category Filter Bar -->
+<section class="sticky top-[72px] z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 py-4 shadow-sm">
+<div class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row md:items-center justify-between gap-md">
+<!-- Category Filter Tabs -->
+<div class="flex items-center gap-xs overflow-x-auto whitespace-nowrap no-scrollbar pb-2 md:pb-0" id="filter-container">
+<button data-target="all" class="filter-tab active font-label-md text-label-md px-5 py-2.5 rounded-full transition-all duration-300">All Treatments</button>
+<button data-target="acne" class="filter-tab text-on-surface-variant hover:text-primary font-label-md text-label-md px-5 py-2.5 rounded-full transition-all duration-300">Acne &amp; Clear Skin</button>
+<button data-target="anti-aging" class="filter-tab text-on-surface-variant hover:text-primary font-label-md text-label-md px-5 py-2.5 rounded-full transition-all duration-300">Anti-Aging</button>
+<button data-target="brightening" class="filter-tab text-on-surface-variant hover:text-primary font-label-md text-label-md px-5 py-2.5 rounded-full transition-all duration-300">Brightening</button>
+<button data-target="body" class="filter-tab text-on-surface-variant hover:text-primary font-label-md text-label-md px-5 py-2.5 rounded-full transition-all duration-300">Hair &amp; Body</button>
+</div>
+<!-- Premium Search Input -->
+<div class="relative w-full md:w-80">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 pointer-events-none text-xl">search</span>
+<input type="text" id="search-input" placeholder="Search treatments..." class="w-full pl-10 pr-10 py-2.5 bg-surface-container-low border border-outline-variant/50 rounded-full text-body-md text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all duration-300 shadow-inner">
+<button id="clear-search" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-primary hidden transition-colors duration-200">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
 </div>
 </div>
 </section>
+
 <!-- Treatments Grid -->
 <section class="py-xl px-margin-mobile md:px-margin-desktop max-w-[1200px] mx-auto">
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter lg:gap-lg" id="treatments-grid">
@@ -195,27 +220,27 @@ while($r = mysqli_fetch_assoc($q)) {
     else if ($cat_class == 'acne') $cat_class = 'acne';
     else if ($cat_class == 'brightening') $cat_class = 'brightening';
     else $cat_class = 'other';
-    $durasi = htmlspecialchars($tr['durasi']);
+    $durasi = htmlspecialchars($tr['durasi'] ?? '60 Menit');
     $nama = htmlspecialchars($tr['nama']);
     $img = htmlspecialchars($tr['gambar_url']);
     $kat = htmlspecialchars($tr['kategori']);
-    $desc = htmlspecialchars($tr['deskripsi_panjang']);
+    $desc = htmlspecialchars($tr['deskripsi_panjang'] ?? $tr['deskripsi'] ?? '');
 ?>
-<div data-category="<?= $cat_class ?>" class="treatment-card bg-surface-container-lowest rounded-2xl border border-outline-variant/40 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group">
+<div data-category="<?= $cat_class ?>" data-name="<?= strtolower($nama) ?>" data-desc="<?= strtolower($desc) ?>" class="treatment-card bg-surface-container-lowest rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm hover:shadow-[0_12px_30px_rgba(115,90,57,0.12)] hover:-translate-y-1.5 transition-all duration-500 flex flex-col group">
 <div class="relative h-[240px] w-full overflow-hidden">
-<img alt="<?= $nama ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="<?= $img ?>">
-<span class="absolute top-4 left-4 bg-surface/90 backdrop-blur-sm text-primary font-label-sm text-label-sm px-3 py-1 rounded-full border border-primary/20"><?= $kat ?></span>
+<img alt="<?= $nama ?>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="<?= $img ?>">
+<span class="absolute top-4 left-4 bg-surface/90 backdrop-blur-md text-primary font-label-sm text-label-sm px-3.5 py-1.5 rounded-full border border-primary/20 shadow-sm font-semibold"><?= $kat ?></span>
 </div>
 <div class="p-md flex flex-col flex-grow">
-<div class="flex justify-between items-start mb-2">
-<h3 class="font-headline-md text-headline-md text-on-background leading-tight"><?= $nama ?></h3>
-<div class="flex items-center text-on-surface-variant/70">
+<div class="flex justify-between items-start mb-3">
+<h3 class="font-headline-md text-headline-md text-on-background leading-tight font-serif font-semibold group-hover:text-primary transition-colors duration-300"><?= $nama ?></h3>
+<div class="flex items-center text-on-surface-variant/70 shrink-0 bg-surface-container-low px-2.5 py-1 rounded-md ml-2 border border-outline-variant/20">
 <span class="material-symbols-outlined text-sm mr-1" style="font-size: 16px;">schedule</span>
-<span class="font-label-sm text-label-sm"><?= $durasi ?></span>
+<span class="font-label-sm text-label-sm font-medium"><?= $durasi ?></span>
 </div>
 </div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mb-lg flex-grow"><?= $desc ?></p>
-<a href="detail_treatment.php?id=<?= $tr['id'] ?>" class="w-full py-3 bg-surface-container-high text-primary font-label-md text-label-md rounded-lg border border-primary/20 hover:bg-primary hover:text-on-primary transition-all duration-300 uppercase tracking-wider text-center block inline-flex items-center justify-center gap-2"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> Lihat Detail</a>
+<p class="font-body-sm text-body-sm text-on-surface-variant/90 mb-lg flex-grow leading-relaxed"><?= $desc ?></p>
+<a href="detail_treatment.php?id=<?= $tr['id'] ?>" class="w-full py-3 bg-surface-container-high text-primary font-label-md text-label-md rounded-xl border border-primary/25 hover:bg-primary hover:text-on-primary hover:border-transparent transition-all duration-300 uppercase tracking-widest text-center block inline-flex items-center justify-center gap-2 font-semibold shadow-sm hover:shadow-md"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> Lihat Detail</a>
 </div>
 </div>
 <?php endforeach; ?>
@@ -289,7 +314,7 @@ while($r = mysqli_fetch_assoc($q)) {
     Schedule a comprehensive consultation with our clinical experts to develop a personalized treatment plan tailored to your unique goals.
   </p>
 <!-- High-Contrast Primary Button -->
-<a href="jadwal.php" class="inline-block relative z-10 bg-primary text-on-primary font-label-md text-label-md px-xl py-4 rounded-lg hover:-translate-y-1 hover:shadow-lg transition-all duration-300 uppercase tracking-wider">
+<a href="kontak.php" class="inline-block relative z-10 bg-primary text-on-primary font-label-md text-label-md px-xl py-4 rounded-lg hover:-translate-y-1 hover:shadow-lg transition-all duration-300 uppercase tracking-wider">
     Schedule Consultation
   </a>
 <!-- Subtle Bottom Accent -->
@@ -298,8 +323,8 @@ while($r = mysqli_fetch_assoc($q)) {
 </section>
 </main>
 <!-- Footer -->
-<footer class="w-full bg-surface-container-low border-t border-outline-variant flat no shadows">
-<div class="w-full px-margin-desktop py-xl flex flex-col md:flex-row justify-between items-start gap-lg max-w-[1200px] mx-auto">
+<footer class="w-full bg-surface-container-low border-t border-outline-variant flat no shadows mt-xl">
+<div class="w-full px-margin-mobile md:px-margin-desktop py-xl flex flex-col md:flex-row justify-between items-start gap-lg max-w-[1200px] mx-auto">
 <!-- Brand Logo -->
 <div class="font-headline-md text-headline-md text-primary">
                 GlowCare
@@ -340,25 +365,28 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filterTabs = document.querySelectorAll('.filter-tab');
     const treatmentCards = document.querySelectorAll('.treatment-card');
+    const searchInput = document.getElementById('search-input');
+    const clearSearchBtn = document.getElementById('clear-search');
     
-    function filterCards(cat) {
-        // Update cards visibility
+    let searchQuery = '';
+    
+    function filterCards() {
         treatmentCards.forEach(card => {
-            if (cat === 'all' || card.dataset.category === cat) {
-                card.style.display = 'flex'; // Use flex because the card uses flex layout
+            const matchesCategory = (activeCategory === 'all' || card.dataset.category === activeCategory);
+            const cardName = card.dataset.name || '';
+            const cardDesc = card.dataset.desc || '';
+            const matchesSearch = !searchQuery || cardName.includes(searchQuery) || cardDesc.includes(searchQuery);
+            
+            if (matchesCategory && matchesSearch) {
+                card.style.display = 'flex';
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0) scale(1)';
+                }, 10);
             } else {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(10px) scale(0.98)';
                 card.style.display = 'none';
-            }
-        });
-        
-        // Update tabs styling
-        filterTabs.forEach(tab => {
-            if (tab.dataset.target === cat) {
-                tab.classList.add('active');
-                tab.classList.remove('text-on-surface-variant');
-            } else {
-                tab.classList.remove('active');
-                tab.classList.add('text-on-surface-variant');
             }
         });
     }
@@ -366,20 +394,55 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup event listeners for tabs
     filterTabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
-            const targetCat = e.target.dataset.target;
-            filterCards(targetCat);
+            activeCategory = e.target.dataset.target;
+            filterCards();
+            
+            // Update tabs styling
+            filterTabs.forEach(t => {
+                if (t.dataset.target === activeCategory) {
+                    t.classList.add('active');
+                    t.classList.remove('text-on-surface-variant');
+                } else {
+                    t.classList.remove('active');
+                    t.classList.add('text-on-surface-variant');
+                }
+            });
             
             // Optionally update URL without reloading
-            const readableParam = Object.keys(paramMap).find(key => paramMap[key] === targetCat);
-            const newUrl = targetCat === 'all' 
+            const readableParam = Object.keys(paramMap).find(key => paramMap[key] === activeCategory);
+            const newUrl = activeCategory === 'all' 
                 ? window.location.pathname 
                 : `${window.location.pathname}?category=${readableParam}`;
             window.history.pushState({path: newUrl}, '', newUrl);
         });
     });
     
+    // Search input event
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase().trim();
+            if (searchQuery) {
+                clearSearchBtn.classList.remove('hidden');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+            }
+            filterCards();
+        });
+    }
+    
+    // Clear search
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchQuery = '';
+            clearSearchBtn.classList.add('hidden');
+            filterCards();
+            searchInput.focus();
+        });
+    }
+    
     // Initial filtering
-    filterCards(activeCategory);
+    filterCards();
 });
 </script>
 </body></html>

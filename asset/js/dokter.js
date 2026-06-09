@@ -46,7 +46,7 @@ function openModalEdit(id, anamnesis, pemeriksaan, tindakLanjut, status, followu
 
 // ── Buka modal tambah RM, otomatis pilih pasien ─
 function openModal(id, pasienId = null) {
-    document.getElementById(id).classList.add('active');
+    document.getElementById(id).classList.add('open');
     if (id === 'modal-rm-baru' && pasienId) {
         const sel = document.getElementById('modal-pasien-select');
         if (sel) sel.value = pasienId;
@@ -116,4 +116,37 @@ function loadTimeline(pasienId) {
         .catch(() => {
             container.innerHTML = '<div style="color:#b89098;">Gagal memuat timeline.</div>';
         });
+}
+
+// ── Dashboard Panels & Modals ────────────────
+const titles = {
+    overview: 'Overview',
+    jadwal: 'Jadwal Praktik',
+    'daftar-pasien': 'Daftar Pasien',
+    'rekam-medis': 'Rekam Medis',
+    profil: 'Profil Saya'
+};
+
+function showPanel(id, el) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    const targetPanel = document.getElementById('panel-' + id);
+    if (targetPanel) targetPanel.classList.add('active');
+    
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+    
+    const titleEl = document.getElementById('topbar-title');
+    if (titleEl) titleEl.textContent = titles[id] || id;
+    
+    const bcEl = document.getElementById('topbar-bc');
+    if (bcEl) bcEl.textContent = 'GlowCare Dokter → ' + (titles[id] || id);
+}
+
+function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('open');
+}
+
+function closeModalOutside(e, id) {
+    if (e.target.classList.contains('modal-overlay')) closeModal(id);
 }

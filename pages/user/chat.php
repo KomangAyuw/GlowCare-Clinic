@@ -6,17 +6,16 @@ if (!isset($_SESSION['user_id'])) {
 }
 require '../../backend/koneksi.php';
 $user_id = (int)$_SESSION['user_id'];
+
 $qProfil = mysqli_query($conn, "SELECT p.*, u.username FROM pasien p JOIN users u ON u.id = p.user_id WHERE p.user_id = $user_id LIMIT 1");
 $profil  = $qProfil ? mysqli_fetch_assoc($qProfil) : [];
-$pasien_id = $profil['id'] ?? 0;
+$pasien_id    = (int)($profil['id'] ?? 0);
+$namaPasien   = htmlspecialchars($profil['nama'] ?? $profil['username'] ?? 'Pasien');
 
-$appt_id = (int)($_GET['appt_id'] ?? 0);
-$consultation_id = 0;
-$dokter = ['nama' => 'Dokter', 'spesialisasi' => 'Spesialis'];
-
-// Get patient's appointments
+// Ambil semua appointment pasien untuk sidebar
 $qAppts = mysqli_query($conn, "
-    SELECT a.id as appt_id, d.nama as nama_dokter, t.nama as nama_treatment, a.tanggal, a.jam 
+    SELECT a.id as appt_id, a.status as appt_status, d.nama as nama_dokter, d.spesialisasi,
+           t.nama as nama_treatment, a.tanggal, a.jam 
     FROM appointment a 
     JOIN dokter d ON a.dokter_id = d.id
     LEFT JOIN treatment t ON a.treatment_id = t.id
@@ -29,76 +28,199 @@ if ($qAppts) {
         $appointments[] = $row;
     }
 }
-$dokter = ['nama' => 'Dokter', 'spesialisasi' => 'Spesialis'];
+
+// Appointment yang sedang dipilih
+$appt_id = (int)($_GET['appt_id'] ?? ($appointments[0]['appt_id'] ?? 0));
+$consultation_id = 0;
+$dokter    = ['nama' => 'Dokter', 'spesialisasi' => '-'];
+$apptInfo  = null;
 
 if ($appt_id > 0) {
-    $qConsult = mysqli_query($conn, "SELECT id, dokter_id FROM consultations WHERE appointment_id = $appt_id");
-    if (mysqli_num_rows($qConsult) > 0) {
+    // Cari atau buat sesi konsultasi
+    $qConsult = mysqli_query($conn, "SELECT id, dokter_id FROM consultations WHERE appointment_id = $appt_id LIMIT 1");
+    if ($qConsult && mysqli_num_rows($qConsult) > 0) {
         $consult = mysqli_fetch_assoc($qConsult);
-        $consultation_id = $consult['id'];
-        $dokter_id = $consult['dokter_id'];
+        $consultation_id = (int)$consult['id'];
+        $dokter_id = (int)$consult['dokter_id'];
     } else {
-        $qAppt = mysqli_query($conn, "SELECT dokter_id FROM appointment WHERE id = $appt_id");
+        $qAppt = mysqli_query($conn, "SELECT dokter_id, status FROM appointment WHERE id = $appt_id AND pasien_id = $pasien_id LIMIT 1");
         if ($appt = mysqli_fetch_assoc($qAppt)) {
-            $dokter_id = $appt['dokter_id'];
+            $dokter_id = (int)$appt['dokter_id'];
             mysqli_query($conn, "INSERT INTO consultations (appointment_id, pasien_id, dokter_id, status, created_at) VALUES ($appt_id, $pasien_id, $dokter_id, 'Aktif', NOW())");
-            $consultation_id = mysqli_insert_id($conn);
+            $consultation_id = (int)mysqli_insert_id($conn);
         }
     }
-    
-    if (isset($dokter_id)) {
-        $qDokter = mysqli_query($conn, "SELECT nama, spesialisasi FROM dokter WHERE id = $dokter_id");
+
+    if (isset($dokter_id) && $dokter_id > 0) {
+        $qDokter = mysqli_query($conn, "SELECT nama, spesialisasi FROM dokter WHERE id = $dokter_id LIMIT 1");
         if ($qDokter && mysqli_num_rows($qDokter) > 0) {
             $dokter = mysqli_fetch_assoc($qDokter);
+            $dokter['nama']         = htmlspecialchars($dokter['nama']);
+            $dokter['spesialisasi'] = htmlspecialchars($dokter['spesialisasi']);
+        }
+    }
+
+    // Info appointment untuk header & tombol batal
+    foreach ($appointments as $a) {
+        if ($a['appt_id'] == $appt_id) {
+            $apptInfo = $a;
+            break;
         }
     }
 }
+
+$canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Selesai']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Konsultasi Chat - GlowCare Clinic</title>
+    <title>Chat Konsultasi — GlowCare Clinic</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
     <link rel="stylesheet" href="../../asset/css/user.css?v=4">
     <style>
-        .chat-container {
+        * { box-sizing: border-box; }
+        body { background: #f5f3ee; margin: 0; overflow: hidden; }
+
+        /* ── Topnav ── */
+        .topnav {
             display: flex;
-            height: calc(100vh - 100px);
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            border: 1px solid rgba(220, 232, 232, 0.4);
-            box-shadow: 0 10px 30px rgba(115, 90, 57, 0.05);
-            overflow: hidden;
-            margin: 0 48px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            height: 60px;
+            background: linear-gradient(135deg, #2D3436, #735a39);
+            box-shadow: 0 2px 12px rgba(115,90,57,0.18);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 200;
         }
+        .topnav-brand { font-family:'Playfair Display',serif; font-size:18px; color:#fff; letter-spacing:0.5px; }
+        .topnav-actions { display:flex; gap:10px; align-items:center; }
+        .btn-back {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.25); }
+        .btn-logout-nav {
+            background: #e05050;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* ── Layout ── */
+        .chat-wrapper {
+            display: flex;
+            height: calc(100vh - 60px);
+            margin-top: 60px;
+        }
+
+        /* ── Sidebar ── */
         .chat-sidebar {
-            width: 300px;
-            background: rgba(242, 248, 248, 0.5);
-            border-right: 1px solid rgba(220, 232, 232, 0.4);
+            width: 290px;
+            background: #fff;
+            border-right: 1px solid #e2ddd8;
             display: flex;
             flex-direction: column;
+            flex-shrink: 0;
         }
+        .sidebar-header {
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid #e2ddd8;
+        }
+        .sidebar-title {
+            font-family:'Playfair Display',serif;
+            font-size: 16px;
+            color: #2D3436;
+            margin-bottom: 2px;
+        }
+        .sidebar-sub { font-size:11px; color:#9a8f87; }
+        .session-list { flex: 1; overflow-y: auto; }
+        .session-item {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f0ede8;
+            cursor: pointer;
+            transition: background 0.15s;
+            position: relative;
+        }
+        .session-item:hover { background: #faf8f5; }
+        .session-item.active { background: #fdf5ec; border-left: 3px solid #735a39; }
+        .session-item .doc-name { font-size:13px; font-weight:500; color:#2D3436; }
+        .session-item .doc-spec { font-size:11px; color:#735a39; margin-top:3px; }
+        .session-item .doc-date { font-size:10px; color:#9a8f87; margin-top:5px; }
+        .session-item .status-dot {
+            display: inline-block;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+        .dot-active { background: #3dab74; }
+        .dot-selesai { background: #9a8f87; }
+        .dot-batal { background: #e05050; }
+
+        /* ── Main area ── */
         .chat-main {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #ffffff;
+            background: #fff;
+            min-width: 0;
         }
+
+        /* ── Chat header ── */
         .chat-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid rgba(220, 232, 232, 0.4);
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2ddd8;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            background: #fff;
         }
-        .chat-doctor-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .chat-doc-left { display:flex; align-items:center; gap:12px; }
+        .doc-avatar {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#735a39,#2D3436);
+            color: #fff;
+            font-family: 'Playfair Display',serif;
+            font-size: 18px;
+            display: flex; align-items:center; justify-content:center;
+            flex-shrink: 0;
         }
+        .doc-info-name { font-family:'Playfair Display',serif; font-size:16px; color:#2D3436; }
+        .doc-info-spec { font-size:11px; color:#735a39; margin-top:2px; }
+        .appt-meta { font-size:11px; color:#7a7571; margin-top:4px; }
+        .btn-batal-konsul {
+            background: #fef0f0;
+            color: #c0392b;
+            border: 1px solid #fbc4c4;
+            padding: 7px 16px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+        }
+        .btn-batal-konsul:hover { background: #fddede; border-color: #e05050; }
+
+        /* ── Messages ── */
         .chat-messages {
             flex: 1;
             padding: 24px;
@@ -106,258 +228,368 @@ if ($appt_id > 0) {
             display: flex;
             flex-direction: column;
             gap: 16px;
+            background: #faf8f5;
+        }
+        .msg-group { display:flex; flex-direction:column; }
+        .msg-group.right { align-items:flex-end; }
+        .msg-group.left  { align-items:flex-start; }
+        .msg-sender-name {
+            font-size: 10px;
+            color: #9a8f87;
+            margin-bottom: 4px;
+            padding: 0 4px;
+            letter-spacing: 0.3px;
         }
         .msg {
-            max-width: 60%;
-            padding: 12px 16px;
-            border-radius: 16px;
+            max-width: 65%;
+            padding: 11px 16px;
+            border-radius: 18px;
             font-size: 13px;
-            line-height: 1.5;
-        }
-        .msg.received {
-            background: #f0f5f5;
-            color: #2c3e50;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
+            line-height: 1.55;
+            word-break: break-word;
         }
         .msg.sent {
             background: linear-gradient(135deg, #735a39 0%, #594323 100%);
-            color: #ffffff;
-            align-self: flex-end;
+            color: #fff;
             border-bottom-right-radius: 4px;
         }
-        .msg-time {
-            font-size: 10px;
-            margin-top: 4px;
-            opacity: 0.7;
+        .msg.received {
+            background: #fff;
+            color: #2D3436;
+            border: 1px solid #e2ddd8;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
+        .msg-time { font-size:10px; opacity:0.65; margin-top:5px; display:block; }
+        .chat-system-msg {
+            text-align: center;
+            font-size: 11px;
+            color: #9a8f87;
+            background: #f0ede8;
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin: 4px auto;
+        }
+
+        /* ── Empty state ── */
+        .chat-empty {
+            flex: 1; display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            color: #b0a89e; gap: 12px;
+        }
+        .chat-empty-icon { font-size:48px; }
+        .chat-empty-text { font-size:14px; }
+
+        /* ── Input area ── */
         .chat-input-area {
-            padding: 16px 24px;
-            border-top: 1px solid rgba(220, 232, 232, 0.4);
-            background: #fafafa;
+            padding: 14px 20px;
+            border-top: 1px solid #e2ddd8;
+            background: #fff;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: flex-end;
         }
         .chat-input {
             flex: 1;
-            border: 1px solid #dce8e8;
-            border-radius: 20px;
-            padding: 12px 16px;
+            border: 1.5px solid #d1c4b8;
+            border-radius: 22px;
+            padding: 11px 18px;
             font-family: 'DM Sans', sans-serif;
             font-size: 13px;
             outline: none;
             resize: none;
-            max-height: 100px;
-            background: #ffffff;
+            max-height: 120px;
+            background: #faf8f5;
+            transition: border-color 0.2s;
+            line-height: 1.5;
         }
-        .chat-input:focus {
-            border-color: #735a39;
-            box-shadow: 0 0 0 3px rgba(115, 90, 57, 0.1);
-        }
-        .chat-btn {
+        .chat-input:focus { border-color: #735a39; background: #fff; }
+        .chat-send-btn {
             background: linear-gradient(135deg, #735a39 0%, #594323 100%);
-            color: white;
+            color: #fff;
             border: none;
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items:center; justify-content:center;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .chat-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(115, 90, 57, 0.3);
-        }
-        .chat-sidebar-header {
-            padding: 24px;
-            font-family: 'Playfair Display', serif;
             font-size: 18px;
-            color: #2c3e50;
-            border-bottom: 1px solid rgba(220, 232, 232, 0.4);
+            flex-shrink: 0;
+            transition: transform 0.15s, box-shadow 0.2s;
         }
-        .chat-session-item {
-            padding: 16px 24px;
-            border-bottom: 1px solid rgba(220, 232, 232, 0.2);
-            cursor: pointer;
-            transition: background 0.2s;
+        .chat-send-btn:hover { transform: scale(1.07); box-shadow: 0 4px 12px rgba(115,90,57,0.3); }
+        .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ── Modal Batal ── */
+        .modal-overlay {
+            display:none; position:fixed; inset:0; z-index:9000;
+            background: rgba(0,0,0,0.45); backdrop-filter:blur(4px);
+            align-items:center; justify-content:center;
         }
-        .chat-session-item:hover, .chat-session-item.active {
-            background: rgba(255, 255, 255, 0.6);
+        .modal-overlay.open { display:flex; }
+        .modal-box {
+            background:#fff; border-radius:20px; padding:36px 32px;
+            width:360px; text-align:center;
+            box-shadow:0 24px 64px rgba(0,0,0,0.18);
+            animation: modalIn .2s ease;
         }
+        @keyframes modalIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
+        .modal-icon {
+            width:52px;height:52px; border-radius:50%;
+            background:#fef0f0; display:flex; align-items:center; justify-content:center;
+            margin: 0 auto 16px; font-size:22px;
+        }
+        .modal-title { font-family:'Playfair Display',serif; font-size:18px; color:#2D3436; margin-bottom:8px; }
+        .modal-desc { font-size:12px; color:#7a7571; line-height:1.7; margin-bottom:22px; }
+        .modal-alasan {
+            width:100%; border:1.5px solid #d1c4b8; border-radius:10px;
+            padding:10px 14px; font-size:12px; font-family:'DM Sans',sans-serif;
+            margin-bottom:20px; outline:none; resize:none;
+        }
+        .modal-alasan:focus { border-color:#735a39; }
+        .modal-btns { display:flex; gap:10px; }
+        .modal-btn-cancel {
+            flex:1; padding:10px; border:1.5px solid #d1c4b8; border-radius:50px;
+            background:#fff; color:#7a7571; font-size:12px; font-weight:500;
+            letter-spacing:0.5px; text-transform:uppercase; cursor:pointer;
+            font-family:'DM Sans',sans-serif;
+        }
+        .modal-btn-confirm {
+            flex:1; padding:10px; border:none; border-radius:50px;
+            background:#e05050; color:#fff; font-size:12px; font-weight:500;
+            letter-spacing:0.5px; text-transform:uppercase; cursor:pointer;
+            font-family:'DM Sans',sans-serif;
+        }
+        .modal-btn-confirm:hover { background:#c0392b; }
     </style>
 </head>
 <body>
 
 <!-- TOPNAV -->
 <div class="topnav">
-    <div style="display:flex; align-items:center; gap:16px;">
-        <a href="dashboarduser.php" style="color:#2c3e50; text-decoration:none; font-size:18px; font-weight:bold; background:#f0fdf4; padding:6px 12px; border-radius:8px;" title="Kembali ke Dashboard">←</a>
-        <div class="topnav-brand" onclick="window.location='dashboarduser.php'" style="cursor:pointer">GlowCare Clinic</div>
-    </div>
-    <div style="display:flex; gap:16px; align-items:center">
-        <a href="dashboarduser.php" style="color:#fff; text-decoration:none; font-size:12px; letter-spacing:1px; text-transform:uppercase">Dashboard</a>
-        <a href="../../backend/logout.php" class="btn-outline" style="color:#fff; border-color:rgba(255,255,255,0.3); padding:6px 16px">Logout</a>
+    <div class="topnav-brand">GlowCare Clinic · Chat Konsultasi</div>
+    <div class="topnav-actions">
+        <a href="dashboarduser.php" class="btn-back">&#8592; Dashboard</a>
+        <a href="../../backend/logout.php" class="btn-logout-nav">Logout</a>
     </div>
 </div>
 
-<div style="padding: 24px 0;">
-    <div class="chat-container">
-        <!-- Sidebar -->
-        <div class="chat-sidebar">
-            <div class="chat-sidebar-header">Riwayat Konsultasi</div>
-            <?php if (count($appointments) === 0): ?>
-                <div style="padding: 24px; font-size: 13px; color: #64748b;">Belum ada riwayat konsultasi.</div>
+<div class="chat-wrapper">
+    <!-- SIDEBAR -->
+    <div class="chat-sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Konsultasi Saya</div>
+            <div class="sidebar-sub"><?= count($appointments) ?> Janji Temu</div>
+        </div>
+        <div class="session-list">
+            <?php if (empty($appointments)): ?>
+                <div style="padding:24px; font-size:13px; color:#9a8f87; text-align:center;">
+                    Belum ada janji temu.<br>
+                    <a href="dashboarduser.php" style="color:#735a39; font-weight:500; text-decoration:none;">Buat Booking</a>
+                </div>
             <?php else: ?>
-                <?php foreach($appointments as $app): ?>
-                <div class="chat-session-item <?= ($app['appt_id'] == $appt_id) ? 'active' : '' ?>" onclick="window.location.href='chat.php?appt_id=<?= $app['appt_id'] ?>'">
-                    <div style="font-weight:500; font-size:14px; color:#2c3e50"><?= htmlspecialchars($app['nama_dokter']) ?></div>
-                    <div style="font-size:12px; color:#735a39; margin-top:4px"><?= htmlspecialchars($app['nama_treatment'] ?? 'Konsultasi') ?></div>
-                    <div style="font-size:11px; color:#64748b; margin-top:6px"><?= date('d M Y, H:i', strtotime($app['tanggal'] . ' ' . $app['jam'])) ?></div>
+                <?php foreach ($appointments as $a):
+                    $isActive = ($a['appt_id'] == $appt_id);
+                    $dotClass = match($a['appt_status']) {
+                        'Selesai'    => 'dot-selesai',
+                        'Dibatalkan' => 'dot-batal',
+                        default      => 'dot-active',
+                    };
+                ?>
+                <div class="session-item <?= $isActive ? 'active' : '' ?>" onclick="window.location.href='chat.php?appt_id=<?= $a['appt_id'] ?>'">
+                    <div class="doc-name">
+                        <span class="status-dot <?= $dotClass ?>"></span>
+                        <?= htmlspecialchars($a['nama_dokter']) ?>
+                    </div>
+                    <div class="doc-spec"><?= htmlspecialchars($a['nama_treatment'] ?? 'Konsultasi Umum') ?></div>
+                    <div class="doc-date"><?= date('d M Y, H:i', strtotime($a['tanggal'] . ' ' . $a['jam'])) ?> WIB</div>
                 </div>
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
+    </div>
 
-        <!-- Main Chat Area -->
-        <div class="chat-main">
+    <!-- MAIN CHAT -->
+    <div class="chat-main">
+        <?php if ($consultation_id === 0): ?>
+            <div class="chat-empty">
+                <div class="chat-empty-icon">💬</div>
+                <div class="chat-empty-text">Pilih konsultasi di sebelah kiri untuk memulai chat</div>
+                <?php if (empty($appointments)): ?>
+                    <a href="dashboarduser.php" style="margin-top:8px; background:#735a39; color:#fff; padding:8px 20px; border-radius:50px; text-decoration:none; font-size:12px; font-weight:500;">Buat Janji Sekarang</a>
+                <?php endif; ?>
+            </div>
+        <?php else: ?>
+
+            <!-- Chat Header -->
             <div class="chat-header">
-                <div class="chat-doctor-info">
-                    <div class="avatar" style="width:40px; height:40px; font-size:16px"><?= substr(htmlspecialchars($dokter['nama']), 0, 1) ?></div>
+                <div class="chat-doc-left">
+                    <div class="doc-avatar"><?= substr($dokter['nama'], 0, 1) ?></div>
                     <div>
-                        <div style="font-family:'Playfair Display', serif; font-size:18px; color:#2c3e50"><?= htmlspecialchars($dokter['nama']) ?></div>
-                        <div style="font-size:12px; color:#735a39"><?= htmlspecialchars($dokter['spesialisasi']) ?></div>
+                        <div class="doc-info-name"><?= $dokter['nama'] ?></div>
+                        <div class="doc-info-spec"><?= $dokter['spesialisasi'] ?></div>
+                        <?php if ($apptInfo): ?>
+                        <div class="appt-meta">
+                            <?= date('d M Y', strtotime($apptInfo['tanggal'])) ?> pukul <?= substr($apptInfo['jam'], 0, 5) ?> WIB
+                            · <span style="color:<?= $apptInfo['appt_status']==='Dibatalkan'?'#e05050':($apptInfo['appt_status']==='Selesai'?'#3dab74':'#735a39') ?>; font-weight:500;"><?= htmlspecialchars($apptInfo['appt_status']) ?></span>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <span class="badge badge-yellow">Berlangsung</span>
+                <?php if ($canBatal): ?>
+                <button class="btn-batal-konsul" onclick="openBatalModal()">Batalkan Konsultasi</button>
+                <?php endif; ?>
             </div>
 
+            <!-- Messages -->
             <div class="chat-messages" id="chatMessages">
-                <div style="text-align:center; font-size:11px; color:#7f8c8d; margin:10px 0;">Sesi Konsultasi Dimulai</div>
+                <div class="chat-system-msg">Sesi Konsultasi Dimulai — <?= $dokter['nama'] ?></div>
             </div>
 
+            <!-- Input -->
             <div class="chat-input-area">
-                <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="sendImage(this)">
-                <button type="button" class="chat-btn" style="background: #f0f5f5; color: #735a39;" title="Upload Gambar" onclick="document.getElementById('imageUpload').click()">
-                    📷
-                </button>
-                <textarea class="chat-input" placeholder="Ketik pesan Anda di sini..." rows="1" id="chatInput"></textarea>
-                <button type="button" class="chat-btn" title="Kirim Pesan" onclick="sendMessage()">
-                    ➤
-                </button>
+                <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ketik pesan Anda..."></textarea>
+                <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()" title="Kirim (Enter)">&#10148;</button>
             </div>
+
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- MODAL BATAL KONSULTASI -->
+<div class="modal-overlay" id="batalModal">
+    <div class="modal-box">
+        <div class="modal-icon">&#128683;</div>
+        <div class="modal-title">Batalkan Konsultasi?</div>
+        <div class="modal-desc">
+            Anda akan membatalkan janji temu dengan <strong><?= $dokter['nama'] ?></strong>.<br>
+            Tindakan ini tidak dapat dibatalkan.
         </div>
+        <form method="POST" action="../../backend/user/batal_booking.php">
+            <input type="hidden" name="appointment_id" value="<?= $appt_id ?>">
+            <textarea class="modal-alasan" name="alasan" rows="2" placeholder="Alasan pembatalan (opsional)..."></textarea>
+            <div class="modal-btns">
+                <button type="button" class="modal-btn-cancel" onclick="closeBatalModal()">Tidak, Kembali</button>
+                <button type="submit" class="modal-btn-confirm">Ya, Batalkan</button>
+            </div>
+        </form>
     </div>
 </div>
 
 <script>
 const consultationId = <?= $consultation_id ?>;
-let lastMessageCount = 0;
+const namaPasien = "<?= $namaPasien ?>";
+let lastCount = 0;
 
+// ── Fetch & render pesan ──
 function fetchMessages() {
-    if (consultationId === 0) return;
-    
+    if (!consultationId) return;
     fetch(`../../backend/chat_get.php?consultation_id=${consultationId}`)
-        .then(res => res.json())
+        .then(r => r.json())
         .then(data => {
-            if (data.status === 'success') {
-                if (data.data.length > lastMessageCount) {
-                    renderMessages(data.data);
-                    lastMessageCount = data.data.length;
-                }
+            if (data.status === 'success' && data.data.length !== lastCount) {
+                lastCount = data.data.length;
+                renderMessages(data.data);
             }
         })
-        .catch(err => console.error(err));
+        .catch(() => {});
 }
 
 function renderMessages(messages) {
-    const chatMessages = document.getElementById('chatMessages');
-    chatMessages.innerHTML = '<div style="text-align:center; font-size:11px; color:#7f8c8d; margin:10px 0;">Sesi Konsultasi Dimulai</div>';
-    
+    const box = document.getElementById('chatMessages');
+    if (!box) return;
+    box.innerHTML = `<div class="chat-system-msg">Sesi Konsultasi Dimulai</div>`;
+
     messages.forEach(msg => {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = msg.sender_type === 'Pasien' ? 'msg sent' : 'msg received';
-        
+        const isSent = msg.sender_type === 'Pasien';
+        const group  = document.createElement('div');
+        group.className = 'msg-group ' + (isSent ? 'right' : 'left');
+
+        const senderLabel = document.createElement('div');
+        senderLabel.className = 'msg-sender-name';
+        senderLabel.textContent = isSent ? 'Saya' : msg.sender_name || 'Dokter';
+        group.appendChild(senderLabel);
+
+        const bubble = document.createElement('div');
+        bubble.className = 'msg ' + (isSent ? 'sent' : 'received');
+
         let content = '';
         if (msg.image_url) {
-            content += `<img src="../../${msg.image_url}" style="max-width: 100%; border-radius: 8px; margin-bottom: 4px; display: block;" alt="Gambar">`;
+            content += `<img src="../../${msg.image_url}" style="max-width:100%;border-radius:10px;margin-bottom:6px;display:block;" alt="Gambar">`;
         }
-        if (msg.message) {
-            content += msg.message;
-        }
-        content += `<div class="msg-time">${msg.time}</div>`;
-        
-        msgDiv.innerHTML = content;
-        chatMessages.appendChild(msgDiv);
+        if (msg.message) content += `<span>${escapeHtml(msg.message)}</span>`;
+        content += `<span class="msg-time">${msg.time}</span>`;
+        bubble.innerHTML = content;
+
+        group.appendChild(bubble);
+        box.appendChild(group);
     });
-    
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    box.scrollTop = box.scrollHeight;
 }
 
+function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Kirim pesan ──
 function sendMessage() {
-    if (consultationId === 0) return;
+    if (!consultationId) return;
     const input = document.getElementById('chatInput');
-    const msgText = input.value.trim();
-    if (!msgText) return;
+    const msg   = input.value.trim();
+    if (!msg) return;
 
-    const formData = new FormData();
-    formData.append('consultation_id', consultationId);
-    formData.append('message', msgText);
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
 
-    fetch('../../backend/chat_send.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            input.value = '';
-            fetchMessages();
-        } else {
-            alert('Gagal mengirim pesan: ' + data.message);
-        }
-    })
-    .catch(err => console.error(err));
-}
+    const fd = new FormData();
+    fd.append('consultation_id', consultationId);
+    fd.append('message', msg);
 
-function sendImage(input) {
-    if (consultationId === 0) return;
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const formData = new FormData();
-        formData.append('consultation_id', consultationId);
-        formData.append('image', file);
-        formData.append('message', '');
-
-        fetch('../../backend/chat_send.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
+    fetch('../../backend/chat_send.php', { method:'POST', body:fd })
+        .then(r => r.json())
         .then(data => {
             if (data.status === 'success') {
                 input.value = '';
+                input.style.height = 'auto';
                 fetchMessages();
             } else {
-                alert('Gagal mengirim gambar: ' + data.message);
+                alert('Gagal mengirim: ' + data.message);
             }
         })
-        .catch(err => console.error(err));
-    }
+        .catch(() => alert('Terjadi kesalahan.'))
+        .finally(() => { btn.disabled = false; input.focus(); });
 }
 
-// Fetch periodically
-setInterval(fetchMessages, 3000);
-fetchMessages();
+// ── Kirim dengan Enter (Shift+Enter = baris baru) ──
+if (document.getElementById('chatInput')) {
+    document.getElementById('chatInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    document.getElementById('chatInput').addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+}
 
-// Auto-resize textarea
-document.getElementById('chatInput').addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
+// ── Modal Batal ──
+function openBatalModal() {
+    document.getElementById('batalModal').classList.add('open');
+}
+function closeBatalModal() {
+    document.getElementById('batalModal').classList.remove('open');
+}
+document.getElementById('batalModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeBatalModal();
 });
+
+// ── Polling real-time setiap 3 detik ──
+if (consultationId > 0) {
+    fetchMessages();
+    setInterval(fetchMessages, 3000);
+}
 </script>
 </body>
 </html>

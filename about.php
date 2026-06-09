@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -141,8 +144,22 @@
             </nav>
             <!-- Actions -->
             <div class="flex items-center gap-sm">
+            <?php if (isset($_SESSION['user_id'])): 
+                $dashboard_url = 'pages/user/dashboarduser.php';
+                if (isset($_SESSION['role'])) {
+                    if ($_SESSION['role'] === 'admin') {
+                        $dashboard_url = 'pages/admin/dashboard.php';
+                    } elseif ($_SESSION['role'] === 'dokter') {
+                        $dashboard_url = 'pages/dokter/dashboardDokter.php';
+                    }
+                }
+            ?>
+                <a href="<?= $dashboard_url ?>" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
+                <a href="backend/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
+            <?php else: ?>
                 <a href="pages/auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
                 <a href="pages/auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
+            <?php endif; ?>
             </div>
         </div>
     </header>
@@ -301,20 +318,23 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-surface-container py-md px-margin-mobile md:px-margin-desktop mt-xl">
-        <div class="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <a class="font-headline-md text-headline-md text-primary" href="index.php">GlowCare</a>
-            
-            <div class="flex flex-wrap justify-center gap-4 text-xs font-body-sm text-on-surface-variant">
-                <a href="#" class="hover:text-primary transition-colors">Privacy Policy</a>
-                <a href="#" class="hover:text-primary transition-colors">Terms of Service</a>
-                <a href="#" class="hover:text-primary transition-colors">Patient Rights</a>
-                <a href="#" class="hover:text-primary transition-colors">Careers</a>
-                <a href="#" class="hover:text-primary transition-colors">Contact Us</a>
+    <footer class="w-full bg-surface-container-low border-t border-outline-variant flat no shadows mt-xl">
+        <div class="w-full px-margin-mobile md:px-margin-desktop py-xl flex flex-col md:flex-row justify-between items-start gap-lg max-w-[1200px] mx-auto">
+            <!-- Brand Logo -->
+            <div class="font-headline-md text-headline-md text-primary">
+                GlowCare
             </div>
-
-            <div class="font-body-sm text-xs text-on-surface-variant">
-                &copy; 2026 GlowCare Aesthetic Clinic. All rights reserved.
+            <!-- Links -->
+            <ul class="flex flex-col md:flex-row flex-wrap gap-md items-start md:items-center">
+                <li class=""><a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-label-sm text-label-sm" href="#">Privacy Policy</a></li>
+                <li class=""><a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-label-sm text-label-sm" href="#">Terms of Service</a></li>
+                <li class=""><a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-label-sm text-label-sm" href="#">Patient Rights</a></li>
+                <li class=""><a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-label-sm text-label-sm" href="#">Careers</a></li>
+                <li class=""><a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-label-sm text-label-sm" href="#">Contact Us</a></li>
+            </ul>
+            <!-- Copyright -->
+            <div class="text-secondary font-body-sm text-body-sm">
+                © 2026 GlowCare Aesthetic Clinic. All rights reserved.
             </div>
         </div>
     </footer>

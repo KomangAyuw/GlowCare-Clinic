@@ -1,4 +1,17 @@
 <?php
+session_start();
+// Jika sudah login, redirect ke dashboard yang sesuai
+if (isset($_SESSION['user_id'])) {
+    $role = $_SESSION['role'] ?? 'user';
+    if ($role === 'admin') {
+        header('Location: ../../pages/admin/dashboard.php');
+    } elseif ($role === 'dokter') {
+        header('Location: ../../pages/dokter/dashboardDokter.php');
+    } else {
+        header('Location: ../../pages/user/dashboarduser.php');
+    }
+    exit;
+}
 $error = $_GET['error'] ?? '';
 ?>
 <!DOCTYPE html><html lang="en" style=""><head>

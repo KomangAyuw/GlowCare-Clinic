@@ -10,10 +10,19 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = (int)$_SESSION['user_id'];
-$qPasien = mysqli_query($conn, "SELECT id FROM pasien WHERE user_id = $user_id LIMIT 1");
-$pasien = mysqli_fetch_assoc($qPasien);
-$sender_id = $pasien['id'] ?? 0;
-$sender_type = 'Pasien';
+$role = $_SESSION['role'] ?? 'pasien';
+
+if ($role === 'dokter') {
+    $qDokter = mysqli_query($conn, "SELECT id FROM dokter WHERE user_id = $user_id LIMIT 1");
+    $dokter = mysqli_fetch_assoc($qDokter);
+    $sender_id = $dokter['id'] ?? 0;
+    $sender_type = 'Dokter';
+} else {
+    $qPasien = mysqli_query($conn, "SELECT id FROM pasien WHERE user_id = $user_id LIMIT 1");
+    $pasien = mysqli_fetch_assoc($qPasien);
+    $sender_id = $pasien['id'] ?? 0;
+    $sender_type = 'Pasien';
+}
 
 $consultation_id = (int)($_POST['consultation_id'] ?? 0);
 $message = $_POST['message'] ?? '';

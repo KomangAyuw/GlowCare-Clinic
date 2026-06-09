@@ -200,10 +200,13 @@ $pct = $tot_a > 0 ? round($tot_s / $tot_a * 100) : 0;
     @page { margin:1.5cm; }
   }
   /* Tombol print */
-  .print-bar { background:#735a39; color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 36px; position:sticky; top:0; z-index:100; }
-  .print-bar .info { font-size:13px; font-weight:500; }
+  .print-bar { background:#735a39; color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 36px; position:sticky; top:0; z-index:100; gap:12px; }
+  .print-bar .info { font-size:13px; font-weight:500; flex:1; }
+  .print-bar .btn-group { display:flex; gap:10px; align-items:center; }
   .print-btn { background:#fff; color:#735a39; border:none; padding:8px 20px; border-radius:50px; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; cursor:pointer; font-family:'DM Sans',sans-serif; }
   .print-btn:hover { background:#f9f6f2; }
+  .back-btn { background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,0.6); padding:8px 20px; border-radius:50px; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; cursor:pointer; font-family:'DM Sans',sans-serif; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s; }
+  .back-btn:hover { background:rgba(255,255,255,0.15); border-color:#fff; }
 </style>
 </head>
 <body>
@@ -211,20 +214,31 @@ $pct = $tot_a > 0 ? round($tot_s / $tot_a * 100) : 0;
 <!-- Print Bar (tidak ikut tercetak) -->
 <div class="print-bar no-print">
   <div class="info">Laporan Bulanan — <?= $periode ?> · GlowCare Clinic</div>
-  <button class="print-btn" onclick="window.print()">Cetak / Simpan PDF</button>
+  <div class="btn-group">
+    <a href="../../pages/admin/dashboard.php?panel=laporan" class="back-btn">&#8592; Kembali</a>
+    <button class="print-btn" onclick="window.print()">Cetak / Simpan PDF</button>
+  </div>
 </div>
 
 <div class="page">
 
-  <!-- Header -->
-  <div class="lap-header">
-    <div>
-      <div class="lap-brand"><em>GlowCare Clinic</em><small>Admin Panel</small></div>
+  <!-- Kop Surat -->
+  <div class="kop-surat" style="display: flex; align-items: center; justify-content: center; position: relative; padding-bottom: 15px; border-bottom: 4px double #2D3436; margin-bottom: 25px;">
+    <div style="text-align: center; width: 100%;">
+      <h1 style="font-family: 'Playfair Display', serif; font-size: 26px; color: #735a39; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Klinik Kecantikan GlowCare</h1>
+      <p style="font-size: 11px; color: #585552; margin-top: 4px; font-weight: 400; letter-spacing: 0.5px;">Jl. Raya Pejanggik No. 45, Mataram, Nusa Tenggara Barat</p>
+      <p style="font-size: 11px; color: #585552; letter-spacing: 0.5px;">Telp: (0370) 621435 | Email: info@glowcareclinic.co.id | Web: www.glowcareclinic.co.id</p>
     </div>
-    <div class="lap-periode">
-      <div class="big">Laporan Bulanan</div>
-      <div class="sub">Periode: <strong><?= $periode ?></strong></div>
-      <div class="sub">Dicetak: <?= date('d/m/Y H:i') ?></div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px;">
+    <div>
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; text-transform: uppercase; color: #2D3436;">Laporan Bulanan Klinik</h2>
+      <p style="font-size: 11px; color: #64748b; margin-top: 2px;">Tipe Dokumen: Rekapitulasi Operasional & Keuangan</p>
+    </div>
+    <div style="text-align: right; font-size: 11px; color: #2D3436; line-height: 1.5;">
+      <div>Periode Laporan: <strong><?= $periode ?></strong></div>
+      <div>Tanggal Cetak: <?= date('d/m/Y H:i') ?></div>
     </div>
   </div>
 
@@ -351,6 +365,16 @@ $pct = $tot_a > 0 ? round($tot_s / $tot_a * 100) : 0;
   </table>
   <?php endif; ?>
   <?php endif; ?>
+
+  <!-- Tanda Tangan Persetujuan -->
+  <div style="margin-top: 50px; display: flex; justify-content: flex-end; page-break-inside: avoid;">
+    <div style="text-align: center; width: 250px; font-size: 12px; line-height: 1.6;">
+      <p>Mataram, <?= date('d') . ' ' . $bln_ind[$lap_bulan] . ' ' . $lap_tahun ?></p>
+      <p style="margin-bottom: 75px;">Pimpinan Klinik GlowCare,</p>
+      <p><strong>Dr. dr. Ayu Larasati, M.Biomed</strong></p>
+      <p style="font-size: 10px; color: #64748b; border-top: 1px solid #d1c4b8; margin-top: 5px; padding-top: 2px;">NIP. 198804122015032001</p>
+    </div>
+  </div>
 
   <!-- Footer -->
   <div class="lap-footer">

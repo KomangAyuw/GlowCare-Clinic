@@ -38,16 +38,20 @@ $laporan   = mysqli_query($conn, "SELECT d.nama AS nama_dokter,
     ORDER BY pendapatan DESC");
 
 // Auto-migrasi kolom balasan: hanya ALTER jika kolom belum ada
-$_db = mysqli_fetch_assoc(mysqli_query($conn, "SELECT DATABASE() AS db"))['db'];
-$_cols_exist = [];
-$_chk = mysqli_query($conn, "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_SCHEMA='$_db' AND TABLE_NAME='pesan_kontak'
-    AND COLUMN_NAME IN ('balasan','dibalas_at','dibalas_oleh')");
-while ($_r = mysqli_fetch_assoc($_chk)) $_cols_exist[] = $_r['COLUMN_NAME'];
-if (!in_array('balasan',    $_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `balasan` TEXT NULL AFTER `sudah_baca`");
-if (!in_array('dibalas_at', $_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_at` TIMESTAMP NULL AFTER `balasan`");
-if (!in_array('dibalas_oleh',$_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_oleh` VARCHAR(100) NULL AFTER `dibalas_at`");
-unset($_db, $_cols_exist, $_chk, $_r);
+try {
+    $_db = mysqli_fetch_assoc(mysqli_query($conn, "SELECT DATABASE() AS db"))['db'];
+    $_cols_exist = [];
+    $_chk = mysqli_query($conn, "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA='$_db' AND TABLE_NAME='pesan_kontak'
+        AND COLUMN_NAME IN ('balasan','dibalas_at','dibalas_oleh')");
+    while ($_r = mysqli_fetch_assoc($_chk)) $_cols_exist[] = $_r['COLUMN_NAME'];
+    if (!in_array('balasan',    $_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `balasan` TEXT NULL AFTER `sudah_baca`");
+    if (!in_array('dibalas_at', $_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_at` TIMESTAMP NULL AFTER `balasan`");
+    if (!in_array('dibalas_oleh',$_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_oleh` VARCHAR(100) NULL AFTER `dibalas_at`");
+    unset($_db, $_cols_exist, $_chk, $_r);
+} catch (Exception $e) {
+    // Abaikan error migrasi jika kolom/tabel belum siap
+}
 
 $pesan_list  = mysqli_query($conn, "SELECT * FROM pesan_kontak ORDER BY created_at DESC LIMIT 50");
 $pesan_belum = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM pesan_kontak WHERE sudah_baca=0"))['n'];
@@ -58,27 +62,38 @@ $keu_bulan = (int)($_GET['keu_bulan'] ?? date('n'));
 $keu_tahun = (int)($_GET['keu_tahun'] ?? date('Y'));
 $keu_filter_jenis = $_GET['keu_jenis'] ?? '';
 // Pastikan tabel ada (aman jika belum di-setup)
-@mysqli_query($conn, "CREATE TABLE IF NOT EXISTS `keuangan` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY, `tanggal` DATE NOT NULL,
-  `jenis` ENUM('Pemasukan','Pengeluaran') NOT NULL DEFAULT 'Pemasukan',
-  `kategori` VARCHAR(100) NOT NULL, `keterangan` VARCHAR(255) NOT NULL,
-  `jumlah` DECIMAL(15,2) NOT NULL DEFAULT 0, `metode` VARCHAR(50) DEFAULT 'Tunai',
-  `referensi` VARCHAR(100) NULL, `catatan` TEXT NULL,
-  `dibuat_oleh` INT NULL, `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`dibuat_oleh`) REFERENCES `users`(`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+try {
+    mysqli_query($conn, "CREATE TABLE IF NOT EXISTS `keuangan` (
+      `id` INT AUTO_INCREMENT PRIMARY KEY, `tanggal` DATE NOT NULL,
+      `jenis` ENUM('Pemasukan','Pengeluaran') NOT NULL DEFAULT 'Pemasukan',
+      `kategori` VARCHAR(100) NOT NULL, `keterangan` VARCHAR(255) NOT NULL,
+      `jumlah` DECIMAL(15,2) NOT NULL DEFAULT 0, `metode` VARCHAR(50) DEFAULT 'Tunai',
+      `referensi` VARCHAR(100) NULL, `catatan` TEXT NULL,
+      `dibuat_oleh` INT NULL, `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (`dibuat_oleh`) REFERENCES `users`(`id`) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+} catch (Exception $e) {
+    // Abaikan error jika pembuatan tabel gagal
+}
 
 $keu_where = "MONTH(tanggal)=$keu_bulan AND YEAR(tanggal)=$keu_tahun";
 if ($keu_filter_jenis === 'Pemasukan' || $keu_filter_jenis === 'Pengeluaran') {
     $keu_where .= " AND jenis='" . mysqli_real_escape_string($conn, $keu_filter_jenis) . "'";
 }
-$keu_list = mysqli_query($conn, "SELECT * FROM keuangan WHERE $keu_where ORDER BY tanggal DESC, id DESC");
-$keu_stats = mysqli_fetch_assoc(mysqli_query($conn, "SELECT
-    COALESCE(SUM(CASE WHEN jenis='Pemasukan' THEN jumlah ELSE 0 END),0) AS total_masuk,
-    COALESCE(SUM(CASE WHEN jenis='Pengeluaran' THEN jumlah ELSE 0 END),0) AS total_keluar,
-    COUNT(*) AS total_trx
-    FROM keuangan WHERE MONTH(tanggal)=$keu_bulan AND YEAR(tanggal)=$keu_tahun"));
-$keu_saldo = $keu_stats['total_masuk'] - $keu_stats['total_keluar'];
+
+try {
+    $keu_list = mysqli_query($conn, "SELECT * FROM keuangan WHERE $keu_where ORDER BY tanggal DESC, id DESC");
+    $keu_stats = mysqli_fetch_assoc(mysqli_query($conn, "SELECT
+        COALESCE(SUM(CASE WHEN jenis='Pemasukan' THEN jumlah ELSE 0 END),0) AS total_masuk,
+        COALESCE(SUM(CASE WHEN jenis='Pengeluaran' THEN jumlah ELSE 0 END),0) AS total_keluar,
+        COUNT(*) AS total_trx
+        FROM keuangan WHERE MONTH(tanggal)=$keu_bulan AND YEAR(tanggal)=$keu_tahun"));
+    $keu_saldo = $keu_stats['total_masuk'] - $keu_stats['total_keluar'];
+} catch (Exception $e) {
+    $keu_list = false;
+    $keu_stats = ['total_masuk' => 0, 'total_keluar' => 0, 'total_trx' => 0];
+    $keu_saldo = 0;
+}
 
 // Daftar dokter & treatment untuk select di modal
 $dlist_modal  = mysqli_query($conn, "SELECT id,nama FROM dokter WHERE status='Aktif' ORDER BY nama");

@@ -1,4 +1,4 @@
-<?php require_once 'backend/koneksi.php'; ?>
+<?php session_start(); require_once 'backend/koneksi.php'; ?>
 <!DOCTYPE html><html lang="en" style=""><head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -119,17 +119,33 @@
 <body class="bg-surface text-on-surface font-body-md antialiased min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container">
 <!-- TopNavBar -->
 <header class="bg-surface/80 backdrop-blur-md dark:bg-surface-dim/80 fixed top-0 w-full z-50 shadow-sm dark:shadow-none transition-all duration-300">
-<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-[1200px] mx-auto">
-<a class="text-headline-md-mobile md:text-headline-md font-headline-lg-mobile md:font-headline-md font-bold tracking-tight text-primary dark:text-primary-fixed-dim" href="index.php"><div class="flex items-center gap-2">
-    <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;">spa</span>
-    <span class="font-display-lg text-headline-md tracking-tight text-primary">GlowCare</span>
-</div></a>
-<nav class="hidden md:flex gap-8 items-center"><a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300" href="index.php">Home</a><a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300" href="about.php">About Us</a><a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300" href="treatment.php">Services</a><a class="font-label-md text-label-md text-primary dark:text-primary-fixed-dim border-b-2 border-primary dark:border-primary-fixed-dim pb-1 opacity-80 transition-all duration-200" href="spesialis.php">Doctors</a><a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300" href="index.php#contact">Contact</a></nav>
-<div class="hidden md:flex items-center gap-6"><a href="pages/auth/Signin.php" class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-300">Login</a><a href="pages/auth/SignUp.php" class="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors duration-300 clinical-shadow text-center">Register</a></div>
-<!-- Mobile Menu Toggle (Visual Only) -->
-<button class="md:hidden text-primary p-2">
-<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 0;">menu</span>
-</button>
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-base max-w-[1200px] mx-auto">
+<a class="font-headline-lg text-headline-lg text-primary inline-flex items-center" href="index.php"><span class="material-symbols-outlined text-primary text-3xl mr-2 align-middle" style="font-variation-settings: &quot;FILL&quot; 1;">spa</span>GlowCare</a>
+<nav class="hidden md:flex items-center gap-sm">
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="index.php">Home</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="about.php">About Us</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="treatment.php">Services</a>
+<a class="font-label-md text-label-md px-4 py-2 text-primary font-bold border-b-2 border-primary pb-1 hover:bg-primary-container/20 rounded-t-lg transition-all duration-300 ease-in-out" href="spesialis.php">Doctors</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="kontak.php">Contact</a>
+</nav>
+<div class="flex items-center gap-sm">
+<?php if (isset($_SESSION['user_id'])): 
+    $dashboard_url = 'pages/user/dashboarduser.php';
+    if (isset($_SESSION['role'])) {
+        if ($_SESSION['role'] === 'admin') {
+            $dashboard_url = 'pages/admin/dashboard.php';
+        } elseif ($_SESSION['role'] === 'dokter') {
+            $dashboard_url = 'pages/dokter/dashboardDokter.php';
+        }
+    }
+?>
+    <a href="<?= $dashboard_url ?>" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
+    <a href="backend/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
+<?php else: ?>
+    <a href="pages/auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
+    <a href="pages/auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
+<?php endif; ?>
+</div>
 </div>
 </header>
 <main class="flex-grow pt-[100px] pb-xl">
