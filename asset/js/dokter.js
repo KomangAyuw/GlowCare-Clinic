@@ -1,3 +1,24 @@
+const dokterTitles = {
+    overview: 'Overview',
+    jadwal: 'Jadwal Praktik',
+    'daftar-pasien': 'Daftar Pasien',
+    'rekam-medis': 'Rekam Medis',
+    profil: 'Profil'
+};
+
+function showPanel(id, el) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById('panel-' + id);
+    if (panel) panel.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+    const title = dokterTitles[id] || id;
+    const topEl = document.getElementById('topbar-title');
+    const bcEl  = document.getElementById('topbar-bc');
+    if (topEl) topEl.textContent = title;
+    if (bcEl)  bcEl.textContent = 'GlowCare Dokter → ' + title;
+}
+
 // ── Filter tabel pasien ──────────────────────
 function filterPasien() {
     const cari      = document.getElementById('cari-pasien').value.toLowerCase();
@@ -116,4 +137,24 @@ function loadTimeline(pasienId) {
         .catch(() => {
             container.innerHTML = '<div style="color:#b89098;">Gagal memuat timeline.</div>';
         });
+
+        // ── Tutup modal ──────────────────────────────
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+    }
+
+    function closeModalOutside(event, id) {
+        if (event.target === document.getElementById(id)) {
+            closeModal(id);
+        }
+    }
+
+    // ── Switch tab rekam medis ────────────────────
+    function switchTab(tabId, el) {
+        document.querySelectorAll('.rm-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.rm-tab').forEach(t => t.classList.remove('active'));
+        const target = document.getElementById('tab-' + tabId);
+        if (target) target.classList.add('active');
+        if (el) el.classList.add('active');
+    }
 }

@@ -207,7 +207,7 @@ $tanggalHariIni = formatTanggal($today);
 
     <div class="sidebar-doctor">
         <div class="sidebar-doc-avatar">
-            <img src="<?= $fotoUrl ?>" alt="<?= $namaDisplay ?>">
+            <img src="<?= $fotoUrl ?>" alt="<?= $namaDisplay ?>" onclick="showPanel('profil', document.querySelector('[onclick*=profil]'))" style="cursor:pointer">
         </div>
         <div class="sidebar-doc-info">
             <div class="doc-name"><?= $namaDisplay ?></div>
@@ -747,7 +747,7 @@ $tanggalHariIni = formatTanggal($today);
             <div class="profil-hero">
                 <div class="profil-avatar-wrap">
                     <div class="profil-avatar">
-                        <img src="<?= $fotoUrl ?>" alt="<?= $namaDisplay ?>">
+                            <img src="<?= $fotoUrl ?>" alt="<?= $namaDisplay ?>" onclick="showPanel('profil', document.querySelector('[onclick*=profil]'))" style="cursor:pointer">
                     </div>
                     <div class="profil-edit-avatar"></div>
                 </div>
@@ -1004,7 +1004,7 @@ $tanggalHariIni = formatTanggal($today);
 <!-- Toast -->
 <div class="toast" id="toast"><span id="toast-msg">Berhasil disimpan</span></div>
 
-    <script src="../../asset/js/dokter.js?v=2"></script>
+    <script src="../../asset/js/dokter.js"></script>
     <!-- LOGOUT CONFIRMATION MODAL -->
     <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center">
         <div style="background:#fff;border-radius:20px;padding:40px 36px;width:360px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.18);animation:logoutFadeIn .25s ease">
