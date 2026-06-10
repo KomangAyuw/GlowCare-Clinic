@@ -203,7 +203,7 @@ $success = $_GET['success'] ?? '';
     </a>
 </div>
 </div>
-<div class="hidden lg:block lg:w-1/2 relative bg-surface-container-high"><div class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDB10zPN5GpcNtUgSrece2kvyQFWXaIYAnhg7j3j_CudCV31etUXBwQy1rJsYJCkVr77fw8wQCP70gW-RM0QingWQm2bTY-4XpWbywMCNUK1qHxawFc9v1nJaSs5HK9GtoS1gOJ0PXGf59rP47ocnXvEk5OQp1B16C9z8ZJxObCOnegLdW18KBYhOW9BIwgQeAywVvFC98Czjqn9K0rSYzlbtGsC6TDU5Fs1B21DvsvDT-dt8UQGrjDA52_nZWx5ISKyqAIbh4VbmI&quot;);"></div></div>
+<div class="hidden lg:block lg:w-1/2 relative bg-surface-container-high"><div class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;../../asset/img/login.png&quot;);"></div></div>
 </div>
 
 </body></html>

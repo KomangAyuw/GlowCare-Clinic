@@ -178,7 +178,7 @@ session_start();
                 </div>
                 <div class="order-1 md:order-2">
                     <div class="rounded-lg overflow-hidden h-[400px] md:h-[500px]">
-                        <img src="https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="GlowCare Treatment" class="w-full h-full object-cover">
+                        <img src="asset/img/detail_treatment.png" alt="GlowCare Treatment" class="w-full h-full object-cover">
                     </div>
                 </div>
             </div>
@@ -261,7 +261,7 @@ session_start();
             <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
                 <!-- Specialist 1 -->
                 <div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-ambient">
-                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Dr. Amanda Hayes" class="w-full h-64 object-cover object-top">
+                    <img src="asset/img/doctor1.png" alt="Dr. Amanda Hayes" class="w-full h-64 object-cover object-top">
                     <div class="p-md text-center">
                         <h3 class="font-headline-md text-headline-md text-on-background mb-1">Dr. Amanda Hayes</h3>
                         <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Medical Director, Dermatologist</p>
@@ -279,7 +279,7 @@ session_start();
                 </div>
                 <!-- Specialist 2 -->
                 <div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-ambient">
-                    <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Dr. Marcus Chen" class="w-full h-64 object-cover object-top">
+                    <img src="asset/img/doctor2.png" alt="Dr. Marcus Chen" class="w-full h-64 object-cover object-top">
                     <div class="p-md text-center">
                         <h3 class="font-headline-md text-headline-md text-on-background mb-1">Dr. Marcus Chen</h3>
                         <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Aesthetic Physician</p>
@@ -297,7 +297,7 @@ session_start();
                 </div>
                 <!-- Specialist 3 -->
                 <div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-ambient">
-                    <img src="https://images.unsplash.com/photo-1594824436998-efa5ab39ea07?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Dr. Sarah Jenkins" class="w-full h-64 object-cover object-top">
+                    <img src="asset/img/doctor3.png" alt="Dr. Sarah Jenkins" class="w-full h-64 object-cover object-top">
                     <div class="p-md text-center">
                         <h3 class="font-headline-md text-headline-md text-on-background mb-1">Dr. Sarah Jenkins</h3>
                         <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Plastic Surgeon</p>

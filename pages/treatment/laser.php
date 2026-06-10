@@ -28,7 +28,7 @@
         <!-- HERO -->
         <section class="detail-hero">
             <img 
-                src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=1400&auto=format&fit=crop&q=80" 
+                src="../../asset/img/Laser.jpg" 
                 alt="Laser Treatments" 
                 class="detail-hero-img"
             />

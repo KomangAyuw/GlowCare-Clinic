@@ -31,8 +31,8 @@ $rating       = number_format((float)($profil['rating']      ?? 5.0), 1);
 $dokter_id    = (int)($profil['id']                          ?? 0);
 $emailDokter  = htmlspecialchars($profil['email']            ?? '');
 $fotoUrl      = !empty($profil['foto'])
-                ? htmlspecialchars($profil['foto'])
-                : 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=400&q=80';
+                ? (strpos($profil['foto'], 'http') === 0 ? htmlspecialchars($profil['foto']) : '../../' . htmlspecialchars($profil['foto']))
+                : '../../asset/img/doctor1.png';
 $namaDisplay  = $gelar ? "$gelar $namaLengkap" : $namaLengkap;
 
 // ── 2. STATISTIK ──────────────────────────────

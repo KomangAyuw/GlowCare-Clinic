@@ -28,7 +28,7 @@
         <!-- HERO -->
         <section class="detail-hero">
             <img 
-                src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=1400&auto=format&fit=crop&q=80" 
+                src="../../asset/img/detail_treatment.png" 
                 alt="Facelift" 
                 class="detail-hero-img"
             />

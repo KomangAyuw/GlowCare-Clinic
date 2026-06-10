@@ -1067,7 +1067,7 @@ body.page-auth {
 .kiri-SignIn {
     width: 50%;
     position: relative;
-    background-image: url('https://images.unsplash.com/photo-1647004692483-c5d942fe1137?w=1000&auto=format&fit=crop&q=80');
+    background-image: url('../img/login.png');
     background-size: cover;
     background-position: center top;
 }
@@ -1075,7 +1075,7 @@ body.page-auth {
 .kiri-SignUp {
     width: 50%;
     position: relative;
-    background-image: url('https://images.unsplash.com/photo-1761718209852-54ca4210183e?auto=format&fit=crop&w=1920&q=80');
+    background-image: url('../img/regis.png');
     background-size: cover;
     background-position: center 20%;
 }

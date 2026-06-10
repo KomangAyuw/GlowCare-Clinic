@@ -127,7 +127,7 @@ $error = $_GET['error'] ?? '';
 <body class="bg-surface text-on-surface antialiased min-h-screen flex selection:bg-primary/20 selection:text-primary">
 <!-- Left Screen: Image Canvas (Hidden on Mobile) -->
 <div class="hidden lg:block lg:w-1/2 relative bg-surface-container-high">
-<div class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAMI_wUHlqYASn0iMv9p1Wx9GMJCPobviaEa3kFCY5OuSM_g15vrVOmwYKJvocIx44EniHghkilf5WRkm-ygWMXpbbvoF7M7j57fwePJwZofWA2WyfceS8ibU3FV-q9FAMlhGJ4WFF6KQ8r7Nqo7cxGm5wfs8ORhwb536Xe3LLUQROXOm3b8McGyJzOifda9gqcrvyICbyLm3ZwotCQQVf8wDytZIhKep8LGdZ3khQh9daESUTWRk-zrmNDaAErOlsi17d_oETpIWY&quot;);"></div>
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;../../asset/img/regis.png&quot;);"></div>
 <!-- Optional ambient overlay to ensure image doesn't clash with pure clinical feel -->
 </div>
 <!-- Right Screen: Form Canvas -->

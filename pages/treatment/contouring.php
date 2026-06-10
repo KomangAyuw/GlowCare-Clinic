@@ -28,7 +28,7 @@
         <!-- HERO -->
         <section class="detail-hero">
             <img 
-                src="https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=1400&auto=format&fit=crop&q=80" 
+                src="../../asset/img/haircareBody.png" 
                 alt="Body Contouring" 
                 class="detail-hero-img"
             />

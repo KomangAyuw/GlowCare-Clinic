@@ -164,7 +164,9 @@
 $qDokter = mysqli_query($conn, "SELECT * FROM dokter WHERE status='Aktif' ORDER BY nama ASC");
 if (mysqli_num_rows($qDokter) > 0) {
     while ($d = mysqli_fetch_assoc($qDokter)) {
-        $foto = !empty($d['foto']) ? 'backend/uploads/' . $d['foto'] : 'https://ui-avatars.com/api/?name=' . urlencode($d['nama']) . '&background=064e3b&color=fff&size=500';
+        $foto = !empty($d['foto']) 
+            ? (strpos($d['foto'], 'http') === 0 || strpos($d['foto'], 'asset/') === 0 ? $d['foto'] : 'backend/uploads/' . $d['foto']) 
+            : 'https://ui-avatars.com/api/?name=' . urlencode($d['nama']) . '&background=064e3b&color=fff&size=500';
 ?>
 <article class="bg-surface-container-lowest rounded-[16px] overflow-hidden clinical-shadow clinical-shadow-hover transition-all duration-300 flex flex-col border border-surface-variant">
 <div class="relative h-[350px] overflow-hidden group">

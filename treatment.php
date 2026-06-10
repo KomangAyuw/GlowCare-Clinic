@@ -177,7 +177,7 @@ while($r = mysqli_fetch_assoc($q)) {
 <!-- Hero Section -->
 <section class="relative w-full h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
 <div class="absolute inset-0 z-0">
-<img alt="Premium Aesthetic Services Hero" class="w-full h-full object-cover object-center brightness-[0.85] contrast-[1.05]" src="https://lh3.googleusercontent.com/aida/AP1WRLvx9aMlJNEa5OJ5ldw2XnCFFOxAzy94gxGdXsSe1lEdli7kKExY3agiZmi7qEW4xBn9VW-2Zmrm8PUO4OuMO5CGJijvdki2ha6m5LbEoKG9SaMKQRv8rH9GG2GuVLkBs7wjcwvpfNBQIPEOhJ3KyTpEMPT9Y3tJVb6Flt-9zNdoyNFT4SGXMshDnKrF6zE4YhCLixCu9QAdbh8iPaywwCynpZhZEyLN7XGIyHQhxlr1LdFrsL9R4Tl164I">
+<img alt="Premium Aesthetic Services Hero" class="w-full h-full object-cover object-center brightness-[0.85] contrast-[1.05]" src="asset/img/glow_infusion.png">
 <div class="absolute inset-0 bg-surface/50 backdrop-blur-[1px]"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent"></div>
 </div>
@@ -284,7 +284,7 @@ while($r = mysqli_fetch_assoc($q)) {
 </div>
 <!-- Right Content: Testimonial Image -->
 <div class="relative rounded-2xl overflow-hidden shadow-lg">
-<img alt="Clinical Technology" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlkcdxmr1qSlDHS7Jt4Kdu_6B6RqHYNm-0RXfw7qR5-DzVwvq5M4yBiUMQLMfer6uonWbiqScRyPXZw846WOAJ-EzduAvO-cAcRUD83y4y0YPN2NIaL5WgvoHFsqkwlxXD34rWcjaHd4aYWcqEQKbRnPuSozWqgNtOwWI0nYcNGHu80TYUadBoJ2e0cLXuR0xsrhQs--OJwp56LWvbK56ctD7NjLpxLt6ZBWJB-8WhafPCyfGprxuBXTBy5aSCEOKCoRuFR0rQK-M">
+<img alt="Clinical Technology" class="w-full h-full object-cover" src="asset/img/Laser.jpg">
 <div class="absolute bottom-6 left-6 right-6 bg-surface/90 backdrop-blur-md p-md rounded-xl border border-outline-variant/30">
 <p class="font-body-sm italic text-on-surface-variant mb-2">
           "Kami mengutamakan presisi medis dan kenyamanan pasien di setiap detik prosedur."

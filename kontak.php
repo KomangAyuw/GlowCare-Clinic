@@ -179,7 +179,7 @@ session_start();
 <!-- Hero Section -->
 <section class="relative w-full min-h-[300px] flex items-center justify-center overflow-hidden h-[450px]">
 <div class="absolute inset-0 z-0">
-<img alt="Serene clinical reception" class="w-full h-full object-cover object-center" src="https://lh3.googleusercontent.com/aida/AP1WRLtZnbzE89Hvo29QelqEp2fLw8E4SS7fiN8DUP7gDHAB0Stbo-u7DCAMgaLGECvGxD25rlxM98ZP745tbvkAmGn2uYG7ToSftqVoRS2wYU1ZJRIDZhRpOJdUhXKT8V8ADi6xgK9dj6pCTuFx0HGSMJ79xpl1l9KxX4Qz7hrV2RFfcYhUq6rXnE0Q5fUQAzFtIFEsnB4jMMl8p8Y6Dndh_23dmm0MlM0yT5EQgyC-R9aAWuCfhN9qhs5xUiE">
+<img alt="Serene clinical reception" class="w-full h-full object-cover object-center" src="asset/img/consultation.png">
 <div class="absolute inset-0 bg-background/70 backdrop-blur-[2px]"></div>
 </div>
 <div class="relative z-10 text-center px-margin-mobile max-w-3xl mx-auto">
@@ -306,7 +306,7 @@ session_start();
 <!-- Map Section -->
 <section class="w-full h-[500px] relative mt-lg md:h-[500px]">
 <div class="absolute inset-0 w-full h-full">
-<img alt="Map location of GlowCare clinic in Mataram" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLtgz5AHfWCxjHAYtPzhLnRGZA9MtBmM-8VPZJWoNiypfmUNnwcLBoPZSAySALfiAGkBZkcz-qjmnZcuGHrkAxrcx28QZu-o3lvL5xdFsUfvDMaC-nJaQmpy6jn7_mn_BeRVDpdf1wM4FTGYtvU0iryJaYEMnpr7hLKfV8BTPOwIK5ebo4El_emaJIG4wWRSp46-18Qix06rRIWoHEO00GfjJOiUYYSBh92Fdn9P5I7r0wFuBPfx6aiWe3Q">
+<img alt="Map location of GlowCare clinic in Mataram" class="w-full h-full object-cover" src="asset/img/maps.jpg">
 </div>
 <!-- Overlay Card on Map -->
 <div class="absolute inset-0 flex items-center justify-start pointer-events-none">

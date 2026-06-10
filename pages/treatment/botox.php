@@ -28,7 +28,7 @@
         <!-- HERO -->
         <section class="detail-hero">
             <img 
-                src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=1400&auto=format&fit=crop&q=80" 
+                src="../../asset/img/treatmen3.png" 
                 alt="Botox & Fillers" 
                 class="detail-hero-img"
             />
