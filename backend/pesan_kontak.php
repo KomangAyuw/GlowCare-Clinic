@@ -18,6 +18,8 @@ $telp  = trim($_POST['telp']  ?? '');
 $email = trim($_POST['email'] ?? '');
 $pesan = trim($_POST['pesan'] ?? '');
 
+$treatment = trim($_POST['treatment'] ?? '');
+
 if (empty($nama)) {
     $errors[] = 'Nama lengkap wajib diisi.';
 }
@@ -32,6 +34,10 @@ if (empty($pesan)) {
 }
 
 if (empty($errors)) {
+    if (!empty($treatment)) {
+        $pesan = "Preferred Treatment: " . ucfirst($treatment) . "\n\n" . $pesan;
+    }
+
     $stmt = mysqli_prepare($conn,
         "INSERT INTO pesan_kontak (nama, telepon, email, pesan)
          VALUES (?, ?, ?, ?)"
@@ -44,7 +50,7 @@ if (empty($errors)) {
             $_SESSION['sukses'] = true;
             mysqli_stmt_close($stmt);
             mysqli_close($conn);
-            header('Location: ../index.php#kontak'); // ← sudah benar
+            header('Location: ../kontak.php');
             exit;
         } else {
             $errors[] = 'Gagal menyimpan pesan: ' . mysqli_stmt_error($stmt);
@@ -60,5 +66,5 @@ mysqli_close($conn);
 $_SESSION['errors']    = $errors;
 $_SESSION['old_input'] = compact('nama', 'telp', 'email', 'pesan');
 
-header('Location: ../index.php#kontak'); // ← sudah benar
+header('Location: ../kontak.php');
 exit;

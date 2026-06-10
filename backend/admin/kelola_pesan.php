@@ -9,9 +9,20 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 $conn = require '../koneksi.php';
 
 // Pastikan kolom balasan ada (auto-migrate, aman dipanggil berkali-kali)
-@mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `balasan` TEXT NULL AFTER `sudah_baca`");
-@mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_at` TIMESTAMP NULL AFTER `balasan`");
-@mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_oleh` VARCHAR(100) NULL AFTER `dibalas_at`");
+try {
+    $_db = mysqli_fetch_assoc(mysqli_query($conn, "SELECT DATABASE() AS db"))['db'];
+    $_cols_exist = [];
+    $_chk = mysqli_query($conn, "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA='$_db' AND TABLE_NAME='pesan_kontak'
+        AND COLUMN_NAME IN ('balasan','dibalas_at','dibalas_oleh')");
+    while ($_r = mysqli_fetch_assoc($_chk)) $_cols_exist[] = $_r['COLUMN_NAME'];
+    if (!in_array('balasan',    $_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `balasan` TEXT NULL AFTER `sudah_baca`");
+    if (!in_array('dibalas_at', $_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_at` TIMESTAMP NULL AFTER `balasan`");
+    if (!in_array('dibalas_oleh',$_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_oleh` VARCHAR(100) NULL AFTER `dibalas_at`");
+    unset($_db, $_cols_exist, $_chk, $_r);
+} catch (Exception $e) {
+    // Abaikan error migrasi jika kolom/tabel belum siap
+}
 
 $aksi = $_POST['aksi'] ?? '';
 $id   = (int)($_POST['id'] ?? 0);

@@ -31,7 +31,11 @@ $rating       = number_format((float)($profil['rating']      ?? 5.0), 1);
 $dokter_id    = (int)($profil['id']                          ?? 0);
 $emailDokter  = htmlspecialchars($profil['email']            ?? '');
 $fotoUrl      = !empty($profil['foto'])
-                ? (strpos($profil['foto'], 'http') === 0 ? htmlspecialchars($profil['foto']) : '../../' . htmlspecialchars($profil['foto']))
+                ? (strpos($profil['foto'], 'http') === 0 
+                    ? htmlspecialchars($profil['foto']) 
+                    : (strpos($profil['foto'], 'asset/') === 0 
+                        ? '../../' . htmlspecialchars($profil['foto']) 
+                        : '../../backend/uploads/' . htmlspecialchars($profil['foto'])))
                 : '../../asset/img/doctor1.png';
 $namaDisplay  = $gelar ? "$gelar $namaLengkap" : $namaLengkap;
 
@@ -97,6 +101,7 @@ $qPasien = mysqli_query($conn, "
         p.*,
         j.treatment,
         j.jam_mulai,
+        j.tanggal,
         j.status AS status_jadwal,
         COUNT(rm.id) AS total_kunjungan,
         (SELECT id FROM appointment WHERE pasien_id = p.id AND dokter_id = $dokter_id ORDER BY tanggal DESC, jam DESC LIMIT 1) AS appt_id
@@ -945,7 +950,7 @@ $tanggalHariIni = formatTanggal($today);
                     <!-- Announcements -->
                     <?php foreach ($pengumuman_list as $p): ?>
                         <div style="padding: 16px; background:#fbf8f3; border:1px solid #efebe4; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:flex-start;">
-                            <span style="font-size:24px; font-weight:bold; color:#735a39; line-height: 1;">📢</span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#735a39; flex-shrink: 0; margin-top: 2px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                             <div style="flex: 1;">
                                 <div style="font-weight:500; color:#4a321f; font-family: 'Playfair Display', serif; font-size: 15px;"><?= htmlspecialchars($p['judul']) ?></div>
                                 <div style="font-size:12px; color:#7d6756; margin-top:4px; line-height: 1.5;"><?= nl2br(htmlspecialchars($p['konten'])) ?></div>

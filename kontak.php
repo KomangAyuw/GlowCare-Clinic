@@ -1,5 +1,11 @@
 <?php
 session_start();
+$old = $_SESSION['old_input'] ?? [];
+$old_nama = htmlspecialchars($old['nama'] ?? '');
+$old_telp = htmlspecialchars($old['telp'] ?? '');
+$old_email = htmlspecialchars($old['email'] ?? '');
+$old_pesan = htmlspecialchars($old['pesan'] ?? '');
+unset($_SESSION['old_input']);
 ?>
 <!DOCTYPE html><html class="scroll-smooth" lang="en" style=""><head>
 <meta charset="utf-8">
@@ -190,28 +196,55 @@ session_start();
 <!-- Contact Grid Section -->
 <section class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-xl md:py-xl">
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start gap-md">
-<!-- Left Column: Contact Form -->
-<div class="lg:col-span-7 bg-surface-container-lowest p-8 md:p-12 rounded-3xl shadow-ambient border border-surface-container-low h-full"><h2 class="font-display-lg text-headline-lg text-on-surface mb-10">Send an Inquiry</h2>
-<form class="space-y-10">
+<div class="lg:col-span-7 bg-surface-container-lowest p-8 md:p-12 rounded-3xl shadow-ambient border border-surface-container-low h-full">
+<h2 class="font-display-lg text-headline-lg text-on-surface mb-10">Send an Inquiry</h2>
+
+<?php if (isset($_SESSION['sukses'])): ?>
+    <div class="bg-secondary-container/40 border border-secondary/50 text-secondary p-4 rounded-2xl mb-8 font-body-md flex items-start gap-3 shadow-ambient">
+        <span class="material-symbols-outlined text-secondary text-2xl mt-0.5" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+        <div>
+            <h4 class="font-bold text-on-secondary-container mb-1">Pesan Terkirim</h4>
+            <p class="text-body-sm text-on-surface-variant leading-relaxed">Terima kasih, pesan Anda telah terkirim dengan sukses. Tim concierge kami akan segera menghubungi Anda kembali.</p>
+        </div>
+    </div>
+    <?php unset($_SESSION['sukses']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['errors'])): ?>
+    <div class="bg-error-container/30 border border-error/50 text-error p-4 rounded-2xl mb-8 font-body-md flex items-start gap-3 shadow-ambient">
+        <span class="material-symbols-outlined text-error text-2xl mt-0.5" style="font-variation-settings: 'FILL' 1;">error</span>
+        <div>
+            <h4 class="font-bold text-on-error-container mb-1">Gagal Mengirim Pesan</h4>
+            <ul class="list-disc list-inside text-body-sm text-on-surface-variant space-y-1">
+                <?php foreach ($_SESSION['errors'] as $_err): ?>
+                    <li><?= htmlspecialchars($_err) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </div>
+    <?php unset($_SESSION['errors']); ?>
+<?php endif; ?>
+
+<form action="backend/pesan_kontak.php" method="POST" class="space-y-10">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="flex flex-col gap-2">
             <label class="font-label-md text-on-surface-variant ml-1" for="name">Full Name *</label>
-            <input class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="name" placeholder="Enter your full name" required="" type="text">
+            <input class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="name" name="nama" value="<?= $old_nama ?>" placeholder="Enter your full name" required="" type="text">
         </div>
         <div class="flex flex-col gap-2">
             <label class="font-label-md text-on-surface-variant ml-1" for="email">Email Address *</label>
-            <input class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="email" placeholder="email@example.com" required="" type="email">
+            <input class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="email" name="email" value="<?= $old_email ?>" placeholder="email@example.com" required="" type="email">
         </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="flex flex-col gap-2">
             <label class="font-label-md text-on-surface-variant ml-1" for="phone">Phone Number</label>
-            <input class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="phone" placeholder="+1 (555) 000-0000" type="tel">
+            <input class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="phone" name="telp" value="<?= $old_telp ?>" placeholder="+1 (555) 000-0000" type="tel">
         </div>
         <div class="flex flex-col gap-2">
             <label class="font-label-md text-on-surface-variant ml-1" for="treatment">Preferred Treatment</label>
             <div class="relative">
-                <select class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md appearance-none focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="treatment">
+                <select class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md appearance-none bg-none focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="treatment" name="treatment">
                     <option disabled="" hidden="" selected="" value="">Select a treatment</option>
                     <option value="dermatology">Clinical Dermatology</option>
                     <option value="facial">Advanced Facial Aesthetics</option>
@@ -226,7 +259,7 @@ session_start();
     </div>
     <div class="flex flex-col gap-2">
         <label class="font-label-md text-on-surface-variant ml-1" for="message">How can we assist you today? *</label>
-        <textarea class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none" id="message" placeholder="Tell us about your aesthetic goals..." required="" rows="5"></textarea>
+        <textarea class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none" id="message" name="pesan" placeholder="Tell us about your aesthetic goals..." required="" rows="5"><?= $old_pesan ?></textarea>
     </div>
     <div class="pt-4">
         <button class="bg-primary text-on-primary px-12 py-4 rounded-xl font-label-md hover:bg-surface-tint transition-all duration-300 w-full md:w-auto hover:-translate-y-1 shadow-lg shadow-primary/10" type="submit">

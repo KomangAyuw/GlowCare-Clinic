@@ -7,6 +7,12 @@ function showPanel(id,el){
     if(el) el.classList.add('active');
     document.getElementById('topbar-title').textContent=titles[id]||id;
     document.getElementById('topbar-bc').textContent='GlowCare Admin → '+(titles[id]||id);
+
+    if (id === 'aktivitas') {
+        const badge = document.getElementById('aktivitas-badge');
+        if (badge) badge.style.display = 'none';
+        fetch('../../backend/admin/baca_log.php');
+    }
 }
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
@@ -56,6 +62,9 @@ function editDokter(d){
     document.getElementById('md-title').innerHTML='Edit <em>Dokter</em>';
     document.getElementById('form-dokter').action='../../backend/admin/simpan_dokter.php';
     document.getElementById('md-id').value=d.id;
+    document.getElementById('md-current-foto').value=d.foto||'';
+    document.getElementById('md-foto').value='';
+    document.getElementById('md-foto').required=false;
     document.getElementById('md-nama').value=d.nama;
     document.getElementById('md-str').value=d.no_str||'';
     document.getElementById('md-spesialis').value=d.spesialisasi;

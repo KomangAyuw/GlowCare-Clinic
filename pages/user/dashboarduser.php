@@ -56,6 +56,17 @@ $nextAppt = $qNextAppt ? mysqli_fetch_assoc($qNextAppt) : null;
 $qDokter = mysqli_query($conn, "SELECT * FROM dokter WHERE status='Aktif' ORDER BY nama ASC");
 $dokter_list = [];
 while ($d = mysqli_fetch_assoc($qDokter)) {
+    if (!empty($d['foto'])) {
+        if (strpos($d['foto'], 'http') !== 0) {
+            if (strpos($d['foto'], 'asset/') === 0) {
+                $d['foto'] = '../../' . $d['foto'];
+            } else {
+                $d['foto'] = '../../backend/uploads/' . $d['foto'];
+            }
+        }
+    } else {
+        $d['foto'] = 'https://ui-avatars.com/api/?name=' . urlencode($d['nama']) . '&background=064e3b&color=fff&size=500';
+    }
     $dokter_list[] = $d;
 }
 
@@ -923,7 +934,7 @@ $success = $_GET['success'] ?? '';
                 <!-- Announcements -->
                 <?php foreach ($pengumuman_list as $p): ?>
                     <div style="padding: 16px; background:#fbf8f3; border:1px solid #efebe4; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:flex-start;">
-                        <span style="font-size:24px; font-weight:bold; color:#735a39; line-height: 1;">📢</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#735a39; flex-shrink: 0; margin-top: 2px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                         <div style="flex: 1;">
                             <div style="font-weight:500; color:#4a321f; font-family: 'Playfair Display', serif; font-size: 15px;"><?= htmlspecialchars($p['judul']) ?></div>
                             <div style="font-size:12px; color:#7d6756; margin-top:4px; line-height: 1.5;"><?= nl2br(htmlspecialchars($p['konten'])) ?></div>

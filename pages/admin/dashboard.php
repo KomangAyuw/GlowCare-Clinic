@@ -23,14 +23,28 @@ try {
 $total_pasien     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM pasien"))['n'];
 $dokter_aktif     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM dokter WHERE status='Aktif'"))['n'];
 $appt_hari_ini    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM appointment WHERE tanggal=CURDATE()"))['n'];
-$pendapatan_bulan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COALESCE(SUM(jumlah),0) AS n FROM pembayaran WHERE status='Lunas' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())"))['n'];
+
+$pendapatan_bulan = 0;
+try {
+    $r_pendapatan = mysqli_query($conn, "SELECT COALESCE(SUM(jumlah),0) AS n FROM keuangan WHERE jenis='Pemasukan' AND MONTH(tanggal)=MONTH(NOW()) AND YEAR(tanggal)=YEAR(NOW())");
+    if ($r_pendapatan) {
+        $pendapatan_bulan = mysqli_fetch_assoc($r_pendapatan)['n'];
+    }
+} catch (Exception $e) {
+    try {
+        $r_pembayaran = mysqli_query($conn, "SELECT COALESCE(SUM(jumlah),0) AS n FROM pembayaran WHERE status='Lunas' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())");
+        if ($r_pembayaran) {
+            $pendapatan_bulan = mysqli_fetch_assoc($r_pembayaran)['n'];
+        }
+    } catch (Exception $ex) {}
+}
 
 // ── Data per panel ──
 $appt_today   = mysqli_query($conn, "SELECT a.id,a.jam,a.status,p.nama AS nama_pasien,d.nama AS nama_dokter,t.nama AS nama_treatment FROM appointment a JOIN pasien p ON a.pasien_id=p.id JOIN dokter d ON a.dokter_id=d.id LEFT JOIN treatment t ON a.treatment_id=t.id WHERE a.tanggal=CURDATE() ORDER BY a.jam ASC LIMIT 10");
 $aktivitas    = mysqli_query($conn, "SELECT * FROM log_aktivitas ORDER BY created_at DESC LIMIT 5");
 $pasien_list  = mysqli_query($conn, "SELECT p.*, (SELECT t.nama FROM appointment a2 LEFT JOIN treatment t ON t.id=a2.treatment_id WHERE a2.pasien_id=p.id ORDER BY a2.id DESC LIMIT 1) AS treatment_terakhir FROM pasien p ORDER BY p.id DESC LIMIT 100");
 $dokter_list  = mysqli_query($conn, "SELECT * FROM dokter ORDER BY id ASC");
-$jadwal_list  = mysqli_query($conn, "SELECT j.*,d.nama AS nama_dokter,t.nama AS nama_treatment FROM jadwal_dokter j JOIN dokter d ON j.dokter_id=d.id LEFT JOIN treatment t ON j.treatment_id=t.id ORDER BY d.nama ASC");
+$jadwal_list  = mysqli_query($conn, "SELECT j.*,d.nama AS nama_dokter,d.foto AS foto_dokter,t.nama AS nama_treatment FROM jadwal_dokter j JOIN dokter d ON j.dokter_id=d.id LEFT JOIN treatment t ON j.treatment_id=t.id ORDER BY d.nama ASC");
 $log_list     = mysqli_query($conn, "SELECT * FROM log_aktivitas ORDER BY created_at DESC LIMIT 50");
 $treatment_list = mysqli_query($conn, "SELECT * FROM treatment ORDER BY urutan ASC");
 // Laporan filter
@@ -282,7 +296,15 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
             <a class="nav-item active" onclick="showPanel('dashboard',this)">Dashboard</a>
             <a class="nav-item" onclick="showPanel('aktivitas',this)">
                 Aktivitas
-                <?php $unread=mysqli_fetch_assoc(mysqli_query($conn,"SELECT COUNT(*) AS n FROM log_aktivitas WHERE DATE(created_at)=CURDATE()"))['n']; if($unread>0) echo "<span class='nav-badge'>$unread</span>"; ?>
+                <?php
+                $time_cond = isset($_SESSION['last_view_log_time']) 
+                    ? "'" . mysqli_real_escape_string($conn, $_SESSION['last_view_log_time']) . "'" 
+                    : "DATE(NOW())";
+                $unread = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM log_aktivitas WHERE created_at > $time_cond"))['n'];
+                if ($unread > 0) {
+                    echo "<span class='nav-badge' id='aktivitas-badge'>$unread</span>";
+                }
+                ?>
             </a>
             <div class="nav-section-label">Manajemen</div>
             <a class="nav-item" onclick="showPanel('pasien',this)">Data Pasien</a>
@@ -471,7 +493,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
         <div class="panel" id="panel-dokter">
             <div class="page-header">
                 <div><h2 class="section-title">Data <em>Dokter</em></h2><p class="section-sub">Kelola profil dan spesialisasi dokter</p></div>
-                <button class="btn-add" onclick="openModal('modal-dokter')">+ Tambah Dokter</button>
+                <button class="btn-add" onclick="document.getElementById('form-dokter').reset(); document.getElementById('md-id').value=''; document.getElementById('md-current-foto').value=''; document.getElementById('md-foto').required=true; openModal('modal-dokter')">+ Tambah Dokter</button>
             </div>
             <div class="card">
                 <table class="data-table">
@@ -485,7 +507,20 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                         } ?>
                         <tr>
                             <td style="color:#7a7571;font-size:11px">#D-00<?= $d['id'] ?></td>
-                            <td><div style="display:flex;align-items:center;gap:8px"><span class="avatar"><?= strtoupper(substr($d['nama'],0,1)) ?></span><span class="td-name"><?= htmlspecialchars($d['nama']) ?></span></div></td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:8px">
+                                    <?php
+                                    $foto = !empty($d['foto']) 
+                                        ? (strpos($d['foto'], 'http') === 0 || strpos($d['foto'], 'asset/') === 0 ? $d['foto'] : '../../backend/uploads/' . $d['foto']) 
+                                        : '';
+                                    if ($foto): ?>
+                                        <img class="avatar" src="<?= htmlspecialchars($foto) ?>" style="object-fit:cover; width:30px; height:30px; border-radius:50%; margin-right:8px;" alt="<?= htmlspecialchars($d['nama']) ?>">
+                                    <?php else: ?>
+                                        <span class="avatar"><?= strtoupper(substr($d['nama'],0,1)) ?></span>
+                                    <?php endif; ?>
+                                    <span class="td-name"><?= htmlspecialchars($d['nama']) ?></span>
+                                </div>
+                            </td>
                             <td><span class="badge badge-pink"><?= htmlspecialchars($d['spesialisasi']) ?></span></td>
                             <td><?= $d['pengalaman'] ?>+ Thn</td>
                             <td style="text-align:center"><?= number_format($d['total_pasien']) ?></td>
@@ -519,7 +554,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
             while ($j = mysqli_fetch_assoc($jadwal_list)) {
                 $did = $j['dokter_id'];
                 if (!isset($grouped[$did])) {
-                    $grouped[$did] = ['nama' => $j['nama_dokter'], 'jadwal' => []];
+                    $grouped[$did] = ['nama' => $j['nama_dokter'], 'foto' => $j['foto_dokter'] ?? '', 'jadwal' => []];
                 }
                 $grouped[$did]['jadwal'][] = $j;
             }
@@ -540,7 +575,15 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                 <div class="jadwal-doctor-card">
                     <!-- Doctor Header -->
                     <div class="jdc-header">
-                        <div class="jdc-avatar"><?= $initials ?></div>
+                        <?php
+                        $j_foto = !empty($grp['foto']) 
+                            ? (strpos($grp['foto'], 'http') === 0 || strpos($grp['foto'], 'asset/') === 0 ? $grp['foto'] : '../../backend/uploads/' . $grp['foto']) 
+                            : '';
+                        if ($j_foto): ?>
+                            <img class="jdc-avatar" src="<?= htmlspecialchars($j_foto) ?>" style="object-fit:cover; width:44px; height:44px; border-radius:50%; margin-right:16px;" alt="<?= htmlspecialchars($grp['nama']) ?>">
+                        <?php else: ?>
+                            <div class="jdc-avatar"><?= $initials ?></div>
+                        <?php endif; ?>
                         <div class="jdc-info">
                             <div class="jdc-name"><?= htmlspecialchars($grp['nama']) ?></div>
                             <div class="jdc-meta"><?= $total_days ?> hari praktik / minggu</div>
@@ -1159,8 +1202,9 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
         <div class="modal">
             <h3 class="modal-title" id="md-title">Tambah <em>Dokter</em></h3>
             <p class="modal-sub">Lengkapi profil dan spesialisasi dokter</p>
-            <form method="POST" id="form-dokter">
+            <form method="POST" id="form-dokter" enctype="multipart/form-data">
                 <input type="hidden" name="id" id="md-id">
+                <input type="hidden" name="current_foto" id="md-current-foto">
                 <div class="form-row">
                     <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-input" name="nama" id="md-nama" placeholder="Dr. Nama Lengkap" required></div>
                     <div class="form-group"><label class="form-label">No. STR / SIP</label><input class="form-input" name="no_str" id="md-str" placeholder="STR-XX-000"></div>
@@ -1176,6 +1220,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     <div class="form-group full"><label class="form-label">Status</label>
                         <select class="form-select" name="status" id="md-status"><option>Aktif</option><option>Cuti</option><option>Tidak Aktif</option></select>
                     </div>
+                    <div class="form-group full"><label class="form-label">Foto Dokter</label><input type="file" class="form-input" name="foto" id="md-foto" accept="image/*"></div>
                     <div class="form-group full"><label class="form-label">Bio Singkat</label><textarea class="form-textarea" name="bio" id="md-bio" placeholder="Deskripsi singkat dokter..."></textarea></div>
                 </div>
                 <div class="modal-footer">
@@ -1369,14 +1414,14 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                 <div class="form-group" style="grid-column:1/-1">
                     <label class="form-label">Pesan dari Pengunjung</label>
                     <div class="form-textarea" id="mp-detail-pesan"
-                        style="background:#F9F7F2;cursor:default;min-height:90px;line-height:1.6"></div>
+                        style="background:#F9F7F2;cursor:default;min-height:90px;line-height:1.6;white-space:pre-wrap"></div>
                 </div>
             </div>
 
             <!-- Balasan sebelumnya (jika ada) -->
             <div id="mp-balasan-box" style="display:none;margin-bottom:18px">
                 <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#735a39;font-weight:600;margin-bottom:8px">Balasan Admin</div>
-                <div style="background:linear-gradient(135deg,#f5f3ee,#F9F7F2);border-left:3px solid #735a39;border-radius:8px;padding:14px 16px;font-size:13px;color:#2D3436;line-height:1.6" id="mp-balasan-isi"></div>
+                <div style="background:linear-gradient(135deg,#f5f3ee,#F9F7F2);border-left:3px solid #735a39;border-radius:8px;padding:14px 16px;font-size:13px;color:#2D3436;line-height:1.6;white-space:pre-wrap" id="mp-balasan-isi"></div>
                 <div style="font-size:11px;color:#94a3b8;margin-top:6px" id="mp-balasan-info"></div>
             </div>
 
@@ -1454,7 +1499,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
 
     <div class="toast" id="toast">✅ <span id="toast-msg">Berhasil</span></div>
 
-    <script src="../../asset/js/admin.js?v=2"></script>
+    <script src="../../asset/js/admin.js?v=3"></script>
     <script>
     // ── Keuangan JS ─────────────────────────────────────────
     function openKeuanganModal() {

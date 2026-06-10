@@ -4,8 +4,8 @@ $conn = require_once __DIR__ . '/koneksi.php';
 echo "Updating doctors...\n";
 $doctors = [
     1 => 'asset/img/doctor1.png',
-    2 => 'asset/img/doctor2.png',
-    3 => 'asset/img/doctor3.png'
+    2 => 'asset/img/doctor3.png',
+    3 => 'asset/img/doctor2.png'
 ];
 foreach ($doctors as $id => $foto) {
     $stmt = mysqli_prepare($conn, "UPDATE dokter SET foto=? WHERE id=?");
