@@ -1,8 +1,31 @@
     function showPage(id, el) {
+        // Sembunyikan semua page
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('page-' + id).classList.add('active');
-        document.querySelectorAll('.topnav-item').forEach(n => n.classList.remove('active'));
-        if (el) el.classList.add('active');
+        const targetPage = document.getElementById('page-' + id);
+        if (targetPage) targetPage.classList.add('active');
+
+        // Hapus active dari SEMUA nav-item
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+        // Aktifkan nav-item yang sesuai dengan id (cari via onclick attribute)
+        const navItem = document.querySelector('.nav-item[onclick*="' + id + '"]');
+        if (navItem) navItem.classList.add('active');
+
+        // Perbarui judul topbar & breadcrumb
+        const patTitles = {
+            beranda: 'Beranda',
+            'jadwal-dokter': 'Jadwal Dokter',
+            'daftar-konsul': 'Daftar Pendaftaran',
+            riwayat: 'Riwayat Medis',
+            notifikasi: 'Notifikasi',
+            akun: 'Profil Saya'
+        };
+        const title = patTitles[id] || id;
+        const topEl = document.getElementById('topbar-title');
+        const bcEl  = document.getElementById('topbar-bc');
+        if (topEl) topEl.textContent = title;
+        if (bcEl)  bcEl.textContent = 'GlowCare Pasien → ' + title;
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 

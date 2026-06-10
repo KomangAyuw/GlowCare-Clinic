@@ -168,8 +168,8 @@ $pct = $tot_a > 0 ? round($tot_s / $tot_a * 100) : 0;
 
   /* Table */
   table { width:100%; border-collapse:collapse; font-size:12px; }
-  thead tr { background:#f0fdf4; }
-  th { padding:9px 12px; text-align:left; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:#64748b; border-bottom:1px solid #d1c4b8; }
+  thead tr { background:#f5ede5; }
+  th { padding:9px 12px; text-align:left; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:#594323; border-bottom:1px solid #d1c4b8; }
   td { padding:10px 12px; border-bottom:1px solid #f5f3ee; vertical-align:middle; }
   tfoot tr { background:#f9f6f2; font-weight:600; }
   .right { text-align:right; }

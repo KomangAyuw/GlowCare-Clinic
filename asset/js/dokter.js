@@ -1,3 +1,25 @@
+const dokterTitles = {
+    overview: 'Overview',
+    jadwal: 'Jadwal Praktik',
+    'daftar-pasien': 'Daftar Pasien',
+    'rekam-medis': 'Rekam Medis',
+    profil: 'Profil Saya',
+    notifikasi: 'Notifikasi'
+};
+
+function showPanel(id, el) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById('panel-' + id);
+    if (panel) panel.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+    const title = dokterTitles[id] || id;
+    const topEl = document.getElementById('topbar-title');
+    const bcEl  = document.getElementById('topbar-bc');
+    if (topEl) topEl.textContent = title;
+    if (bcEl)  bcEl.textContent = 'GlowCare Dokter';
+}
+
 // ── Filter tabel pasien ──────────────────────
 function filterPasien() {
     const cari      = document.getElementById('cari-pasien').value.toLowerCase();
@@ -118,30 +140,6 @@ function loadTimeline(pasienId) {
         });
 }
 
-// ── Dashboard Panels & Modals ────────────────
-const titles = {
-    overview: 'Overview',
-    jadwal: 'Jadwal Praktik',
-    'daftar-pasien': 'Daftar Pasien',
-    'rekam-medis': 'Rekam Medis',
-    profil: 'Profil Saya'
-};
-
-function showPanel(id, el) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    const targetPanel = document.getElementById('panel-' + id);
-    if (targetPanel) targetPanel.classList.add('active');
-    
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if (el) el.classList.add('active');
-    
-    const titleEl = document.getElementById('topbar-title');
-    if (titleEl) titleEl.textContent = titles[id] || id;
-    
-    const bcEl = document.getElementById('topbar-bc');
-    if (bcEl) bcEl.textContent = 'GlowCare Dokter → ' + (titles[id] || id);
-}
-
 function closeModal(id) {
     const el = document.getElementById(id);
     if (el) el.classList.remove('open');
@@ -149,4 +147,13 @@ function closeModal(id) {
 
 function closeModalOutside(e, id) {
     if (e.target.classList.contains('modal-overlay')) closeModal(id);
+}
+
+// ── Switch tab rekam medis ────────────────────
+function switchTab(tabId, el) {
+    document.querySelectorAll('.rm-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.rm-tab').forEach(t => t.classList.remove('active'));
+    const target = document.getElementById('tab-' + tabId);
+    if (target) target.classList.add('active');
+    if (el) el.classList.add('active');
 }

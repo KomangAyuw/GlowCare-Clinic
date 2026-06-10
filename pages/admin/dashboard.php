@@ -104,13 +104,18 @@ function rupiah(float $n): string {
     return 'Rp '.number_format($n,0,',','.');
 }
 function badge_appt(string $s): string {
-    return match($s) {
-        'Selesai'     => '<span class="badge badge-green">Selesai</span>',
-        'Berlangsung' => '<span class="badge badge-yellow">Berlangsung</span>',
-        'Terjadwal'   => '<span class="badge badge-gray">Terjadwal</span>',
-        'Dibatalkan'  => '<span class="badge badge-pink">Dibatalkan</span>',
-        default       => '<span class="badge badge-gray">'.$s.'</span>',
-    };
+    switch ($s) {
+        case 'Selesai':
+            return '<span class="badge badge-green">Selesai</span>';
+        case 'Berlangsung':
+            return '<span class="badge badge-yellow">Berlangsung</span>';
+        case 'Terjadwal':
+            return '<span class="badge badge-gray">Terjadwal</span>';
+        case 'Dibatalkan':
+            return '<span class="badge badge-pink">Dibatalkan</span>';
+        default:
+            return '<span class="badge badge-gray">'.$s.'</span>';
+    }
 }
 $bln_ind = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 $hari_ind = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -124,7 +129,131 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>GlowCare Admin Dashboard</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="../../asset/css/admin.css?v=5">
+    <link rel="stylesheet" href="../../asset/css/admin.css?v=11">
+    <style>
+        body {
+            background: #f7f6f3 !important;
+        }
+        .sidebar {
+            background: #4a321f !important;
+            border-right: 1px solid #3d2716 !important;
+            box-shadow: 2px 0 16px rgba(0,0,0,0.06) !important;
+        }
+        .sidebar-logo {
+            border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        .sidebar-logo .brand {
+            color: #ffffff !important;
+        }
+        .sidebar-logo .role {
+            color: #a89a8a !important;
+        }
+        .sidebar-nav .nav-section-label {
+            color: rgba(255,255,255,0.4) !important;
+        }
+        .sidebar-nav .nav-item {
+            color: rgba(255,255,255,0.8) !important;
+        }
+        .sidebar-nav .nav-item:hover {
+            background: rgba(255,255,255,0.06) !important;
+            color: #ffffff !important;
+        }
+        .sidebar-nav .nav-item.active {
+            background: rgba(255,255,255,0.12) !important;
+            color: #ffffff !important;
+            border-left-color: #e0c097 !important;
+        }
+        .sidebar-nav .nav-badge {
+            background: #e0c097 !important;
+            color: #4a321f !important;
+        }
+        .sidebar-footer {
+            border-top: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        .sidebar-user .user-avatar {
+            background: #e0c097 !important;
+            color: #4a321f !important;
+        }
+        .sidebar-user .user-info .name {
+            color: #ffffff !important;
+        }
+        .sidebar-user .user-info .label {
+            color: #a89a8a !important;
+        }
+        .topbar {
+            background: #4a321f !important;
+            border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        .topbar-left {
+            display: none !important;
+        }
+        .topbar-left .page-title {
+            color: #ffffff !important;
+        }
+        .topbar-left .breadcrumb {
+            color: rgba(255,255,255,0.6) !important;
+        }
+        .card {
+            background: #ffffff !important;
+            border: 1px solid #efebe4 !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
+        }
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important;
+        }
+        /* ══ HERO BANNER ══ */
+        .hero-banner {
+            background: #faf6ee !important;
+            padding: 36px 40px;
+            border-bottom: 1px solid #efebe4 !important;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-greeting {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #735a39 !important;
+            margin-bottom: 8px;
+        }
+        .hero-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: #4a321f !important;
+            margin-bottom: 6px;
+        }
+        .hero-name em {
+            color: #735a39 !important;
+            font-style: italic;
+        }
+        .hero-sub {
+            font-size: 13px;
+            color: #7d6756 !important;
+            font-weight: 300;
+            margin-bottom: 0px;
+        }
+        .logout-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            font-size: 12px !important;
+            color: #ffffff !important;
+            background: #e05050 !important;
+            padding: 8px 16px !important;
+            border-radius: 50px !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: all 0.2s !important;
+            text-decoration: none !important;
+            justify-content: center !important;
+            width: 100% !important;
+            border: none !important;
+        }
+        .logout-btn:hover {
+            background: #ba1a1a !important;
+            color: #ffffff !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -173,13 +302,13 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
 
     <!-- MAIN -->
     <div class="main">
-        <div class="topbar">
+        <div class="topbar" style="justify-content: flex-end;">
             <div class="topbar-left">
                 <div class="page-title" id="topbar-title">Dashboard</div>
                 <div class="breadcrumb" id="topbar-bc">GlowCare Admin → Dashboard</div>
             </div>
             <div class="topbar-right">
-                <a href="#" onclick="showLogoutModal(); return false;" class="logout-btn">Logout</a>
+                <a href="#" onclick="showLogoutModal(); return false;" class="logout-btn" style="width: auto !important; padding: 6px 16px;">Logout</a>
             </div>
         </div>
 
@@ -187,7 +316,12 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
 
         <!-- ══ PANEL DASHBOARD ══ -->
         <div class="panel active" id="panel-dashboard">
-            <p class="section-sub">Selamat datang, <strong><?= htmlspecialchars($admin['username']) ?></strong> — <?= $tgl_now ?></p>
+            <!-- Hero banner -->
+            <div class="hero-banner" style="margin: -36px -40px 36px -40px;">
+                <div class="hero-greeting"><?= ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][date('w')] ?>, <?= date('d M Y') ?></div>
+                <div class="hero-name">Halo, <em><?= htmlspecialchars($admin['username']) ?></em></div>
+                <div class="hero-sub">Selamat datang kembali di GlowCare Clinic. Yuk, kelola operasional klinik dengan baik.</div>
+            </div>
             <div class="stats-row">
                 <div class="stat-card">
                     <div class="stat-icon"></div>
@@ -329,7 +463,11 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     <thead><tr><th>ID</th><th>Nama</th><th>Spesialisasi</th><th>Pengalaman</th><th>Total Pasien</th><th>Rating</th><th>Status</th><th>Aksi</th></tr></thead>
                     <tbody>
                     <?php mysqli_data_seek($dokter_list,0); while($d=mysqli_fetch_assoc($dokter_list)):
-                        $badge_d=match($d['status']){'Aktif'=>'badge-green','Cuti'=>'badge-yellow',default=>'badge-gray'}; ?>
+                        switch($d['status']){
+                            case 'Aktif': $badge_d='badge-green'; break;
+                            case 'Cuti': $badge_d='badge-yellow'; break;
+                            default: $badge_d='badge-gray'; break;
+                        } ?>
                         <tr>
                             <td style="color:#7a7571;font-size:11px">#D-00<?= $d['id'] ?></td>
                             <td><div style="display:flex;align-items:center;gap:8px"><span class="avatar"><?= strtoupper(substr($d['nama'],0,1)) ?></span><span class="td-name"><?= htmlspecialchars($d['nama']) ?></span></div></td>

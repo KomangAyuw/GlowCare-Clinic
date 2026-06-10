@@ -58,6 +58,7 @@ if ($appt_id > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Konsultasi Chat (Dokter) - GlowCare Clinic</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../asset/css/dokter.css?v=5">
     <style>
         .chat-container {
@@ -202,18 +203,15 @@ if ($appt_id > 0) {
 <div class="topbar" style="position:static; margin-bottom: 0;">
     <div style="display:flex; align-items:center; gap:16px;">
         <a href="dashboardDokter.php" style="color:#735a39; text-decoration:none; font-size:18px; font-weight:bold; background:#f5f3ee; padding:6px 12px; border-radius:8px;" title="Kembali ke Dashboard">←</a>
-        <div class="topbar-title">Konsultasi Chat (Dokter)</div>
     </div>
-    <div style="display:flex; gap:16px; align-items:center">
-        <div class="topbar-bc">GlowCare Dokter → Chat</div>
-    </div>
+    <div></div>
 </div>
 
 <div class="chat-container">
     <!-- Sidebar -->
     <div class="chat-sidebar">
         <div class="chat-sidebar-header">Riwayat Chat Pasien</div>
-        <?php if (count($appointments) === 0 && count($consultations) === 0): ?>
+        <?php if (count($consultations) === 0): ?>
             <div style="padding: 24px; font-size: 13px; color: #64748b;">Belum ada sesi chat aktif.</div>
         <?php else: ?>
             <?php foreach($consultations as $c): ?>

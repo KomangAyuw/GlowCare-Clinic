@@ -30,7 +30,7 @@ Secara keseluruhan, GlowCare Clinic bertujuan untuk meningkatkan efisiensi opera
 |---|---|---|
 | I Gde Surya Laksana | F1D02410051 | Backend Development: pembuatan dan pengelolaan database MySQL, query CRUD (pasien, dokter, appointment, treatment), serta logic server-side menggunakan PHP |
 | Nurhidayah Maulidia | F1D02410022 | Frontend Development: pembuatan tampilan website menggunakan HTML, CSS, dan JavaScript, termasuk halaman login, form booking, dan dashboard user/admin |
-| Ni Komang Ayu Sumeitri | F1D02410084 | Full Integration & Testing: menghubungkan frontend dengan backend (PHP–MySQL), melakukan testing fitur, debugging error, serta membantu penyempurnaan UI dan sistem |
+| Ni Komang Ayu Sumeitri | F1D02410084 | Full Integration & Frontend Development: menghubungkan frontend dengan backend (PHP–MySQL) dan pembuatan tampilan website menggunakan HTML, CSS, dan JavaScript bagian halaman dashboard user, admin, dan dokter |
 
 ---
 

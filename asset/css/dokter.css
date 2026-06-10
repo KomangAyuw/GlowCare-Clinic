@@ -2,7 +2,7 @@
 
 body {
     font-family: 'DM Sans', sans-serif;
-    background: #fbf9f4;
+    background: #f0fdf4;
     color: #2D3436;
     display: flex;
     min-height: 100vh;
@@ -13,25 +13,26 @@ body {
 .sidebar {
     width: 260px;
     background: #ffffff;
-    border-right: 1px solid #d1c4b8;
+    border-right: 1px solid #a7f3d0;
     min-height: 100vh;
     position: fixed;
     top: 0; left: 0;
     display: flex;
     flex-direction: column;
     z-index: 100;
+    box-shadow: 2px 0 16px rgba(6,78,59,0.06);
 }
 
 .sidebar-logo {
-    padding: 32px 28px 24px;
-    border-bottom: 1px solid #d1c4b8;
+    padding: 28px 28px 22px;
+    border-bottom: 1px solid #efebe4;
 }
 
 .sidebar-logo .brand {
     font-family: 'Playfair Display', serif;
     font-size: 20px;
     font-style: italic;
-    color: #735a39;
+    color: #594323;
     letter-spacing: 1px;
 }
 
@@ -39,14 +40,14 @@ body {
     font-size: 9px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: #64748b;
+    color: #9ca3af;
     margin-top: 4px;
 }
 
 /* Doctor profile mini card in sidebar */
 .sidebar-doctor {
-    padding: 20px 28px;
-    border-bottom: 1px solid #d1c4b8;
+    padding: 18px 28px;
+    border-bottom: 1px solid #efebe4;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -56,7 +57,7 @@ body {
     width: 44px; height: 44px;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid #735a39;
+    border: 2px solid #a7f3d0;
     flex-shrink: 0;
 }
 
@@ -107,8 +108,8 @@ body {
     font-size: 8px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: #64748b;
-    padding: 12px 28px 8px;
+    color: #9ca3af;
+    padding: 14px 28px 6px;
 }
 
 .nav-item {
@@ -117,57 +118,64 @@ body {
     gap: 12px;
     padding: 11px 28px;
     font-size: 13px;
-    color: #475569;
+    color: #374151;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.18s;
     border-left: 3px solid transparent;
     text-decoration: none;
+    background: transparent;
 }
 
 .nav-item:hover {
-    background: #f5f3ee;
-    color: #735a39;
+    background: #faf6ee;
+    color: #594323;
 }
 
 .nav-item.active {
-    background: #f5f3ee;
-    color: #735a39;
-    border-left-color: #735a39;
+    background: #faf6ee;
+    color: #594323;
+    border-left-color: #594323;
+    font-weight: 500;
 }
 
 .nav-icon { font-size: 15px; flex-shrink: 0; }
 
 .nav-badge {
     margin-left: auto;
-    background: #735a39;
+    background: #594323;
     color: #fff;
     font-size: 9px;
     padding: 2px 7px;
     border-radius: 20px;
+    font-weight: 600;
 }
 
 .sidebar-footer {
     padding: 16px 28px;
-    border-top: 1px solid #d1c4b8;
+    border-top: 1px solid #efebe4;
 }
 
 .logout-btn {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 8px;
     font-size: 12px;
-    color: #ffffff;
-    background: #e05050;
-    padding: 8px 16px;
+    color: #c0392b;
+    background: #fef0f0;
+    padding: 9px 16px;
     border-radius: 50px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
     text-decoration: none;
-    justify-content: center;
+    width: 100%;
+    border: 1px solid #fbc4c4;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.5px;
 }
 
-.logout-btn:hover { background: #ba1a1a; color: #ffffff; }
+.logout-btn:hover { background: #fddede; border-color: #e05050; color: #c0392b; }
 
 /* ══ MAIN ══ */
 .main {
@@ -181,7 +189,7 @@ body {
 /* ══ TOPBAR ══ */
 .topbar {
     background: #ffffff;
-    border-bottom: 1px solid #d1c4b8;
+    border-bottom: 1px solid #a7f3d0;
     padding: 0 40px;
     height: 64px;
     display: flex;
@@ -218,14 +226,14 @@ body {
     padding: 6px 16px;
     background: #f5f3ee;
     border-radius: 50px;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
 }
 
 .notif-btn {
     width: 38px; height: 38px;
     border-radius: 50%;
     background: #f5f3ee;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     font-size: 16px;
@@ -297,7 +305,7 @@ body {
     background: #ffffff;
     border-radius: 12px;
     padding: 22px;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     position: relative;
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
@@ -305,7 +313,7 @@ body {
 
 .stat-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(6,78,59,0.1);
+    box-shadow: 0 8px 24px rgba(6,78,59,0.12);
 }
 
 .stat-card::before {
@@ -341,7 +349,7 @@ body {
 .card {
     background: #ffffff;
     border-radius: 12px;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     overflow: hidden;
 }
 
@@ -436,7 +444,7 @@ body {
 }
 
 .badge-green  { background: #e8f9f1; color: #3dab74; }
-.badge-pink   { background: #e3f2f2; color: #735a39; }
+.badge-pink   { background: #efebe4; color: #735a39; }
 .badge-yellow { background: #fef9e7; color: #c9970e; }
 .badge-gray   { background: #f5f5f5; color: #888; }
 .badge-blue   { background: #e8f0fe; color: #4a7fd4; }
@@ -445,7 +453,7 @@ body {
 .avatar {
     width: 32px; height: 32px;
     border-radius: 50%;
-    background: #d1c4b8;
+    background: #c4a882;
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 12px;
     font-family: 'Playfair Display', serif;
@@ -493,7 +501,7 @@ body {
 .sch-bar {
     width: 3px;
     border-radius: 3px;
-    background: #d1c4b8;
+    background: #c4a882;
     min-height: 40px;
     flex-shrink: 0;
     margin-top: 3px;
@@ -521,7 +529,7 @@ body {
 .rm-tabs {
     display: flex;
     gap: 0;
-    border-bottom: 1px solid #d1c4b8;
+    border-bottom: 1px solid #c4a882;
     margin-bottom: 24px;
 }
 
@@ -548,7 +556,7 @@ body {
 
 /* ══ REKAM MEDIS CARD ══ */
 .rm-card {
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     border-radius: 10px;
     padding: 20px 24px;
     margin-bottom: 14px;
@@ -556,7 +564,7 @@ body {
     transition: box-shadow 0.2s;
 }
 
-.rm-card:hover { box-shadow: 0 4px 16px rgba(6,78,59,0.08); }
+.rm-card:hover { box-shadow: 0 4px 16px rgba(6,78,59,0.09); }
 
 .rm-card-header {
     display: flex;
@@ -594,7 +602,7 @@ body {
 .rm-tag {
     font-size: 10px;
     color: #735a39;
-    background: #e3f2f2;
+    background: #efebe4;
     padding: 3px 10px;
     border-radius: 50px;
 }
@@ -602,7 +610,7 @@ body {
 /* ══ PROFIL ══ */
 .profil-hero {
     background: #ffffff;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     border-radius: 16px;
     padding: 36px;
     margin-bottom: 22px;
@@ -620,7 +628,7 @@ body {
     width: 100px; height: 100px;
     border-radius: 50%;
     overflow: hidden;
-    border: 3px solid #d1c4b8;
+    border: 3px solid #c4a882;
 }
 
 .profil-avatar img {
@@ -695,7 +703,7 @@ body {
 .profil-tag {
     font-size: 11px;
     color: #735a39;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     padding: 4px 14px;
     border-radius: 50px;
 }
@@ -750,7 +758,7 @@ body {
 
 .form-input, .form-select, .form-textarea {
     background: #fbf9f4;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     border-radius: 6px;
     padding: 11px 14px;
     font-size: 13px;
@@ -763,7 +771,7 @@ body {
 }
 
 .form-input:focus, .form-select:focus, .form-textarea:focus {
-    border-color: #d1c4b8;
+    border-color: #c4a882;
     background: #ffffff;
 }
 
@@ -790,7 +798,7 @@ body {
 .btn-outline {
     background: transparent;
     color: #735a39;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     padding: 10px 22px;
     border-radius: 50px;
     font-size: 11px;
@@ -854,7 +862,7 @@ body {
 
 .filter-input {
     background: #ffffff;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     border-radius: 50px;
     padding: 8px 18px;
     font-size: 12px;
@@ -868,7 +876,7 @@ body {
 
 .filter-select {
     background: #ffffff;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     border-radius: 50px;
     padding: 8px 18px;
     font-size: 12px;
@@ -884,7 +892,7 @@ body {
     grid-template-columns: 64px repeat(6, 1fr);
     gap: 3px;
     background: #ffffff;
-    border: 1px solid #d1c4b8;
+    border: 1px solid #c4a882;
     border-radius: 12px;
     overflow: hidden;
     margin-bottom: 24px;
@@ -898,7 +906,7 @@ body {
     text-transform: uppercase;
     color: #64748b;
     background: #f5f3ee;
-    border-bottom: 1px solid #d1c4b8;
+    border-bottom: 1px solid #c4a882;
 }
 
 .wg-time {
@@ -907,7 +915,7 @@ body {
     color: #64748b;
     text-align: right;
     background: #f5f3ee;
-    border-right: 1px solid #d1c4b8;
+    border-right: 1px solid #c4a882;
 }
 
 .wg-cell {
@@ -945,7 +953,7 @@ body {
 .pasien-detail-avatar {
     width: 60px; height: 60px;
     border-radius: 50%;
-    background: #d1c4b8;
+    background: #c4a882;
     display: flex; align-items: center; justify-content: center;
     font-size: 22px;
     font-family: 'Playfair Display', serif;
@@ -1034,7 +1042,7 @@ body {
     top: 28px;
     bottom: 0;
     width: 1px;
-    background: #d1c4b8;
+    background: #c4a882;
 }
 
 .tl-item:last-child::before { display: none; }
@@ -1073,4 +1081,94 @@ body {
     font-size: 10px;
     color: #64748b;
     margin-top: 4px;
+}
+
+.panel          { display: none; }
+.panel.active   { display: block; }
+
+.modal-overlay          { display: none; }
+.modal-overlay.active,
+.modal-overlay.open     { display: flex; }
+/* ══ THEME CUSTOM OVERRIDES ══ */
+body {
+    background: #f7f6f3 !important;
+}
+.sidebar {
+    background: #4a321f !important;
+    border-right: 1px solid #3d2716 !important;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.06) !important;
+}
+.sidebar-logo {
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+.sidebar-logo .brand {
+    color: #ffffff !important;
+}
+.sidebar-logo .role {
+    color: #a89a8a !important;
+}
+.sidebar-doctor {
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+.sidebar-doc-avatar {
+    border: 2px solid #e0c097 !important;
+}
+.sidebar-doc-info .doc-name {
+    color: #ffffff !important;
+}
+.sidebar-doc-info .doc-spec {
+    color: #e0c097 !important;
+}
+.sidebar-doc-info .doc-status {
+    color: #d1c4b8 !important;
+}
+.sidebar-doc-info .doc-status::before {
+    background: #e0c097 !important;
+}
+.sidebar-nav .nav-section-label {
+    color: rgba(255,255,255,0.4) !important;
+}
+.sidebar-nav .nav-item {
+    color: rgba(255,255,255,0.8) !important;
+}
+.sidebar-nav .nav-item:hover {
+    background: rgba(255,255,255,0.06) !important;
+    color: #ffffff !important;
+}
+.sidebar-nav .nav-item.active {
+    background: rgba(255,255,255,0.12) !important;
+    color: #ffffff !important;
+    border-left-color: #e0c097 !important;
+}
+.sidebar-nav .nav-badge {
+    background: #e0c097 !important;
+    color: #4a321f !important;
+}
+.sidebar-footer {
+    border-top: 1px solid rgba(255,255,255,0.08) !important;
+}
+.topbar {
+    background: #4a321f !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+.topbar-date {
+    color: #f5f3ee !important;
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+}
+.notif-btn-text {
+    border: 1px solid rgba(255,255,255,0.25) !important;
+    color: #ffffff !important;
+}
+.notif-dot {
+    background: #e0c097 !important;
+    border-color: #4a321f !important;
+}
+.card {
+    background: #ffffff !important;
+    border: 1px solid #efebe4 !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
+}
+.card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important;
 }

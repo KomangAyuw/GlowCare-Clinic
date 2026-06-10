@@ -159,14 +159,53 @@ while ($row = mysqli_fetch_assoc($qMinggu)) {
     $jadwalMinggu[$row['tanggal']][] = $row;
 }
 
+// ── 7. NOTIFIKASI DOKTER ──────────────────────
+$qNewAppt = mysqli_query($conn, "
+    SELECT a.*, p.nama AS nama_pasien, t.nama AS nama_treatment
+    FROM appointment a
+    JOIN pasien p ON a.pasien_id = p.id
+    LEFT JOIN treatment t ON a.treatment_id = t.id
+    WHERE a.dokter_id = $dokter_id AND a.status = 'Menunggu'
+    ORDER BY a.tanggal DESC, a.jam DESC
+");
+$newAppointments = [];
+if ($qNewAppt) {
+    while ($row = mysqli_fetch_assoc($qNewAppt)) {
+        $newAppointments[] = $row;
+    }
+}
+
+$qUnreadChat = mysqli_query($conn, "
+    SELECT m.*, p.nama AS nama_pasien, c.id AS consultation_id
+    FROM messages m
+    JOIN consultations c ON m.consultation_id = c.id
+    JOIN pasien p ON c.pasien_id = p.id
+    WHERE c.dokter_id = $dokter_id 
+      AND m.sender_type = 'Pasien' 
+      AND m.is_read = 0
+    GROUP BY c.id
+    ORDER BY m.created_at DESC
+");
+$unreadChats = [];
+if ($qUnreadChat) {
+    while ($row = mysqli_fetch_assoc($qUnreadChat)) {
+        $unreadChats[] = $row;
+    }
+}
+$totalNotifCount = count($newAppointments) + count($unreadChats);
+
 // ── HELPER FUNCTIONS ──────────────────────────
 function badgeClass(string $status): string {
-    return match($status) {
-        'Selesai'    => 'badge-green',
-        'Berlangsung'=> 'badge-yellow',
-        'Menunggu'   => 'badge-pink',
-        default      => 'badge-gray',
-    };
+    switch ($status) {
+        case 'Selesai':
+            return 'badge-green';
+        case 'Berlangsung':
+            return 'badge-yellow';
+        case 'Menunggu':
+            return 'badge-pink';
+        default:
+            return 'badge-gray';
+    }
 }
 
 function inisial(string $nama): string {
@@ -190,7 +229,143 @@ $tanggalHariIni = formatTanggal($today);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GlowCare — Dashboard Dokter</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="../../asset/css/dokter.css?v=4">
+    <link rel="stylesheet" href="../../asset/css/dokter.css?v=11">
+    <style>
+        body {
+            background: #f7f6f3 !important;
+        }
+        .sidebar {
+            background: #4a321f !important;
+            border-right: 1px solid #3d2716 !important;
+            box-shadow: 2px 0 16px rgba(0,0,0,0.06) !important;
+        }
+        .sidebar-logo {
+            border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        .sidebar-logo .brand {
+            color: #ffffff !important;
+        }
+        .sidebar-logo .role {
+            color: #a89a8a !important;
+        }
+        .sidebar-doctor {
+            border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        .sidebar-doc-avatar {
+            border: 2px solid #e0c097 !important;
+        }
+        .sidebar-doc-info .doc-name {
+            color: #ffffff !important;
+        }
+        .sidebar-doc-info .doc-spec {
+            color: #e0c097 !important;
+        }
+        .sidebar-doc-info .doc-status {
+            color: #d1c4b8 !important;
+        }
+        .sidebar-doc-info .doc-status::before {
+            background: #e0c097 !important;
+        }
+        .sidebar-nav .nav-section-label {
+            color: rgba(255,255,255,0.4) !important;
+        }
+        .sidebar-nav .nav-item {
+            color: rgba(255,255,255,0.8) !important;
+        }
+        .sidebar-nav .nav-item:hover {
+            background: rgba(255,255,255,0.06) !important;
+            color: #ffffff !important;
+        }
+        .sidebar-nav .nav-item.active {
+            background: rgba(255,255,255,0.12) !important;
+            color: #ffffff !important;
+            border-left-color: #e0c097 !important;
+        }
+        .sidebar-nav .nav-badge {
+            background: #e0c097 !important;
+            color: #4a321f !important;
+        }
+        .sidebar-footer {
+            border-top: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        .logout-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            font-size: 12px !important;
+            color: #ffffff !important;
+            background: #e05050 !important;
+            padding: 8px 16px !important;
+            border-radius: 50px !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: all 0.2s !important;
+            text-decoration: none !important;
+            justify-content: center !important;
+            width: 100% !important;
+            border: none !important;
+        }
+        .logout-btn:hover {
+            background: #ba1a1a !important;
+            color: #ffffff !important;
+        }
+        .topbar {
+            background: #4a321f !important;
+            border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        .topbar-date {
+            color: #f5f3ee !important;
+            background: rgba(255,255,255,0.08) !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+        }
+        .notif-btn-text {
+            border: 1px solid rgba(255,255,255,0.25) !important;
+            color: #ffffff !important;
+        }
+        .notif-dot {
+            background: #e0c097 !important;
+            border-color: #4a321f !important;
+        }
+        .card {
+            background: #ffffff !important;
+            border: 1px solid #efebe4 !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
+        }
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important;
+        }
+        /* ══ HERO BANNER ══ */
+        .hero-banner {
+            background: #faf6ee !important;
+            padding: 36px 40px;
+            border-bottom: 1px solid #efebe4 !important;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-greeting {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #735a39 !important;
+            margin-bottom: 8px;
+        }
+        .hero-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: #4a321f !important;
+            margin-bottom: 6px;
+        }
+        .hero-name em {
+            color: #735a39 !important;
+            font-style: italic;
+        }
+        .hero-sub {
+            font-size: 13px;
+            color: #7d6756 !important;
+            font-weight: 300;
+            margin-bottom: 0px;
+        }
+    </style>
 </head>
 <body>
 
@@ -203,7 +378,7 @@ $tanggalHariIni = formatTanggal($today);
 
     <div class="sidebar-doctor">
         <div class="sidebar-doc-avatar">
-            <img src="<?= $fotoUrl ?>" alt="<?= $namaDisplay ?>">
+            <img src="<?= $fotoUrl ?>" alt="<?= $namaDisplay ?>" onclick="showPanel('profil', document.querySelector('[onclick*=profil]'))" style="cursor:pointer">
         </div>
         <div class="sidebar-doc-info">
             <div class="doc-name"><?= $namaDisplay ?></div>
@@ -231,6 +406,9 @@ $tanggalHariIni = formatTanggal($today);
         <a class="nav-item" onclick="showPanel('rekam-medis', this)">
             Rekam Medis
         </a>
+        <a class="nav-item" href="chat.php">
+            Konsultasi Chat
+        </a>
 
         <div class="nav-section-label" style="margin-top:8px">Akun</div>
         <a class="nav-item" onclick="showPanel('profil', this)">
@@ -238,28 +416,23 @@ $tanggalHariIni = formatTanggal($today);
         </a>
     </nav>
 
-    <div class="sidebar-footer">
-        <a class="logout-btn" href="#" onclick="showLogoutModal(); return false;">
-            Keluar
-        </a>
-    </div>
 </aside>
 
 <!-- ══ MAIN ══ -->
 <div class="main">
 
     <!-- TOPBAR -->
-    <div class="topbar">
-        <div>
-            <div class="topbar-title" id="topbar-title">Overview</div>
-            <div class="topbar-bc" id="topbar-bc">GlowCare Dokter → Overview</div>
-        </div>
+    <div class="topbar" style="justify-content: flex-end;">
         <div class="topbar-right">
-            <div class="topbar-date"><?= $hariIni ?>, <?= $tanggalHariIni ?></div>
-            <button class="btn-outline" style="font-size: 11px; padding: 6px 16px; position: relative; display: flex; align-items: center; gap: 8px;">
+            <button class="notif-btn-text btn-outline" style="font-size: 11px; padding: 6px 16px; position: relative; display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="showPanel('notifikasi', this)">
                 Notifikasi
-                <span style="display: inline-block; width: 6px; height: 6px; background: #735a39; border-radius: 50%;"></span>
+                <?php if ($totalNotifCount > 0): ?>
+                    <span class="notif-dot" style="display: inline-block; width: 6px; height: 6px; background: #e0c097; border-radius: 50%;"></span>
+                <?php endif; ?>
             </button>
+            <a class="logout-btn" href="#" onclick="showLogoutModal(); return false;" style="width: auto !important; padding: 6px 16px;">
+                Keluar
+            </a>
         </div>
     </div>
 
@@ -279,10 +452,12 @@ $tanggalHariIni = formatTanggal($today);
 
         <!-- ══ PANEL: OVERVIEW ══ -->
         <div class="panel active" id="panel-overview">
-            <p class="section-sub">
-                Selamat <?= (date('H') < 12 ? 'pagi' : (date('H') < 17 ? 'siang' : 'malam')) ?>,
-                <strong><?= $namaDisplay ?></strong> — berikut ringkasan hari ini.
-            </p>
+            <!-- Hero banner -->
+            <div class="hero-banner" style="margin: -36px -40px 36px -40px;">
+                <div class="hero-greeting"><?= ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][date('w')] ?>, <?= date('d M Y') ?></div>
+                <div class="hero-name">Halo, <em><?= htmlspecialchars($namaDisplay) ?></em></div>
+                <div class="hero-sub">Selamat datang kembali di GlowCare Clinic. Yuk, layani pasien dengan sepenuh hati.</div>
+            </div>
 
             <div class="stats-row">
                 <div class="stat-card">
@@ -506,6 +681,11 @@ $tanggalHariIni = formatTanggal($today);
                                 <button class="act-btn" style="border: 1px solid #d1c4b8; padding: 4px 10px;"
                                     onclick="openModal('modal-rm-baru', <?= (int)$j['pasien_id'] ?>)"
                                     title="Tambah rekam medis">Rekam Medis</button>
+                                <?php if (!empty($j['appt_id'])): ?>
+                                <button class="act-btn" style="border: 1px solid #735a39; padding: 4px 10px; color: #735a39; background: #fff;"
+                                    onclick="window.location.href='chat.php?appt_id=<?= (int)$j['appt_id'] ?>'"
+                                    title="Chat dengan pasien">Chat</button>
+                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -582,6 +762,10 @@ $tanggalHariIni = formatTanggal($today);
                                     onclick="showPasienDetail(<?= (int)$p['id'] ?>)">Detail</button>
                                 <button class="act-btn" style="border: 1px solid #735a39; padding: 4px 10px; color: #735a39;" title="Rekam medis"
                                     onclick="openModal('modal-rm-baru', <?= (int)$p['id'] ?>)">Rekam Medis</button>
+                                <?php if (!empty($p['appt_id'])): ?>
+                                <button class="act-btn" style="border: 1px solid #735a39; padding: 4px 10px; color: #735a39; background: #fff;" title="Chat"
+                                    onclick="window.location.href='chat.php?appt_id=<?= (int)$p['appt_id'] ?>'">Chat</button>
+                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -730,6 +914,49 @@ $tanggalHariIni = formatTanggal($today);
         </div><!-- /panel-rekam-medis -->
 
 
+        <!-- ══ PANEL: NOTIFIKASI ══ -->
+        <div class="panel" id="panel-notifikasi">
+            <div class="page-header">
+                <div>
+                    <h2 class="section-title">Notifikasi</h2>
+                    <p class="section-sub">Semua janji temu baru masuk dan pesan chat belum dibaca.</p>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 24px;">
+                <?php if (empty($newAppointments) && empty($unreadChats)): ?>
+                    <div style="padding: 32px; text-align: center; color: #7a7571; font-size: 13px;">
+                         Tidak ada notifikasi baru saat ini.
+                    </div>
+                <?php else: ?>
+                    <!-- Pending Appointments -->
+                    <?php foreach ($newAppointments as $appt): ?>
+                        <div style="padding: 16px; background:#e8f9f1; border:1px solid #a7f3d0; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:center;">
+                            <span style="font-size:24px; font-weight:bold; color:#735a39;">!</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight:500; color:#594323;">Permintaan Konsultasi Baru</div>
+                                <div style="font-size:12px; color:#735a39; margin-top:3px;">Pasien <strong><?= htmlspecialchars($appt['nama_pasien']) ?></strong> mengajukan janji temu untuk <?= htmlspecialchars($appt['nama_treatment'] ?: 'Konsultasi Umum') ?> pada <?= date('d M Y', strtotime($appt['tanggal'])) ?> pukul <?= substr($appt['jam'], 0, 5) ?> WIB.</div>
+                            </div>
+                            <button class="btn-primary btn-sm" onclick="showPanel('jadwal', document.querySelector('[onclick*=jadwal]'))">Lihat Jadwal</button>
+                        </div>
+                    <?php endforeach; ?>
+
+                    <!-- Unread Chats -->
+                    <?php foreach ($unreadChats as $chat): ?>
+                        <div style="padding: 16px; background:#f8efe8; border:1px solid #f1dec9; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:center;">
+                            <span style="font-size:24px; font-weight:bold; color:#735a39;">💬</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight:500; color:#4a321f;">Pesan Chat Baru</div>
+                                <div style="font-size:12px; color:#7d6756; margin-top:3px;">Ada pesan baru belum dibaca dari pasien <strong><?= htmlspecialchars($chat['nama_pasien']) ?></strong>.</div>
+                            </div>
+                            <a class="btn-primary btn-sm" href="chat.php?appt_id=<?= (int)$chat['consultation_id'] ?>" style="text-decoration:none;">Balas Chat</a>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div><!-- /panel-notifikasi -->
+
+
         <!-- ══ PANEL: PROFIL ══ -->
         <div class="panel" id="panel-profil">
             <div class="page-header">
@@ -743,7 +970,7 @@ $tanggalHariIni = formatTanggal($today);
             <div class="profil-hero">
                 <div class="profil-avatar-wrap">
                     <div class="profil-avatar">
-                        <img src="<?= $fotoUrl ?>" alt="<?= $namaDisplay ?>">
+                            <img src="<?= $fotoUrl ?>" alt="<?= $namaDisplay ?>" onclick="showPanel('profil', document.querySelector('[onclick*=profil]'))" style="cursor:pointer">
                     </div>
                     <div class="profil-edit-avatar"></div>
                 </div>
@@ -1021,6 +1248,42 @@ $tanggalHariIni = formatTanggal($today);
     function showLogoutModal() { document.getElementById('logout-modal').classList.add('open'); }
     function hideLogoutModal() { document.getElementById('logout-modal').classList.remove('open'); }
     document.getElementById('logout-modal').addEventListener('click', function(e) { if(e.target===this) hideLogoutModal(); });
+    </script>
+
+    <!-- Real-time Notification Polling -->
+    <script>
+    function pollNotifications() {
+        fetch('../../backend/notif_count.php')
+            .then(r => r.json())
+            .then(data => {
+                const btn = document.querySelector('.notif-btn-text');
+                if (!btn) return;
+                // Hapus dot lama
+                const oldDot = btn.querySelector('.notif-dot');
+                if (oldDot) oldDot.remove();
+
+                if (data.count > 0) {
+                    const dot = document.createElement('span');
+                    dot.className = 'notif-dot';
+                    dot.style.cssText = 'display: inline-block; width: 6px; height: 6px; background: #735a39; border-radius: 50%;';
+                    btn.appendChild(dot);
+                }
+
+                const sidebarBadge = document.getElementById('notif-badge-sidebar');
+                if (sidebarBadge) {
+                    if (data.count > 0) {
+                        sidebarBadge.textContent = data.count;
+                        sidebarBadge.style.display = 'inline-block';
+                    } else {
+                        sidebarBadge.style.display = 'none';
+                    }
+                }
+            })
+            .catch(() => {});
+    }
+    // Poll setiap 10 detik
+    pollNotifications();
+    setInterval(pollNotifications, 10000);
     </script>
 </body>
 </html>

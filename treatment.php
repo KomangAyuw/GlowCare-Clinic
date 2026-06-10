@@ -315,7 +315,7 @@ while($r = mysqli_fetch_assoc($q)) {
   </p>
 <!-- High-Contrast Primary Button -->
 <a href="kontak.php" class="inline-block relative z-10 bg-primary text-on-primary font-label-md text-label-md px-xl py-4 rounded-lg hover:-translate-y-1 hover:shadow-lg transition-all duration-300 uppercase tracking-wider">
-    Schedule Consultation
+    Booking Now
   </a>
 <!-- Subtle Bottom Accent -->
 <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-primary-container/40 rounded-t-full"></div>

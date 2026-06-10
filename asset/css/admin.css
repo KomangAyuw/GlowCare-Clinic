@@ -262,7 +262,7 @@ body {
 
 .stat-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(6, 78, 59, .1);
+    box-shadow: 0 8px 24px rgba(6, 78, 59, 0.08);
 }
 
 .stat-card::before {
@@ -355,7 +355,7 @@ body {
 }
 
 .data-table thead tr {
-    background: #f0fdf4;
+    background: #f5ede5;
 }
 
 .data-table thead th {
@@ -363,14 +363,14 @@ body {
     font-size: 9px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: #64748b;
+    color: #594323;
     font-weight: 500;
     text-align: left;
     white-space: nowrap;
 }
 
 .data-table tbody tr {
-    border-bottom: 1px solid #f0fdf4;
+    border-bottom: 1px solid #efebe4;
     transition: background .15s;
 }
 
@@ -379,7 +379,7 @@ body {
 }
 
 .data-table tbody tr:hover {
-    background: #f0fdf4;
+    background: #faf6ee;
 }
 
 .data-table tbody td {
@@ -1343,4 +1343,72 @@ body {
     font-size: 13px;
     color: #2D3436;
     border-bottom: none;
+}
+/* ══ THEME CUSTOM OVERRIDES ══ */
+body {
+    background: #f7f6f3 !important;
+}
+.sidebar {
+    background: #4a321f !important;
+    border-right: 1px solid #3d2716 !important;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.06) !important;
+}
+.sidebar-logo {
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+.sidebar-logo .brand {
+    color: #ffffff !important;
+}
+.sidebar-logo .role {
+    color: #a89a8a !important;
+}
+.sidebar-nav .nav-section-label {
+    color: rgba(255,255,255,0.4) !important;
+}
+.sidebar-nav .nav-item {
+    color: rgba(255,255,255,0.8) !important;
+}
+.sidebar-nav .nav-item:hover {
+    background: rgba(255,255,255,0.06) !important;
+    color: #ffffff !important;
+}
+.sidebar-nav .nav-item.active {
+    background: rgba(255,255,255,0.12) !important;
+    color: #ffffff !important;
+    border-left-color: #e0c097 !important;
+}
+.sidebar-nav .nav-badge {
+    background: #e0c097 !important;
+    color: #4a321f !important;
+}
+.sidebar-footer {
+    border-top: 1px solid rgba(255,255,255,0.08) !important;
+}
+.sidebar-user .user-avatar {
+    background: #e0c097 !important;
+    color: #4a321f !important;
+}
+.sidebar-user .user-info .name {
+    color: #ffffff !important;
+}
+.sidebar-user .user-info .label {
+    color: #a89a8a !important;
+}
+.topbar {
+    background: #4a321f !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+.topbar-left .page-title {
+    color: #ffffff !important;
+}
+.topbar-left .breadcrumb {
+    color: rgba(255,255,255,0.6) !important;
+}
+.card {
+    background: #ffffff !important;
+    border: 1px solid #efebe4 !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
+}
+.card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important;
 }

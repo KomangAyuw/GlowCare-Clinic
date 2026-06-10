@@ -80,21 +80,314 @@ $success = $_GET['success'] ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GlowCare — Dashboard Pasien</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="../../asset/css/user.css?v=4">
+    <link rel="stylesheet" href="../../asset/css/user.css?v=11">
     <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: #f7f6f3;
+        }
+
+        /* ══ SIDEBAR ══ */
+        .sidebar {
+            width: 260px;
+            background: #4a321f;
+            border-right: 1px solid #3d2716;
+            min-height: 100vh;
+            position: fixed;
+            top: 0; left: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            box-shadow: 2px 0 16px rgba(0,0,0,0.06);
+        }
+
+        .sidebar-logo {
+            padding: 28px 28px 22px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logo .brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-style: italic;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-logo .role {
+            font-size: 9px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #a89a8a;
+            margin-top: 4px;
+        }
+
+        /* Patient profile mini card in sidebar */
+        .sidebar-patient {
+            padding: 18px 28px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-pat-avatar {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .sidebar-pat-avatar .avatar-circle {
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #735a39 0%, #a47e58 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+        }
+
+        .sidebar-pat-info .pat-name {
+            font-size: 13px;
+            color: #ffffff;
+            font-weight: 500;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .sidebar-pat-info .pat-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 9px;
+            color: #e0c097;
+            margin-top: 4px;
+        }
+
+        .sidebar-pat-info .pat-status::before {
+            content: "";
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #e0c097;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .nav-section-label {
+            font-size: 8px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            padding: 14px 28px 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 28px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            transition: all 0.18s;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+            background: transparent;
+            border-top: none;
+            border-right: none;
+            border-bottom: none;
+            width: 100%;
+            text-align: left;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.06);
+            color: #ffffff;
+        }
+
+        .nav-item.active {
+            background: rgba(255,255,255,0.12);
+            color: #ffffff;
+            border-left-color: #e0c097;
+            font-weight: 500;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: #e0c097;
+            color: #4a321f;
+            font-size: 9px;
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 16px 28px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .logout-btn-sidebar {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: #ffffff;
+            background: #e05050;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            justify-content: center;
+            width: 100%;
+            border: none;
+        }
+
+        .logout-btn-sidebar:hover { background: #ba1a1a; color: #ffffff; }
+
+        /* ══ MAIN ══ */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ══ TOPBAR ══ */
+        .topbar {
+            background: #4a321f;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 400;
+            color: #ffffff;
+        }
+
+        .topbar-bc {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 0.5px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .topbar-date {
+            font-size: 12px;
+            color: #f5f3ee;
+            font-weight: 300;
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .notif-btn {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .notif-btn:hover { background: rgba(255,255,255,0.15); }
+
+        .notif-dot {
+            position: absolute;
+            top: 6px; right: 7px;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #e0c097;
+            border: 2px solid #4a321f;
+        }
+
+        /* ══ CARD OVERRIDES ══ */
+        .card {
+            background: #ffffff !important;
+            border: 1px solid #efebe4 !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
+        }
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important;
+        }
+
+        /* ══ CONTENT AREA OVERRIDES ══ */
+        .content-area {
+            max-width: 100%;
+            margin: 0;
+            padding: 36px 40px;
+        }
+
+        .hero-banner {
+            background: #faf6ee !important;
+            padding: 36px 40px;
+            border-bottom: 1px solid #efebe4 !important;
+        }
+        .hero-greeting {
+            color: #735a39 !important;
+        }
+        .hero-name {
+            color: #4a321f !important;
+        }
+        .hero-name em {
+            color: #735a39 !important;
+        }
+        .hero-sub {
+            color: #7d6756 !important;
+        }
+        .hero-stat-val {
+            color: #4a321f !important;
+        }
+        .hero-stat-lbl {
+            color: #a47e58 !important;
+        }
+        .hero-divider-v {
+            background-color: #efebe4 !important;
+        }
+
+        /* slot button */
         .slot-btn {
             padding: 10px 14px;
-            border: 1px solid #d1c4b8;
+            border: 1px solid #c4a882;
             border-radius: 8px;
             text-align: center;
-            background: #fff;
-            color: #585552;
+            background: #fff5f0;
+            color: #735a39;
             font-size: 13px;
             cursor: pointer;
             transition: all 0.15s ease-in-out;
         }
         .slot-btn:hover {
-            background: #F9F7F2;
+            background: #f7ede5;
         }
         .slot-btn.selected {
             background: #735a39;
@@ -102,50 +395,84 @@ $success = $_GET['success'] ?? '';
             border-color: #735a39;
         }
         .slot-btn.full {
-            background: #F9F7F2;
-            color: #b0c4c4;
-            border-color: #F9F7F2;
+            background: #f7ede5;
+            color: #a89a8a;
+            border-color: #f7ede5;
             cursor: not-allowed;
         }
     </style>
 </head>
 <body>
-    <!-- ══ TOP NAV ══ -->
-    <nav class="topnav">
-        <div class="topnav-brand" onclick="window.location.href='../../index.php'" style="cursor:pointer">GlowCare Clinic</div>
-
-        <div class="topnav-menu">
-            <button class="topnav-item active" onclick="showPage('beranda', this)">Beranda</button>
-            <button class="topnav-item" onclick="showPage('jadwal-dokter', this)">Jadwal Dokter</button>
-            <button class="topnav-item" onclick="showPage('daftar-konsul', this)">Daftar Konsultasi</button>
-            <button class="topnav-item" onclick="showPage('riwayat', this)">Riwayat</button>
-            <button class="topnav-item" onclick="window.location.href='chat.php'">Chat Dokter</button>
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="brand">GlowCare Clinic</div>
+            <div class="role">Portal Pasien</div>
         </div>
 
-        <div class="topnav-right">
-            <button class="topnav-item" style="position: relative; border: 1px solid #dce8e8; border-radius: 20px; padding: 6px 14px; margin-right: 8px;" onclick="showPage('notifikasi', document.querySelector('[onclick*=notifikasi]'))">
-                Notifikasi
-                <?php if ($notif_baru > 0): ?>
-                    <div class="notif-dot" style="top: -2px; right: -2px; border: 2px solid #fff; width: 8px; height: 8px;"></div>
-                <?php endif; ?>
-            </button>
-            <div class="user-chip" onclick="showPage('akun', document.querySelector('[onclick*=akun]'))">
-                <div class="user-chip-avatar"><?= $initial ?></div>
-                <span class="user-chip-name"><?= htmlspecialchars($pasien['nama']) ?></span>
+        <div class="sidebar-patient">
+            <div class="sidebar-pat-avatar">
+                <div class="avatar-circle"><?= $initial ?></div>
             </div>
-            <a href="#" onclick="showLogoutModal(); return false;" class="logout-btn" style="background: #e05050; color: #ffffff; padding: 8px 16px; border-radius: 50px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; margin-left: 15px;">Logout</a>
+            <div class="sidebar-pat-info">
+                <div class="pat-name"><?= htmlspecialchars($pasien['nama']) ?></div>
+                <div class="pat-status">Pasien Aktif</div>
+            </div>
         </div>
-    </nav>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Menu Utama</div>
+            <button class="nav-item active" onclick="showPage('beranda', this)">
+                Beranda
+            </button>
+            <button class="nav-item" onclick="showPage('jadwal-dokter', this)">
+                Jadwal Dokter
+            </button>
+            <button class="nav-item" onclick="showPage('daftar-konsul', this)">
+                Daftar Pendaftaran
+            </button>
+            <button class="nav-item" onclick="showPage('riwayat', this)">
+                Riwayat Medis
+            </button>
+
+            <div class="nav-section-label" style="margin-top:8px">Pusat Pesan</div>
+            <a class="nav-item" href="chat.php">
+                Chat Dokter
+            </a>
+            <div class="nav-section-label" style="margin-top:8px">Akun</div>
+            <button class="nav-item" onclick="showPage('akun', this)">
+                Profil Saya
+            </button>
+        </nav>
+    </aside>
+
+    <!-- ══ MAIN CONTAINER ══ -->
+    <div class="main">
+        <!-- TOPBAR -->
+        <div class="topbar" style="justify-content: flex-end;">
+            <div class="topbar-right">
+                <button class="notif-btn-text" style="position: relative; border: 1px solid rgba(255,255,255,0.35); border-radius: 20px; padding: 6px 16px; background: none; font-family: 'DM Sans', sans-serif; font-size: 11px; cursor: pointer; color: #ffffff; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;" onclick="showPage('notifikasi', this)">
+                    Notifikasi
+                    <?php if ($notif_baru > 0): ?>
+                        <span class="notif-dot" style="display: inline-block; width: 6px; height: 6px; background: #e0c097; border-radius: 50%;"></span>
+                    <?php endif; ?>
+                </button>
+                <button class="logout-btn-sidebar" style="width: auto; padding: 6px 16px;" onclick="showLogoutModal(); return false;">
+                    Logout
+                </button>
+            </div>
+        </div>
+
 
     <!-- ALERT SUCCESS/ERROR -->
     <?php if ($error): ?>
-        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; color: #721c24; font-size: 13px;">
-            ❌ <?= htmlspecialchars($error) ?>
+        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #fce4df; border: 1px solid #e8b5ac; border-radius: 8px; color: #6b3a2d; font-size: 13px;">
+            Peringatan: <?= htmlspecialchars($error) ?>
         </div>
     <?php endif; ?>
     <?php if ($success): ?>
-        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; color: #155724; font-size: 13px;">
-            ✅ <?= htmlspecialchars($success) ?>
+        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #e8f5d8; border: 1px solid #c5daa8; border-radius: 8px; color: #5a6f2d; font-size: 13px;">
+            Sukses: <?= htmlspecialchars($success) ?>
         </div>
     <?php endif; ?>
 
@@ -192,10 +519,10 @@ $success = $_GET['success'] ?? '';
 
                         <div style="padding: 0 26px 26px">
                             <?php if ($nextAppt): ?>
-                                <div style="background:linear-gradient(135deg,#2D3436,#735a39); border-radius:12px; padding:22px; color:#fff; position:relative; overflow:hidden">
+                                <div style="background:linear-gradient(135deg,#594323,#a47e58); border-radius:12px; padding:22px; color:#fff; position:relative; overflow:hidden">
                                     <div style="font-size:9px; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:10px">JADWAL BERIKUTNYA</div>
                                     <div style="font-family:'Playfair Display',serif; font-size:20px; margin-bottom:4px"><?= htmlspecialchars($nextAppt['nama_dokter']) ?></div>
-                                    <div style="font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#d1c4b8; margin-bottom:14px"><?= htmlspecialchars($nextAppt['nama_treatment'] ?: 'Konsultasi') ?></div>
+                                    <div style="font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#d8b39b; margin-bottom:14px"><?= htmlspecialchars($nextAppt['nama_treatment'] ?: 'Konsultasi') ?></div>
                                     <div style="display:flex; gap:20px">
                                         <div>
                                             <div style="font-size:9px; color:rgba(255,255,255,0.45); letter-spacing:1px; text-transform:uppercase; margin-bottom:2px">Tanggal</div>
@@ -216,7 +543,7 @@ $success = $_GET['success'] ?? '';
                                     </div>
                                 </div>
                             <?php else: ?>
-                                <div style="padding:24px; text-align:center; color:#7a7571; font-size:13px; background:#F9F7F2; border-radius:8px">
+                                <div style="padding:24px; text-align:center; color:#7d6756; font-size:13px; background:#f7ede5; border-radius:8px">
                                     Tidak ada jadwal konsultasi mendatang.<br>
                                     <button class="btn-primary" style="margin-top:12px; font-size:11px; padding:6px 14px;" onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))">Booking Online Sekarang</button>
                                 </div>
@@ -239,7 +566,7 @@ $success = $_GET['success'] ?? '';
                                     <div style="flex:1">
                                         <div class="dokter-name"><?= htmlspecialchars($d['nama']) ?></div>
                                         <div class="dokter-spec"><?= htmlspecialchars($d['spesialisasi']) ?></div>
-                                        <div class="dokter-rating">⭐ <?= number_format($d['rating'], 1) ?> · <?= htmlspecialchars($d['bio']) ?></div>
+                                        <div class="dokter-rating">★ <?= number_format($d['rating'], 1) ?> · <?= htmlspecialchars($d['bio']) ?></div>
                                     </div>
                                     <button class="btn-primary btn-sm" onclick="startBookingDokter(<?= $d['id'] ?>)">Daftar</button>
                                 </div>
@@ -258,7 +585,7 @@ $success = $_GET['success'] ?? '';
                         <div>
                             <?php if ($nextAppt): ?>
                                 <div class="notif-item unread">
-                                    <div class="notif-icon pink">⏰</div>
+                                    <div class="notif-icon pink">!</div>
                                     <div>
                                         <div class="notif-title">Pengingat Jadwal</div>
                                         <div class="notif-desc">Konsultasi Anda dengan <?= htmlspecialchars($nextAppt['nama_dokter']) ?> terjadwal pada <?= date('d M Y', strtotime($nextAppt['tanggal'])) ?> pukul <?= substr($nextAppt['jam'], 0, 5) ?> WIB.</div>
@@ -275,17 +602,7 @@ $success = $_GET['success'] ?? '';
                         </div>
                     </div>
 
-                    <!-- Quick action -->
-                    <div class="card">
-                        <div class="card-header"><div class="card-title">Akses <em>Cepat</em></div></div>
-                        <div style="padding:0 26px 26px; display:flex; flex-direction:column; gap:10px">
-                            <button onclick="showPage('daftar-konsul', document.querySelector('[onclick*=daftar-konsul]'))" class="btn-outline" style="width:100%; text-align:center">Daftar Konsultasi</button>
-                            <button onclick="showPage('jadwal-dokter', document.querySelector('[onclick*=jadwal-dokter]'))" class="btn-outline" style="width:100%; text-align:center">Lihat Jadwal</button>
-                            <button onclick="showPage('riwayat', document.querySelector('[onclick*=riwayat]'))" class="btn-outline" style="width:100%; text-align:center">Riwayat Konsultasi</button>
-                            <button onclick="window.location.href='chat.php'" class="btn-outline" style="width:100%; text-align:center; background:#735a39; color:#fff; border-color:#735a39;">Chat Dokter</button>
-                            <button onclick="showPage('akun', document.querySelector('[onclick*=akun]'))" class="btn-outline" style="width:100%; text-align:center">Kelola Akun</button>
-                        </div>
-                    </div>
+
 
                 </div>
             </div>
@@ -308,23 +625,23 @@ $success = $_GET['success'] ?? '';
             <div class="three-col">
                 <?php foreach ($dokter_list as $d): ?>
                     <div class="card">
-                        <div style="background:linear-gradient(135deg,#f5f3ee,#F9F7F2); padding:20px; display:flex; gap:14px; align-items:flex-start">
+                        <div style="background:#f7ede5; padding:20px; display:flex; gap:14px; align-items:flex-start">
                             <div class="dokter-avatar" style="width:56px;height:56px">
                                 <img src="<?= htmlspecialchars($d['foto']) ?>">
                             </div>
                             <div>
                                 <div class="dokter-name"><?= htmlspecialchars($d['nama']) ?></div>
                                 <div class="dokter-spec"><?= htmlspecialchars($d['spesialisasi']) ?></div>
-                                <div class="dokter-rating">⭐ <?= number_format($d['rating'], 1) ?> · <?= $d['pengalaman'] ?>+ Thn</div>
+                                <div class="dokter-rating">★ <?= number_format($d['rating'], 1) ?> · <?= $d['pengalaman'] ?>+ Thn</div>
                             </div>
                             <span class="badge badge-green" style="margin-left:auto"><?= htmlspecialchars($d['status']) ?></span>
                         </div>
-                        <div style="padding:14px 20px; font-size:11px; color:#7a7571; letter-spacing:0.5px; border-bottom:1px solid #F9F7F2">
+                        <div style="padding:14px 20px; font-size:11px; color:#7d6756; letter-spacing:0.5px; border-bottom:1px solid #f7ede5">
                             Bio: <?= htmlspecialchars($d['bio']) ?>
                         </div>
                         <div class="slot-section" style="padding:16px 20px 20px">
                             <div class="slot-date-title">Jam Praktik Mingguan</div>
-                            <div style="font-size:12px; color:#585552; line-height:1.7; margin-bottom:12px">
+                            <div style="font-size:12px; color:#735a39; line-height:1.7; margin-bottom:12px">
                                 Senin - Jumat: 09:00 - 16:00<br>
                                 Sabtu: 09:00 - 13:00 (dr. Marina, dr. Michael)
                             </div>
@@ -402,7 +719,7 @@ $success = $_GET['success'] ?? '';
                                         <div style="flex:1">
                                             <div class="dokter-name"><?= htmlspecialchars($d['nama']) ?></div>
                                             <div class="dokter-spec"><?= htmlspecialchars($d['spesialisasi']) ?></div>
-                                            <div class="dokter-rating">⭐ <?= number_format($d['rating'], 1) ?> · <?= htmlspecialchars($d['bio']) ?></div>
+                                            <div class="dokter-rating">★ <?= number_format($d['rating'], 1) ?> · <?= htmlspecialchars($d['bio']) ?></div>
                                         </div>
                                         <span class="badge <?= $badge ?>"><?= $badgeTxt ?></span>
                                     </div>
@@ -422,7 +739,7 @@ $success = $_GET['success'] ?? '';
                                 <div style="padding:26px">
                                     <label class="form-label" style="margin-bottom:8px; display:block">Tanggal Konsultasi</label>
                                     <input class="form-input" type="date" id="booking-date-picker" min="<?= date('Y-m-d') ?>" value="<?= date('Y-m-d') ?>" style="background:#fff; font-size:14px;" onchange="updateTanggalBooking(this.value)">
-                                    <p style="font-size:11px; color:#7a7571; margin-top:10px">Silakan pilih tanggal kerja klinik (Senin s.d Sabtu).</p>
+                                    <p style="font-size:11px; color:#7d6756; margin-top:10px">Silakan pilih tanggal kerja klinik (Senin s.d Sabtu).</p>
                                 </div>
                             </div>
 
@@ -439,8 +756,8 @@ $success = $_GET['success'] ?? '';
                                         <div class="slot-btn" onclick="selectSlotBtn(this, '15:00')">15:00</div>
                                         <div class="slot-btn" onclick="selectSlotBtn(this, '16:00')">16:00</div>
                                     </div>
-                                    <div style="margin-top:16px; background:#F9F7F2; border-radius:8px; padding:12px 14px; font-size:12px; color:#585552; font-weight:300; line-height:1.7">
-                                         Janji temu berdurasi 45-60 menit di <strong style="color:#2D3436">GlowCare Clinic Mataram</strong>.
+                                    <div style="margin-top:16px; background:#f7ede5; border-radius:8px; padding:12px 14px; font-size:12px; color:#735a39; font-weight:300; line-height:1.7">
+                                         Janji temu berdurasi 45-60 menit di <strong style="color:#4a321f">GlowCare Clinic Mataram</strong>.
                                     </div>
                                 </div>
                             </div>
@@ -504,10 +821,10 @@ $success = $_GET['success'] ?? '';
                                     <div class="confirm-row"><span>Jam</span><span id="sum-jam">09:00 WIB</span></div>
                                     <div class="confirm-row"><span>Ruangan</span><span>Ruang A-1</span></div>
                                 </div>
-                                <div style="background:#e8f9f1; border-radius:8px; padding:14px 16px; font-size:12px; color:#3dab74; line-height:1.7; margin-bottom:20px">
+                                <div style="background:#f5e7dc; border-radius:8px; padding:14px 16px; font-size:12px; color:#735a39; line-height:1.7; margin-bottom:20px">
                                     Jadwal tersedia. Setelah klik <strong>Konfirmasi Pendaftaran</strong>, sistem akan menyimpan janji temu Anda.
                                 </div>
-                                <label style="display:flex; align-items:flex-start; gap:10px; font-size:12px; color:#585552; font-weight:300; cursor:pointer; margin-bottom:8px">
+                                <label style="display:flex; align-items:flex-start; gap:10px; font-size:12px; color:#735a39; font-weight:300; cursor:pointer; margin-bottom:8px">
                                     <input type="checkbox" checked required style="margin-top:2px"> Saya menyetujui syarat &amp; ketentuan layanan GlowCare Clinic
                                 </label>
                             </div>
@@ -542,7 +859,7 @@ $success = $_GET['success'] ?? '';
                     </thead>
                     <tbody>
                         <?php if (empty($riwayat_list)): ?>
-                            <tr><td colspan="6" style="text-align:center; color:#7a7571; padding:24px">Belum ada riwayat kunjungan.</td></tr>
+                            <tr><td colspan="6" style="text-align:center; color:#7d6756; padding:24px">Belum ada riwayat kunjungan.</td></tr>
                         <?php else: ?>
                             <?php foreach ($riwayat_list as $r): ?>
                                 <tr>
@@ -591,25 +908,24 @@ $success = $_GET['success'] ?? '';
         <div class="content-area">
             <div class="card" style="padding: 24px;">
                 <?php if ($nextAppt): ?>
-                    <div style="padding: 16px; background:#fbf9f4; border:1px solid #F9F7F2; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:center;">
-                        <span style="font-size:24px;">⏰</span>
+                    <div style="padding: 16px; background:#f8ede3; border:1px solid #f7ede5; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:center;">
+                        <span style="font-size:24px; font-weight:bold; color:#e05050;">!</span>
                         <div>
-                            <div style="font-weight:500; color:#2D3436;">Pengingat Janji Temu Estetika</div>
-                            <div style="font-size:12px; color:#585552; margin-top:3px;">Anda memiliki konsultasi medis terjadwal dengan <strong><?= htmlspecialchars($nextAppt['nama_dokter']) ?></strong> pada <?= date('d M Y', strtotime($nextAppt['tanggal'])) ?> pukul <?= substr($nextAppt['jam'], 0, 5) ?> WIB.</div>
+                            <div style="font-weight:500; color:#4a321f;">Pengingat Janji Temu Estetika</div>
+                            <div style="font-size:12px; color:#735a39; margin-top:3px;">Anda memiliki konsultasi medis terjadwal dengan <strong><?= htmlspecialchars($nextAppt['nama_dokter']) ?></strong> pada <?= date('d M Y', strtotime($nextAppt['tanggal'])) ?> pukul <?= substr($nextAppt['jam'], 0, 5) ?> WIB.</div>
                         </div>
                     </div>
                 <?php endif; ?>
-                <div style="padding: 16px; background:#fbf9f4; border:1px solid #F9F7F2; border-radius:10px; display:flex; gap:15px; align-items:center;">
-                    <span style="font-size:24px;">🎉</span>
+                <div style="padding: 16px; background:#f8ede3; border:1px solid #f7ede5; border-radius:10px; display:flex; gap:15px; align-items:center;">
+                    <span style="font-size:24px; font-weight:bold; color:#735a39;">✓</span>
                     <div>
-                        <div style="font-weight:500; color:#2D3436;">Selamat Bergabung!</div>
-                        <div style="font-size:12px; color:#585552; margin-top:3px;">Pendaftaran akun Anda di sistem klinik kecantikan GlowCare Clinic Mataram berhasil. Nikmati layanan premium kami!</div>
+                        <div style="font-weight:500; color:#4a321f;">Selamat Bergabung!</div>
+                        <div style="font-size:12px; color:#735a39; margin-top:3px;">Pendaftaran akun Anda di sistem klinik kecantikan GlowCare Clinic Mataram berhasil. Nikmati layanan premium kami!</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- ══════════════════════════════════════════
         PAGE: AKUN
     ══════════════════════════════════════════ -->
@@ -637,7 +953,7 @@ $success = $_GET['success'] ?? '';
                             </div>
                             <div class="form-group">
                                 <label class="form-label">No Pasien / Rekam</label>
-                                <input class="form-input" value="<?= htmlspecialchars($pasien['no_pasien']) ?> (<?= htmlspecialchars($pasien['no_rekam']) ?>)" disabled style="background:#fcfcfc">
+                                <input class="form-input" value="<?= htmlspecialchars($pasien['no_pasien']) ?> (<?= htmlspecialchars($pasien['no_rekam']) ?>)" disabled style="background:#fdfaf5">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Tanggal Lahir</label>
@@ -674,7 +990,7 @@ $success = $_GET['success'] ?? '';
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Email Aktif</label>
-                                    <input class="form-input" type="email" value="<?= htmlspecialchars($pasien['email']) ?>" disabled style="background:#fcfcfc">
+                                    <input class="form-input" type="email" value="<?= htmlspecialchars($pasien['email']) ?>" disabled style="background:#fdfaf5">
                                 </div>
                                 <button type="submit" class="btn-primary" style="width:100%; margin-top:10px;">Simpan Perubahan Kontak</button>
                             </div>
@@ -733,7 +1049,7 @@ $success = $_GET['success'] ?? '';
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-outline" onclick="closeModal('modal-batalkan')">Batal</button>
-                    <button type="submit" style="background:#e8716d; color:#fff; border:none; padding:10px 24px; border-radius:50px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;">Ya, Batalkan</button>
+                    <button type="submit" style="background:#735a39; color:#fff; border:none; padding:10px 24px; border-radius:50px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;">Ya, Batalkan</button>
                 </div>
             </form>
         </div>
@@ -749,15 +1065,15 @@ $success = $_GET['success'] ?? '';
                 <div class="confirm-row"><span>Layanan</span><span id="det-layanan">-</span></div>
                 <div class="confirm-row"><span>Ruangan</span><span id="det-ruangan">-</span></div>
             </div>
-            <div style="background:#F9F7F2; border-radius:10px; padding:16px; margin-bottom:15px">
-                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#7a7571; margin-bottom:4px; font-weight:500;">Anamnesis / Keluhan Medis</div>
-                <div style="font-size:12px; color:#585552; font-weight:300; line-height:1.7" id="det-anamnesis">
+            <div style="background:#f7ede5; border-radius:10px; padding:16px; margin-bottom:15px">
+                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#7d6756; margin-bottom:4px; font-weight:500;">Anamnesis / Keluhan Medis</div>
+                <div style="font-size:12px; color:#735a39; font-weight:300; line-height:1.7" id="det-anamnesis">
                     -
                 </div>
             </div>
-            <div style="background:#F9F7F2; border-radius:10px; padding:16px; margin-bottom:20px">
-                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#7a7571; margin-bottom:4px; font-weight:500;">Diagnosa &amp; Hasil Pemeriksaan Dokter</div>
-                <div style="font-size:12px; color:#585552; font-weight:300; line-height:1.7" id="det-pemeriksaan">
+            <div style="background:#f7ede5; border-radius:10px; padding:16px; margin-bottom:20px">
+                <div style="font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#7d6756; margin-bottom:4px; font-weight:500;">Diagnosa &amp; Hasil Pemeriksaan Dokter</div>
+                <div style="font-size:12px; color:#735a39; font-weight:300; line-height:1.7" id="det-pemeriksaan">
                     -
                 </div>
             </div>
@@ -776,7 +1092,7 @@ $success = $_GET['success'] ?? '';
             <form method="POST" action="../../backend/user/simpan_ulasan.php">
                 <input type="hidden" name="dokter_id" id="ulasan-dokter-id">
                 <div style="text-align:center; margin-bottom:24px">
-                    <div style="font-size:13px; color:#585552; font-weight:300; margin-bottom:14px">Pilih Rating Bintang:</div>
+                    <div style="font-size:13px; color:#735a39; font-weight:300; margin-bottom:14px">Pilih Rating Bintang:</div>
                     <select name="rating" class="form-select" style="max-width:240px; margin:0 auto; font-size:15px; text-align:center;">
                         <option value="5">⭐⭐⭐⭐⭐ 5 / 5 (Sangat Puas)</option>
                         <option value="4">⭐⭐⭐⭐ 4 / 5 (Puas)</option>
@@ -795,6 +1111,7 @@ $success = $_GET['success'] ?? '';
                 </div>
             </form>
         </div>
+        </div>
     </div>
 
     <!-- ══ MODAL: SUKSES PENDAFTARAN ══ -->
@@ -803,12 +1120,12 @@ $success = $_GET['success'] ?? '';
             <div class="modal">
                 <div class="success-card">
                     <div class="success-icon" style="font-size:48px; text-align:center; margin-bottom:10px;">✅</div>
-                    <div class="success-title" style="font-family:'Playfair Display',serif; font-size:24px; color:#2D3436; text-align:center; margin-bottom:10px;">Pendaftaran Berhasil!</div>
-                    <div class="success-desc" style="font-size:13px; color:#585552; text-align:center; line-height:1.7; margin-bottom:20px;">Jadwal konsultasi estetika Anda telah terdaftar. Detail janji temu Anda:</div>
-                    <div class="confirm-box" style="background:#F9F7F2; padding:16px; border-radius:10px; margin-bottom:20px;">
-                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Dokter</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['dokter']) ?></span></div>
-                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Tanggal</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['tanggal']) ?></span></div>
-                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Jam</span><span style="font-weight:500; color:#2D3436;"><?= htmlspecialchars($_GET['jam']) ?> WIB</span></div>
+                    <div class="success-title" style="font-family:'Playfair Display',serif; font-size:24px; color:#4a321f; text-align:center; margin-bottom:10px;">Pendaftaran Berhasil!</div>
+                    <div class="success-desc" style="font-size:13px; color:#735a39; text-align:center; line-height:1.7; margin-bottom:20px;">Jadwal konsultasi estetika Anda telah terdaftar. Detail janji temu Anda:</div>
+                    <div class="confirm-box" style="background:#f7ede5; padding:16px; border-radius:10px; margin-bottom:20px;">
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Dokter</span><span style="font-weight:500; color:#4a321f;"><?= htmlspecialchars($_GET['dokter']) ?></span></div>
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Tanggal</span><span style="font-weight:500; color:#4a321f;"><?= htmlspecialchars($_GET['tanggal']) ?></span></div>
+                        <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;"><span>Jam</span><span style="font-weight:500; color:#4a321f;"><?= htmlspecialchars($_GET['jam']) ?> WIB</span></div>
                         <div class="confirm-row" style="display:flex; justify-content:space-between; font-size:12px;"><span>No. Antrian</span><span style="color:#735a39; font-weight:600;"><?= htmlspecialchars($_GET['antrian']) ?></span></div>
                     </div>
                     <button class="btn-primary" style="width:100%" onclick="closeModal('modal-sukses')">Kembali ke Beranda</button>
@@ -820,7 +1137,7 @@ $success = $_GET['success'] ?? '';
     <!-- Toast -->
     <div class="toast" id="toast"><span id="toast-msg"></span></div>
 
-    <script src="../../asset/js/user.js?v=2"></script>
+    <script src="../../asset/js/user.js?v=3"></script>
     <script>
         // Set variables for booking wizard
         let selectedDocId = <?= $dokter_list[0]['id'] ?? 0 ?>;
@@ -839,7 +1156,7 @@ $success = $_GET['success'] ?? '';
 
             // Highlight card
             document.querySelectorAll('.dokter-card').forEach(c => {
-                c.style.border = '1px solid #d1c4b8';
+                c.style.border = '1px solid #c4a882';
                 const b = c.querySelector('.badge');
                 if (b) {
                     b.className = 'badge badge-gray';
@@ -942,12 +1259,12 @@ $success = $_GET['success'] ?? '';
     <!-- LOGOUT CONFIRMATION MODAL -->
     <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center">
         <div style="background:#fff;border-radius:20px;padding:40px 36px;width:360px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.18);animation:logoutFadeIn .25s ease">
-            <div style="width:56px;height:56px;background:#fef0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:22px">&#x23FB;</div>
-            <div style="font-family:'Playfair Display',serif;font-size:20px;color:#2D3436;margin-bottom:10px">Yakin ingin <em>keluar</em>?</div>
-            <p style="font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.6">Sesi Anda sebagai <strong>Pasien</strong> akan diakhiri. Anda perlu login kembali untuk mengakses akun.</p>
+            <div style="width:56px;height:56px;background:#f5e7dc;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:22px">&#x23FB;</div>
+            <div style="font-family:'Playfair Display',serif;font-size:20px;color:#4a321f;margin-bottom:10px">Yakin ingin <em>keluar</em>?</div>
+            <p style="font-size:13px;color:#7d6756;margin-bottom:28px;line-height:1.6">Sesi Anda sebagai <strong>Pasien</strong> akan diakhiri. Anda perlu login kembali untuk mengakses akun.</p>
             <div style="display:flex;gap:12px;justify-content:center">
-                <button onclick="hideLogoutModal()" style="flex:1;padding:11px;border:1.5px solid #d1c4b8;border-radius:50px;background:#fff;color:#64748b;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">Batal</button>
-                <a href="../../backend/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#e05050;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
+                <button onclick="hideLogoutModal()" style="flex:1;padding:11px;border:1.5px solid #c4a882;border-radius:50px;background:#fff;color:#7d6756;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">Batal</button>
+                <a href="../../backend/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#735a39;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
             </div>
         </div>
     </div>
@@ -959,6 +1276,35 @@ $success = $_GET['success'] ?? '';
     function showLogoutModal() { document.getElementById('logout-modal').classList.add('open'); }
     function hideLogoutModal() { document.getElementById('logout-modal').classList.remove('open'); }
     document.getElementById('logout-modal').addEventListener('click', function(e) { if(e.target===this) hideLogoutModal(); });
+    </script>
+
+    <!-- Real-time Notification Polling -->
+    <script>
+    function pollNotifications() {
+        fetch('../../backend/notif_count.php')
+            .then(r => r.json())
+            .then(data => {
+                const btn = document.querySelector('.notif-btn-text');
+                if (!btn) return;
+                // Hapus dot lama
+                const oldDot = btn.querySelector('.notif-dot');
+                if (oldDot) oldDot.remove();
+                const oldBadge = btn.querySelector('.notif-badge');
+                if (oldBadge) oldBadge.remove();
+
+                if (data.count > 0) {
+                    const badge = document.createElement('span');
+                    badge.className = 'notif-badge';
+                    badge.style.cssText = 'background:#735a39; color:#fff; font-size:9px; padding:1px 6px; border-radius:50px; font-weight:600; margin-left:2px;';
+                    badge.textContent = data.count;
+                    btn.appendChild(badge);
+                }
+            })
+            .catch(() => {});
+    }
+    // Poll setiap 10 detik
+    pollNotifications();
+    setInterval(pollNotifications, 10000);
     </script>
 </body>
 </html>

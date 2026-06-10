@@ -78,7 +78,7 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Konsultasi — GlowCare Clinic</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="../../asset/css/user.css?v=4">
+    <link rel="stylesheet" href="../../asset/css/user.css?v=6">
     <style>
         * { box-sizing: border-box; }
         body { background: #f5f3ee; margin: 0; overflow: hidden; }
@@ -90,13 +90,22 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
             justify-content: space-between;
             padding: 0 28px;
             height: 60px;
-            background: linear-gradient(135deg, #2D3436, #735a39);
+            background: #594323;
             box-shadow: 0 2px 12px rgba(115,90,57,0.18);
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 200;
         }
-        .topnav-brand { font-family:'Playfair Display',serif; font-size:18px; color:#fff; letter-spacing:0.5px; }
+        .topnav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: #ffffff !important;
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            -webkit-text-fill-color: initial !important;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
         .topnav-actions { display:flex; gap:10px; align-items:center; }
         .btn-back {
             background: rgba(255,255,255,0.15);
@@ -158,7 +167,7 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
             position: relative;
         }
         .session-item:hover { background: #faf8f5; }
-        .session-item.active { background: #fdf5ec; border-left: 3px solid #735a39; }
+        .session-item.active { background: #faf6ee; border-left: 3px solid #735a39; }
         .session-item .doc-name { font-size:13px; font-weight:500; color:#2D3436; }
         .session-item .doc-spec { font-size:11px; color:#735a39; margin-top:3px; }
         .session-item .doc-date { font-size:10px; color:#9a8f87; margin-top:5px; }
@@ -249,7 +258,7 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
             word-break: break-word;
         }
         .msg.sent {
-            background: linear-gradient(135deg, #735a39 0%, #594323 100%);
+            background: #735a39;
             color: #fff;
             border-bottom-right-radius: 4px;
         }
@@ -291,7 +300,7 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
         }
         .chat-input {
             flex: 1;
-            border: 1.5px solid #d1c4b8;
+            border: 1.5px solid #c4a882;
             border-radius: 22px;
             padding: 11px 18px;
             font-family: 'DM Sans', sans-serif;
@@ -305,14 +314,16 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
         }
         .chat-input:focus { border-color: #735a39; background: #fff; }
         .chat-send-btn {
-            background: linear-gradient(135deg, #735a39 0%, #594323 100%);
+            background: #735a39;
             color: #fff;
             border: none;
-            width: 44px; height: 44px;
-            border-radius: 50%;
+            height: 44px;
+            border-radius: 22px;
+            padding: 0 18px;
             display: flex; align-items:center; justify-content:center;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 13px;
+            font-weight: 500;
             flex-shrink: 0;
             transition: transform 0.15s, box-shadow 0.2s;
         }
@@ -341,14 +352,14 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
         .modal-title { font-family:'Playfair Display',serif; font-size:18px; color:#2D3436; margin-bottom:8px; }
         .modal-desc { font-size:12px; color:#7a7571; line-height:1.7; margin-bottom:22px; }
         .modal-alasan {
-            width:100%; border:1.5px solid #d1c4b8; border-radius:10px;
+            width:100%; border:1.5px solid #c4a882; border-radius:10px;
             padding:10px 14px; font-size:12px; font-family:'DM Sans',sans-serif;
             margin-bottom:20px; outline:none; resize:none;
         }
         .modal-alasan:focus { border-color:#735a39; }
         .modal-btns { display:flex; gap:10px; }
         .modal-btn-cancel {
-            flex:1; padding:10px; border:1.5px solid #d1c4b8; border-radius:50px;
+            flex:1; padding:10px; border:1.5px solid #c4a882; border-radius:50px;
             background:#fff; color:#7a7571; font-size:12px; font-weight:500;
             letter-spacing:0.5px; text-transform:uppercase; cursor:pointer;
             font-family:'DM Sans',sans-serif;
@@ -412,7 +423,7 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
     <div class="chat-main">
         <?php if ($consultation_id === 0): ?>
             <div class="chat-empty">
-                <div class="chat-empty-icon">💬</div>
+                <div style="font-family:'Playfair Display',serif; font-size: 20px; color: #735a39; margin-bottom: 8px;">Konsultasi Chat</div>
                 <div class="chat-empty-text">Pilih konsultasi di sebelah kiri untuk memulai chat</div>
                 <?php if (empty($appointments)): ?>
                     <a href="dashboarduser.php" style="margin-top:8px; background:#735a39; color:#fff; padding:8px 20px; border-radius:50px; text-decoration:none; font-size:12px; font-weight:500;">Buat Janji Sekarang</a>
@@ -447,8 +458,12 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
 
             <!-- Input -->
             <div class="chat-input-area">
+                <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="sendImage(this)">
+                <button type="button" class="chat-send-btn" style="background: #eae8e3; color: #735a39; display: flex; align-items: center; justify-content: center;" title="Upload Gambar" onclick="document.getElementById('imageUpload').click()">
+                    Upload Gambar
+                </button>
                 <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ketik pesan Anda..."></textarea>
-                <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()" title="Kirim (Enter)">&#10148;</button>
+                <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()" title="Kirim (Enter)">Kirim</button>
             </div>
 
         <?php endif; ?>
@@ -458,7 +473,7 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
 <!-- MODAL BATAL KONSULTASI -->
 <div class="modal-overlay" id="batalModal">
     <div class="modal-box">
-        <div class="modal-icon">&#128683;</div>
+        <div class="modal-icon" style="color: #e05050; font-weight: bold;">!</div>
         <div class="modal-title">Batalkan Konsultasi?</div>
         <div class="modal-desc">
             Anda akan membatalkan janji temu dengan <strong><?= $dokter['nama'] ?></strong>.<br>
@@ -558,6 +573,28 @@ function sendMessage() {
         })
         .catch(() => alert('Terjadi kesalahan.'))
         .finally(() => { btn.disabled = false; input.focus(); });
+}
+
+function sendImage(input) {
+    if (!consultationId) return;
+    if (input.files && input.files[0]) {
+        const fd = new FormData();
+        fd.append('consultation_id', consultationId);
+        fd.append('image', input.files[0]);
+        fd.append('message', '');
+
+        fetch('../../backend/chat_send.php', { method:'POST', body:fd })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    input.value = '';
+                    fetchMessages();
+                } else {
+                    alert('Gagal mengirim gambar: ' + data.message);
+                }
+            })
+            .catch(() => alert('Terjadi kesalahan.'));
+    }
 }
 
 // ── Kirim dengan Enter (Shift+Enter = baris baru) ──
