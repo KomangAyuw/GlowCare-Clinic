@@ -192,7 +192,20 @@ if ($qUnreadChat) {
         $unreadChats[] = $row;
     }
 }
-$totalNotifCount = count($newAppointments) + count($unreadChats);
+
+// Cek pengumuman baru dalam 7 hari terakhir
+$qRecentPengumuman = mysqli_query($conn, "SELECT COUNT(*) AS n FROM pengumuman WHERE target IN ('Semua', 'Dokter') AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+$recent_pengumuman = $qRecentPengumuman ? mysqli_fetch_assoc($qRecentPengumuman)['n'] : 0;
+$totalNotifCount = count($newAppointments) + count($unreadChats) + $recent_pengumuman;
+
+// Query pengumuman untuk ditampilkan
+$qPengumuman = mysqli_query($conn, "SELECT * FROM pengumuman WHERE target IN ('Semua', 'Dokter') ORDER BY created_at DESC LIMIT 20");
+$pengumuman_list = [];
+if ($qPengumuman) {
+    while ($p = mysqli_fetch_assoc($qPengumuman)) {
+        $pengumuman_list[] = $p;
+    }
+}
 
 // ── HELPER FUNCTIONS ──────────────────────────
 function badgeClass(string $status): string {
@@ -924,11 +937,23 @@ $tanggalHariIni = formatTanggal($today);
             </div>
 
             <div class="card" style="padding: 24px;">
-                <?php if (empty($newAppointments) && empty($unreadChats)): ?>
+                <?php if (empty($newAppointments) && empty($unreadChats) && empty($pengumuman_list)): ?>
                     <div style="padding: 32px; text-align: center; color: #7a7571; font-size: 13px;">
                          Tidak ada notifikasi baru saat ini.
                     </div>
                 <?php else: ?>
+                    <!-- Announcements -->
+                    <?php foreach ($pengumuman_list as $p): ?>
+                        <div style="padding: 16px; background:#fbf8f3; border:1px solid #efebe4; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:flex-start;">
+                            <span style="font-size:24px; font-weight:bold; color:#735a39; line-height: 1;">📢</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight:500; color:#4a321f; font-family: 'Playfair Display', serif; font-size: 15px;"><?= htmlspecialchars($p['judul']) ?></div>
+                                <div style="font-size:12px; color:#7d6756; margin-top:4px; line-height: 1.5;"><?= nl2br(htmlspecialchars($p['konten'])) ?></div>
+                                <div style="font-size:10px; color:#a89a8a; margin-top:8px;"><?= date('d M Y, H:i', strtotime($p['created_at'])) ?> WIB</div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+
                     <!-- Pending Appointments -->
                     <?php foreach ($newAppointments as $appt): ?>
                         <div style="padding: 16px; background:#e8f9f1; border:1px solid #a7f3d0; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:center;">

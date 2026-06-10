@@ -6,6 +6,19 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 $conn = require_once '../../backend/koneksi.php';
 
+// Auto-migrasi tabel pengumuman
+try {
+    mysqli_query($conn, "CREATE TABLE IF NOT EXISTS `pengumuman` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `judul` VARCHAR(255) NOT NULL,
+        `konten` TEXT NOT NULL,
+        `target` ENUM('Semua', 'Pasien', 'Dokter') NOT NULL DEFAULT 'Semua',
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+} catch (Exception $e) {
+    // Abaikan error pembuatan tabel
+}
+
 // ── Statistik ──
 $total_pasien     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM pasien"))['n'];
 $dokter_aktif     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM dokter WHERE status='Aktif'"))['n'];
@@ -56,6 +69,7 @@ try {
 $pesan_list  = mysqli_query($conn, "SELECT * FROM pesan_kontak ORDER BY created_at DESC LIMIT 50");
 $pesan_belum = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM pesan_kontak WHERE sudah_baca=0"))['n'];
 $admin        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id=".(int)$_SESSION['user_id']));
+$pengumuman_list = mysqli_query($conn, "SELECT * FROM pengumuman ORDER BY created_at DESC LIMIT 50");
 
 // ── Keuangan ──
 $keu_bulan = (int)($_GET['keu_bulan'] ?? date('n'));
@@ -283,6 +297,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     <span class="nav-badge"><?= $pesan_belum ?></span>
                 <?php endif; ?>
             </a>
+            <a class="nav-item" onclick="showPanel('pengumuman',this)">Pengumuman</a>
             <div class="nav-section-label">Laporan</div>
             <a class="nav-item" onclick="showPanel('laporan',this)">Laporan</a>
             <a class="nav-item" onclick="showPanel('keuangan',this)">Keuangan</a>
@@ -746,6 +761,53 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                         · <span style="color:#735a39;font-weight:600"><?= $pesan_belum ?> belum dibaca</span>
                     <?php endif; ?>
                 </div>
+            </div>
+        </div>
+
+        <!-- ══ PANEL PENGUMUMAN ══ -->
+        <div class="panel" id="panel-pengumuman">
+            <div class="page-header">
+                <div>
+                    <h2 class="section-title">Kelola <em>Pengumuman</em></h2>
+                    <p class="section-sub">Buat pengumuman baru yang akan dikirim sebagai notifikasi ke pasien &amp; dokter</p>
+                </div>
+                <button class="btn-add" onclick="openModal('modal-pengumuman')">+ Tambah Pengumuman</button>
+            </div>
+            <div class="card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Judul</th>
+                            <th>Target</th>
+                            <th>Konten</th>
+                            <th>Tanggal Dibuat</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php if (!$pengumuman_list || mysqli_num_rows($pengumuman_list) === 0): ?>
+                        <tr><td colspan="5" style="text-align:center; color:#7a7571; padding:24px">Belum ada pengumuman.</td></tr>
+                    <?php else: mysqli_data_seek($pengumuman_list, 0); while($p = mysqli_fetch_assoc($pengumuman_list)): ?>
+                        <tr>
+                            <td><strong style="color:#2D3436; font-size:13px;"><?= htmlspecialchars($p['judul']) ?></strong></td>
+                            <td>
+                                <?php if ($p['target'] === 'Semua'): ?>
+                                    <span class="badge badge-green">Semua</span>
+                                <?php elseif ($p['target'] === 'Pasien'): ?>
+                                    <span class="badge badge-pink">Hanya Pasien</span>
+                                <?php else: ?>
+                                    <span class="badge badge-yellow">Hanya Dokter</span>
+                                <?php endif; ?>
+                            </td>
+                            <td style="max-width:300px; font-size:12px; color:#585552; line-height:1.5;"><?= nl2br(htmlspecialchars($p['konten'])) ?></td>
+                            <td style="font-size:12px; color:#7a7571; white-space:nowrap;"><?= date('d M Y, H:i', strtotime($p['created_at'])) ?> WIB</td>
+                            <td>
+                                <button class="act-btn" style="border: 1px solid #e05050; color: #e05050; padding: 4px 10px;" onclick="confirmDelete('hapus_pengumuman.php', '<?= $p['id'] ?>', 'pengumuman ini')" title="Hapus">Hapus</button>
+                            </td>
+                        </tr>
+                    <?php endwhile; endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -1341,6 +1403,39 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
             </div>
         </div>
     </div>
+
+    <!-- ═══ MODAL TAMBAH PENGUMUMAN ═══ -->
+    <div class="modal-overlay" id="modal-pengumuman" onclick="closeModalOutside(event,'modal-pengumuman')">
+        <div class="modal" style="width:500px;">
+            <h3 class="modal-title">Tambah <em>Pengumuman</em></h3>
+            <p class="modal-sub">Kirim pengumuman/notifikasi baru ke sistem</p>
+            <form method="POST" action="../../backend/admin/simpan_pengumuman.php">
+                <div class="form-row">
+                    <div class="form-group full">
+                        <label class="form-label">Judul Pengumuman</label>
+                        <input class="form-input" name="judul" placeholder="Contoh: Jadwal Libur Lebaran Klinik" required>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Target Penerima</label>
+                        <select class="form-select" name="target" required>
+                            <option value="Semua">Semua (Pasien &amp; Dokter)</option>
+                            <option value="Pasien">Hanya Pasien</option>
+                            <option value="Dokter">Hanya Dokter</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Konten Pengumuman</label>
+                        <textarea class="form-textarea" name="konten" style="min-height:120px;" placeholder="Tulis isi pengumuman secara lengkap..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal('modal-pengumuman')">Batal</button>
+                    <button type="submit" class="btn-save">Simpan &amp; Kirim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- CONFIRM DELETE -->
     <div class="confirm-overlay" id="confirm-overlay">
         <div class="confirm-box">

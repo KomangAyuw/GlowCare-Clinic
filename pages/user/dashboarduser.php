@@ -25,7 +25,20 @@ $pasien_id = (int)$pasien['id'];
 // 2. Statistik
 $total_kunjungan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM rekam_medis WHERE pasien_id = $pasien_id"))['n'];
 $jadwal_mendatang = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM appointment WHERE pasien_id = $pasien_id AND status = 'Terjadwal' AND tanggal >= CURDATE()"))['n'];
-$notif_baru = $jadwal_mendatang > 0 ? 1 : 0;
+
+// Cek pengumuman baru dalam 7 hari terakhir
+$qRecentPengumuman = mysqli_query($conn, "SELECT COUNT(*) AS n FROM pengumuman WHERE target IN ('Semua', 'Pasien') AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+$recent_pengumuman = $qRecentPengumuman ? mysqli_fetch_assoc($qRecentPengumuman)['n'] : 0;
+$notif_baru = ($jadwal_mendatang > 0 || $recent_pengumuman > 0) ? 1 : 0;
+
+// Query pengumuman untuk ditampilkan
+$qPengumuman = mysqli_query($conn, "SELECT * FROM pengumuman WHERE target IN ('Semua', 'Pasien') ORDER BY created_at DESC LIMIT 20");
+$pengumuman_list = [];
+if ($qPengumuman) {
+    while ($p = mysqli_fetch_assoc($qPengumuman)) {
+        $pengumuman_list[] = $p;
+    }
+}
 
 // 3. Jadwal Mendatang Pertama
 $qNextAppt = mysqli_query($conn, "
@@ -907,6 +920,18 @@ $success = $_GET['success'] ?? '';
 
         <div class="content-area">
             <div class="card" style="padding: 24px;">
+                <!-- Announcements -->
+                <?php foreach ($pengumuman_list as $p): ?>
+                    <div style="padding: 16px; background:#fbf8f3; border:1px solid #efebe4; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:flex-start;">
+                        <span style="font-size:24px; font-weight:bold; color:#735a39; line-height: 1;">📢</span>
+                        <div style="flex: 1;">
+                            <div style="font-weight:500; color:#4a321f; font-family: 'Playfair Display', serif; font-size: 15px;"><?= htmlspecialchars($p['judul']) ?></div>
+                            <div style="font-size:12px; color:#7d6756; margin-top:4px; line-height: 1.5;"><?= nl2br(htmlspecialchars($p['konten'])) ?></div>
+                            <div style="font-size:10px; color:#a89a8a; margin-top:8px;"><?= date('d M Y, H:i', strtotime($p['created_at'])) ?> WIB</div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+
                 <?php if ($nextAppt): ?>
                     <div style="padding: 16px; background:#f8ede3; border:1px solid #f7ede5; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:center;">
                         <span style="font-size:24px; font-weight:bold; color:#e05050;">!</span>

@@ -40,6 +40,12 @@ if ($role === 'Pasien') {
         $count += (int)$row2['cnt'];
     }
 
+    // Cek pengumuman baru dalam 24 jam terakhir
+    $qp = mysqli_query($conn, "SELECT COUNT(*) as cnt FROM pengumuman WHERE target IN ('Semua', 'Pasien') AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+    if ($qp && $rowp = mysqli_fetch_assoc($qp)) {
+        $count += (int)$rowp['cnt'];
+    }
+
 } elseif ($role === 'Dokter') {
     // Cek appointment baru masuk
     $q = mysqli_query($conn, "
@@ -64,6 +70,12 @@ if ($role === 'Pasien') {
     ");
     if ($q2 && $row2 = mysqli_fetch_assoc($q2)) {
         $count += (int)$row2['cnt'];
+    }
+
+    // Cek pengumuman baru dalam 24 jam terakhir
+    $qp = mysqli_query($conn, "SELECT COUNT(*) as cnt FROM pengumuman WHERE target IN ('Semua', 'Dokter') AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+    if ($qp && $rowp = mysqli_fetch_assoc($qp)) {
+        $count += (int)$rowp['cnt'];
     }
 }
 

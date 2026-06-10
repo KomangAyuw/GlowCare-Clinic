@@ -1,4 +1,4 @@
-const titles = {dashboard:'Dashboard',pasien:'Data Pasien',dokter:'Data Dokter',jadwal:'Jadwal Dokter',aktivitas:'Aktivitas',pesan:'Pesan Kontak',laporan:'Laporan',treatment:'Treatment',profil:'Profil',keuangan:'Keuangan'};
+const titles = {dashboard:'Dashboard',pasien:'Data Pasien',dokter:'Data Dokter',jadwal:'Jadwal Dokter',aktivitas:'Aktivitas',pesan:'Pesan Kontak',laporan:'Laporan',treatment:'Treatment',profil:'Profil',keuangan:'Keuangan',pengumuman:'Pengumuman'};
 
 function showPanel(id,el){
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
