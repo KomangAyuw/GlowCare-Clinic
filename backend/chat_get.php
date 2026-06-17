@@ -14,6 +14,15 @@ if (!$consultation_id) {
     exit;
 }
 
+// Mark messages as read for recipient
+$user_id = (int)$_SESSION['user_id'];
+$role = strtolower($_SESSION['role'] ?? 'user');
+if ($role === 'dokter') {
+    mysqli_query($conn, "UPDATE messages SET is_read = 1 WHERE consultation_id = $consultation_id AND sender_type = 'Pasien' AND is_read = 0");
+} elseif ($role === 'user' || $role === 'pasien') {
+    mysqli_query($conn, "UPDATE messages SET is_read = 1 WHERE consultation_id = $consultation_id AND sender_type = 'Dokter' AND is_read = 0");
+}
+
 $q = mysqli_query($conn, "
     SELECT m.*,
         CASE

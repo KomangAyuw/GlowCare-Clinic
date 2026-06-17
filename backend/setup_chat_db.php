@@ -23,6 +23,7 @@ $sql2 = "CREATE TABLE IF NOT EXISTS `messages` (
   `sender_id` INT NOT NULL,
   `message` TEXT NULL,
   `image_url` VARCHAR(255) NULL,
+  `is_read` TINYINT(1) DEFAULT 0,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`consultation_id`) REFERENCES `consultations` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";

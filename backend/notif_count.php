@@ -10,11 +10,11 @@ if (!isset($_SESSION['user_id'])) {
 require 'koneksi.php';
 
 $user_id = (int)$_SESSION['user_id'];
-$role = $_SESSION['role'] ?? 'Pasien';
+$role = strtolower($_SESSION['role'] ?? 'user');
 
 $count = 0;
 
-if ($role === 'Pasien') {
+if ($role === 'user' || $role === 'pasien') {
     // Cek appointment baru yang statusnya berubah (Disetujui, Dibatalkan) 
     $q = mysqli_query($conn, "
         SELECT COUNT(*) as cnt FROM appointment a
@@ -46,7 +46,7 @@ if ($role === 'Pasien') {
         $count += (int)$rowp['cnt'];
     }
 
-} elseif ($role === 'Dokter') {
+} elseif ($role === 'dokter') {
     // Cek appointment baru masuk
     $q = mysqli_query($conn, "
         SELECT COUNT(*) as cnt FROM appointment a
