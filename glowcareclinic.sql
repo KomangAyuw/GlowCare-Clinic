@@ -189,15 +189,15 @@ CREATE TABLE `pesan_kontak` (
 -- ──────────────────────────────────────────────────────────
 
 -- Users Seed
--- admin123  -> $2y$10$xSwt.GZ3OaRbphZB0pzZg.fPKlPoGdGbOYHYIm7woV9ZaXGvpbq/m
--- doctor123 -> $2y$10$SbRNo0ZZlM7hvGjgwqi.qefw5XlHRTA4A06G5h7V.x6zPefsvSaZG
--- patient123-> $2y$10$sOe7plAOPdKv25XkK18GV.K0Eg8QliJ4p3JX9LMIORuJ3GeikuUA.
+-- admin123  -> $2y$10$sEbm46Nh.lpGiU5Af0cD/.QhdEP2a/xC0wbNRyHUM6lrHtiRPJanW
+-- dokter123 -> $2y$10$MOM8v6LcWEEQyfZyIVNgeeIpcD.3Z532IgfnQV5JIWl4JeAZ2rbZu
+-- pasien123 -> $2y$10$86VK27RX8ctEMhV3az8EueeedvYsAHO3jGY4gr5AIxeAZlJhyEEra
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`) VALUES
-(1, 'SuperAdmin', 'admin@glowcareclinic.com', '$2y$10$xSwt.GZ3OaRbphZB0pzZg.fPKlPoGdGbOYHYIm7woV9ZaXGvpbq/m', 'admin'),
-(2, 'dr. Anisa Putri', 'anisa@glowcare.com', '$2y$10$SbRNo0ZZlM7hvGjgwqi.qefw5XlHRTA4A06G5h7V.x6zPefsvSaZG', 'dokter'),
-(3, 'dr. Marina Crystine', 'marina@glowcare.com', '$2y$10$SbRNo0ZZlM7hvGjgwqi.qefw5XlHRTA4A06G5h7V.x6zPefsvSaZG', 'dokter'),
-(4, 'dr. Michael Chen', 'michael@glowcare.com', '$2y$10$SbRNo0ZZlM7hvGjgwqi.qefw5XlHRTA4A06G5h7V.x6zPefsvSaZG', 'dokter'),
-(5, 'Siti Rahayu', 'siti@gmail.com', '$2y$10$sOe7plAOPdKv25XkK18GV.K0Eg8QliJ4p3JX9LMIORuJ3GeikuUA.', 'user');
+(1, 'SuperAdmin', 'admin@glowcareclinic.com', '$2y$10$sEbm46Nh.lpGiU5Af0cD/.QhdEP2a/xC0wbNRyHUM6lrHtiRPJanW', 'admin'),
+(2, 'dr. Anisa Putri', 'anisa@glowcare.com', '$2y$10$MOM8v6LcWEEQyfZyIVNgeeIpcD.3Z532IgfnQV5JIWl4JeAZ2rbZu', 'dokter'),
+(3, 'dr. Marina Crystine', 'marina@glowcare.com', '$2y$10$MOM8v6LcWEEQyfZyIVNgeeIpcD.3Z532IgfnQV5JIWl4JeAZ2rbZu', 'dokter'),
+(4, 'dr. Michael Chen', 'michael@glowcare.com', '$2y$10$MOM8v6LcWEEQyfZyIVNgeeIpcD.3Z532IgfnQV5JIWl4JeAZ2rbZu', 'dokter'),
+(5, 'Siti Rahayu', 'siti@gmail.com', '$2y$10$86VK27RX8ctEMhV3az8EueeedvYsAHO3jGY4gr5AIxeAZlJhyEEra', 'user');
 
 -- Dokter Seed
 INSERT INTO `dokter` (`id`, `user_id`, `nama`, `nama_lengkap`, `gelar`, `no_str`, `no_sip`, `spesialisasi`, `telepon`, `no_telp`, `email`, `pengalaman`, `tahun_pengalaman`, `rating`, `status`, `bio`, `alamat`, `foto`, `total_pasien`) VALUES
