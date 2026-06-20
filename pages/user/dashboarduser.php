@@ -16,7 +16,13 @@ if (!$qPasien || mysqli_num_rows($qPasien) === 0) {
     $noRekam = 'RM-' . rand(1000, 9999);
     $nama = mysqli_real_escape_string($conn, $_SESSION['username']);
     $email = mysqli_real_escape_string($conn, $_SESSION['email']);
-    mysqli_query($conn, "INSERT INTO pasien (user_id, nama, no_pasien, no_rekam, email, status) VALUES ($user_id, '$nama', '$noPasien', '$noRekam', '$email', 'Aktif')");
+    
+    // Ambil telepon dari users table jika ada
+    $qUserTel = mysqli_query($conn, "SELECT telepon FROM users WHERE id = $user_id LIMIT 1");
+    $userTelRow = $qUserTel ? mysqli_fetch_assoc($qUserTel) : null;
+    $telepon = mysqli_real_escape_string($conn, $userTelRow['telepon'] ?? '');
+    
+    mysqli_query($conn, "INSERT INTO pasien (user_id, nama, no_pasien, no_rekam, email, telepon, no_telp, status) VALUES ($user_id, '$nama', '$noPasien', '$noRekam', '$email', '$telepon', '$telepon', 'Aktif')");
     $qPasien = mysqli_query($conn, "SELECT * FROM pasien WHERE user_id = $user_id LIMIT 1");
 }
 $pasien = mysqli_fetch_assoc($qPasien);
@@ -68,6 +74,15 @@ while ($d = mysqli_fetch_assoc($qDokter)) {
         $d['foto'] = 'https://ui-avatars.com/api/?name=' . urlencode($d['nama']) . '&background=064e3b&color=fff&size=500';
     }
     $dokter_list[] = $d;
+}
+
+// Fetch Doctor Schedules for the table
+$qJadwal = mysqli_query($conn, "SELECT * FROM jadwal_dokter WHERE status='Aktif'");
+$jadwal_list = [];
+if ($qJadwal) {
+    while ($j = mysqli_fetch_assoc($qJadwal)) {
+        $jadwal_list[$j['dokter_id']][$j['hari']] = substr($j['jam_mulai'], 0, 5) . ' - ' . substr($j['jam_selesai'], 0, 5);
+    }
 }
 
 // 5. Treatment List untuk Dropdown Booking
@@ -364,11 +379,16 @@ $success = $_GET['success'] ?? '';
             box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important;
         }
 
-        /* ══ CONTENT AREA OVERRIDES ══ */
+        /* ══ CONTENT AREA OVERRIDES & ACCESSIBILITY READABILITY ══ */
         .content-area {
             max-width: 100%;
             margin: 0;
             padding: 36px 40px;
+        }
+
+        /* High contrast colors for main content area to make text more readable */
+        .main {
+            color: #2b2621 !important; /* Default dark charcoal-brown */
         }
 
         .hero-banner {
@@ -377,25 +397,108 @@ $success = $_GET['success'] ?? '';
             border-bottom: 1px solid #efebe4 !important;
         }
         .hero-greeting {
-            color: #735a39 !important;
+            color: #5c432d !important; /* Dark warm brown */
+            font-weight: 500 !important;
         }
         .hero-name {
             color: #4a321f !important;
         }
         .hero-name em {
-            color: #735a39 !important;
+            color: #5c432d !important;
         }
         .hero-sub {
-            color: #7d6756 !important;
+            color: #4a3c31 !important; /* Darker charcoal-brown */
         }
         .hero-stat-val {
             color: #4a321f !important;
         }
         .hero-stat-lbl {
-            color: #a47e58 !important;
+            color: #7a5e41 !important; /* Darker gold-brown */
+            font-weight: 500 !important;
         }
         .hero-divider-v {
             background-color: #efebe4 !important;
+        }
+
+        /* Make small labels, ratings, and subtexts in content area darker for better readability */
+        .main p, 
+        .main .card-title,
+        .main .section-title,
+        .main .dokter-name,
+        .main .pat-name,
+        .main .notif-title,
+        .main .td-name,
+        .main .cal-month,
+        .main .akun-section-title,
+        .main .modal-title {
+            color: #2b2621 !important;
+        }
+
+        .main .card-title em,
+        .main .section-title em,
+        .main .modal-title em {
+            color: #5c432d !important;
+            -webkit-text-fill-color: initial !important;
+            background: none !important;
+        }
+
+        .main .form-label,
+        .main .notif-desc,
+        .main .notif-time,
+        .main .td-sub,
+        .main .dokter-spec,
+        .main .dokter-rating,
+        .main .section-sub,
+        .main .step-label,
+        .main .confirm-row span:first-child,
+        .main .modal-sub,
+        .main .success-desc {
+            color: #4a3e36 !important;
+            font-weight: 400 !important;
+        }
+
+        .main .data-table thead th {
+            color: #4a3e36 !important;
+            font-weight: 600 !important;
+        }
+        .main .data-table tbody td {
+            color: #2b2621 !important;
+        }
+
+        .main .step-num {
+            border-color: #9c8a7c !important;
+            color: #4a3e36 !important;
+        }
+        .main .step.active .step-num {
+            background: #735a39 !important;
+            border-color: #735a39 !important;
+            color: #ffffff !important;
+        }
+
+        /* Systematically target inline styles in the main content area that force low contrast */
+        .main [style*="color:#7d6756"],
+        .main [style*="color: #7d6756"] {
+            color: #4a3e36 !important;
+        }
+        .main [style*="color:#735a39"],
+        .main [style*="color: #735a39"] {
+            color: #5c432d !important;
+        }
+        .main [style*="color:#a47e58"],
+        .main [style*="color: #a47e58"] {
+            color: #735a39 !important;
+        }
+        .main [style*="color:#9a8f87"],
+        .main [style*="color: #9a8f87"] {
+            color: #5c524a !important;
+        }
+        .main [style*="color:#b5a695"],
+        .main [style*="color: #b5a695"] {
+            color: #736455 !important;
+        }
+        .main [style*="color:#64748b"],
+        .main [style*="color: #64748b"] {
+            color: #475569 !important;
         }
 
         /* slot button */
@@ -489,15 +592,17 @@ $success = $_GET['success'] ?? '';
 
 
     <!-- ALERT SUCCESS/ERROR -->
-    <?php if ($error): ?>
-        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #fce4df; border: 1px solid #e8b5ac; border-radius: 8px; color: #6b3a2d; font-size: 13px;">
-            Peringatan: <?= htmlspecialchars($error) ?>
-        </div>
-    <?php endif; ?>
-    <?php if ($success): ?>
-        <div style="margin: 20px 48px -10px; padding: 12px 20px; background: #e8f5d8; border: 1px solid #c5daa8; border-radius: 8px; color: #5a6f2d; font-size: 13px;">
-            Sukses: <?= htmlspecialchars($success) ?>
-        </div>
+    <?php if (($_GET['page'] ?? '') !== 'akun'): ?>
+        <?php if ($error): ?>
+            <div class="alert-notification alert-danger" style="margin: 20px 48px -10px; padding: 12px 20px; background: #fce4df; border: 1px solid #e8b5ac; border-radius: 8px; color: #6b3a2d; font-size: 13px; transition: opacity 0.5s ease;">
+                Peringatan: <?= htmlspecialchars($error) ?>
+            </div>
+        <?php endif; ?>
+        <?php if ($success): ?>
+            <div class="alert-notification alert-success" style="margin: 20px 48px -10px; padding: 12px 20px; background: #e8f5d8; border: 1px solid #c5daa8; border-radius: 8px; color: #5a6f2d; font-size: 13px; transition: opacity 0.5s ease;">
+                Sukses: <?= htmlspecialchars($success) ?>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 
     <!-- ══════════════════════════════════════════
@@ -646,33 +751,46 @@ $success = $_GET['success'] ?? '';
         </div>
 
         <div class="content-area">
-            <div class="three-col">
-                <?php foreach ($dokter_list as $d): ?>
-                    <div class="card">
-                        <div style="background:#f7ede5; padding:20px; display:flex; gap:14px; align-items:flex-start">
-                            <div class="dokter-avatar" style="width:56px;height:56px">
-                                <img src="<?= htmlspecialchars($d['foto']) ?>">
-                            </div>
-                            <div>
-                                <div class="dokter-name"><?= htmlspecialchars($d['nama']) ?></div>
-                                <div class="dokter-spec"><?= htmlspecialchars($d['spesialisasi']) ?></div>
-                                <div class="dokter-rating">★ <?= number_format($d['rating'], 1) ?> · <?= $d['pengalaman'] ?>+ Thn</div>
-                            </div>
-                            <span class="badge badge-green" style="margin-left:auto"><?= htmlspecialchars($d['status']) ?></span>
-                        </div>
-                        <div style="padding:14px 20px; font-size:11px; color:#7d6756; letter-spacing:0.5px; border-bottom:1px solid #f7ede5">
-                            Bio: <?= htmlspecialchars($d['bio']) ?>
-                        </div>
-                        <div class="slot-section" style="padding:16px 20px 20px">
-                            <div class="slot-date-title">Jam Praktik Mingguan</div>
-                            <div style="font-size:12px; color:#735a39; line-height:1.7; margin-bottom:12px">
-                                Senin - Jumat: 09:00 - 16:00<br>
-                                Sabtu: 09:00 - 13:00 (dr. Marina, dr. Michael)
-                            </div>
-                            <button class="btn-primary" style="width:100%; text-align:center" onclick="startBookingDokter(<?= $d['id'] ?>)">Pilih & Daftar Konsultasi</button>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+            <div class="card" style="overflow-x: auto; border-radius: 16px; border: 1px solid #efebe4;">
+                <table class="data-table" style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#faf6ee;">
+                            <th style="padding: 16px 20px; font-family:'Playfair Display', serif; font-weight:600; color:#4a321f; font-size:14px; text-align:left; border-bottom:1px solid #efebe4;">Dokter</th>
+                            <th style="padding: 16px 20px; font-weight:500; color:#735a39; font-size:12px; text-align:center; border-bottom:1px solid #efebe4;">Senin</th>
+                            <th style="padding: 16px 20px; font-weight:500; color:#735a39; font-size:12px; text-align:center; border-bottom:1px solid #efebe4;">Selasa</th>
+                            <th style="padding: 16px 20px; font-weight:500; color:#735a39; font-size:12px; text-align:center; border-bottom:1px solid #efebe4;">Rabu</th>
+                            <th style="padding: 16px 20px; font-weight:500; color:#735a39; font-size:12px; text-align:center; border-bottom:1px solid #efebe4;">Kamis</th>
+                            <th style="padding: 16px 20px; font-weight:500; color:#735a39; font-size:12px; text-align:center; border-bottom:1px solid #efebe4;">Jumat</th>
+                            <th style="padding: 16px 20px; font-weight:500; color:#735a39; font-size:12px; text-align:center; border-bottom:1px solid #efebe4;">Sabtu</th>
+                            <th style="padding: 16px 20px; font-weight:500; color:#735a39; font-size:12px; text-align:center; border-bottom:1px solid #efebe4;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($dokter_list as $d): ?>
+                            <tr style="border-bottom:1px solid #efebe4;">
+                                <td style="padding: 18px 20px; display:flex; align-items:center; gap:14px; text-align:left;">
+                                    <div class="dokter-avatar" style="width:48px; height:48px; border-radius:50%; overflow:hidden; flex-shrink:0;">
+                                        <img src="<?= htmlspecialchars($d['foto']) ?>" style="width:100%; height:100%; object-fit:cover;">
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:500; color:#4a321f; font-size:14px;"><?= htmlspecialchars($d['nama']) ?></div>
+                                        <div style="font-size:11px; color:#735a39; margin-top:2px;"><?= htmlspecialchars($d['spesialisasi']) ?></div>
+                                        <div style="font-size:10px; color:#9a8f87; margin-top:2px;">★ <?= number_format($d['rating'], 1) ?> · <?= htmlspecialchars($d['pengalaman']) ?>+ Thn</div>
+                                    </div>
+                                </td>
+                                <td style="padding: 18px 20px; font-size:12px; color:#4a321f; text-align:center;"><?= $jadwal_list[$d['id']]['Senin'] ?? '<span style="color:#b5a695; font-style:italic;">Libur</span>' ?></td>
+                                <td style="padding: 18px 20px; font-size:12px; color:#4a321f; text-align:center;"><?= $jadwal_list[$d['id']]['Selasa'] ?? '<span style="color:#b5a695; font-style:italic;">Libur</span>' ?></td>
+                                <td style="padding: 18px 20px; font-size:12px; color:#4a321f; text-align:center;"><?= $jadwal_list[$d['id']]['Rabu'] ?? '<span style="color:#b5a695; font-style:italic;">Libur</span>' ?></td>
+                                <td style="padding: 18px 20px; font-size:12px; color:#4a321f; text-align:center;"><?= $jadwal_list[$d['id']]['Kamis'] ?? '<span style="color:#b5a695; font-style:italic;">Libur</span>' ?></td>
+                                <td style="padding: 18px 20px; font-size:12px; color:#4a321f; text-align:center;"><?= $jadwal_list[$d['id']]['Jumat'] ?? '<span style="color:#b5a695; font-style:italic;">Libur</span>' ?></td>
+                                <td style="padding: 18px 20px; font-size:12px; color:#4a321f; text-align:center;"><?= $jadwal_list[$d['id']]['Sabtu'] ?? '<span style="color:#b5a695; font-style:italic;">Libur</span>' ?></td>
+                                <td style="padding: 18px 20px; text-align:center;">
+                                    <button class="btn-primary" style="padding: 8px 16px; font-size: 11px; border-radius: 50px; cursor:pointer;" onclick="startBookingDokter(<?= $d['id'] ?>)">Pilih & Daftar</button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -818,17 +936,17 @@ $success = $_GET['success'] ?? '';
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Keluhan Utama & Keinginan</label>
-                                    <textarea class="form-textarea" name="keluhan" placeholder="Ceritakan keluhan kulit atau bagian wajah yang ingin dikonsultasikan secara singkat..."></textarea>
+                                    <textarea class="form-textarea" name="keluhan" placeholder="Ceritakan keluhan kulit atau bagian wajah yang ingin dikonsultasikan secara singkat..." required></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Riwayat Alergi / Kondisi Khusus</label>
-                                    <input class="form-input" name="alergi" placeholder="Contoh: alergi penisilin, riwayat keloid, dsb. (kosongkan jika tidak ada)" value="Tidak ada">
+                                    <input class="form-input" name="alergi" placeholder="Contoh: alergi penisilin, riwayat keloid, dsb. (kosongkan jika tidak ada)" value="Tidak ada" required>
                                 </div>
                             </div>
                         </div>
                         <div style="display:flex; justify-content:space-between">
                             <button type="button" class="btn-outline" onclick="nextStep(2)">← Kembali</button>
-                            <button type="button" class="btn-primary" onclick="nextStep(4); generateSummary();">Lanjut: Konfirmasi →</button>
+                            <button type="button" class="btn-primary" onclick="validateStep3AndNext()">Lanjut: Konfirmasi →</button>
                         </div>
                     </div>
 
@@ -974,6 +1092,19 @@ $success = $_GET['success'] ?? '';
         </div>
 
         <div class="content-area">
+            <?php if (($_GET['page'] ?? '') === 'akun'): ?>
+                <?php if ($error): ?>
+                    <div class="alert-notification alert-danger" style="margin-bottom: 20px; padding: 12px 20px; background: #fce4df; border: 1px solid #e8b5ac; border-radius: 8px; color: #6b3a2d; font-size: 13px; transition: opacity 0.5s ease;">
+                        Peringatan: <?= htmlspecialchars($error) ?>
+                    </div>
+                <?php endif; ?>
+                <?php if ($success): ?>
+                    <div class="alert-notification alert-success" style="margin-bottom: 20px; padding: 12px 20px; background: #e8f5d8; border: 1px solid #c5daa8; border-radius: 8px; color: #5a6f2d; font-size: 13px; transition: opacity 0.5s ease;">
+                        Sukses: <?= htmlspecialchars($success) ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+
             <div class="two-col">
 
                 <!-- Data Pribadi -->
@@ -982,6 +1113,7 @@ $success = $_GET['success'] ?? '';
                         <div class="akun-section-title">Data Diri Medis</div>
                     </div>
                     <form method="POST" action="../../backend/user/update_profil_user.php">
+                        <input type="hidden" name="action" value="update_diri">
                         <div class="akun-section-body">
                             <div class="form-group">
                                 <label class="form-label">Nama Lengkap</label>
@@ -993,7 +1125,7 @@ $success = $_GET['success'] ?? '';
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Tanggal Lahir</label>
-                                <input class="form-input" type="date" name="tanggal_lahir" value="<?= $pasien['tanggal_lahir'] ?>">
+                                <input class="form-input" type="date" name="tanggal_lahir" value="<?= $pasien['tanggal_lahir'] ?>" required>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Jenis Kelamin</label>
@@ -1004,7 +1136,7 @@ $success = $_GET['success'] ?? '';
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Alamat Lengkap</label>
-                                <textarea class="form-textarea" name="alamat" style="min-height:70px"><?= htmlspecialchars($pasien['alamat'] ?? '') ?></textarea>
+                                <textarea class="form-textarea" name="alamat" style="min-height:70px" required><?= htmlspecialchars($pasien['alamat'] ?? '') ?></textarea>
                             </div>
                             <button type="submit" class="btn-primary" style="width:100%; margin-top:10px;">Simpan Perubahan Data Diri</button>
                         </div>
@@ -1018,11 +1150,12 @@ $success = $_GET['success'] ?? '';
                             <div class="akun-section-title">Kontak Medis</div>
                         </div>
                         <form method="POST" action="../../backend/user/update_profil_user.php">
+                            <input type="hidden" name="action" value="update_kontak">
                             <input type="hidden" name="nama" value="<?= htmlspecialchars($pasien['nama']) ?>">
                             <div class="akun-section-body">
                                 <div class="form-group">
                                     <label class="form-label">No. Telepon / WhatsApp</label>
-                                    <input class="form-input" name="telepon" value="<?= htmlspecialchars($pasien['telepon'] ?? '') ?>" placeholder="+62 8...">
+                                    <input class="form-input" name="telepon" value="<?= htmlspecialchars($pasien['telepon'] ?? '') ?>" placeholder="+62 8..." required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Email Aktif</label>
@@ -1341,6 +1474,64 @@ $success = $_GET['success'] ?? '';
     // Poll setiap 10 detik
     pollNotifications();
     setInterval(pollNotifications, 10000);
+    
+    // Parse URL params for routing and wizard pre-selection
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        const page = params.get('page');
+        if (page) {
+            const btn = document.querySelector('.nav-item[onclick*="' + page + '"]');
+            if (btn) {
+                showPage(page, btn);
+            }
+            
+            const docId = params.get('dokter_id');
+            if (docId && typeof startBookingDokter === 'function') {
+                startBookingDokter(docId);
+            }
+            
+            const treatmentId = params.get('treatment_id');
+            if (treatmentId) {
+                const selectEl = document.getElementById('booking-treatment-select');
+                if (selectEl) {
+                    selectEl.value = treatmentId;
+                    updateTreatmentPreview(selectEl);
+                }
+            }
+        }
+
+        // Auto fadeout alert notifications and clear success/error params from URL
+        setTimeout(() => {
+            document.querySelectorAll('.alert-notification').forEach(el => {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 5000);
+
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('success') || url.searchParams.has('error')) {
+            url.searchParams.delete('success');
+            url.searchParams.delete('error');
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+        }
+    });
+
+    function validateStep3AndNext() {
+        const keluhanEl = document.getElementsByName('keluhan')[0];
+        const alergiEl = document.getElementsByName('alergi')[0];
+        if (!keluhanEl || !keluhanEl.value.trim()) {
+            showToast('Keluhan Utama & Keinginan wajib diisi!');
+            if (keluhanEl) keluhanEl.focus();
+            return;
+        }
+        if (!alergiEl || !alergiEl.value.trim()) {
+            showToast('Riwayat Alergi / Kondisi Khusus wajib diisi!');
+            if (alergiEl) alergiEl.focus();
+            return;
+        }
+        nextStep(4);
+        generateSummary();
+    }
     </script>
 </body>
 </html>

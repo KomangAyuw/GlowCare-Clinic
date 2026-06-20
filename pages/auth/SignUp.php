@@ -123,6 +123,13 @@ $error = $_GET['error'] ?? '';
         }
       }
     </script>
+<style>
+/* Hide Microsoft Edge / IE native password reveal and clear button */
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}
+</style>
 </head>
 <body class="bg-surface text-on-surface antialiased min-h-screen flex selection:bg-primary/20 selection:text-primary">
 <!-- Left Screen: Image Canvas (Hidden on Mobile) -->
@@ -145,15 +152,13 @@ $error = $_GET['error'] ?? '';
                 </p>
 </div>
 
-<?php if ($error): ?>
-    <div class="bg-error-container border border-error text-on-error-container px-4 py-3 rounded-lg mb-6 font-body-sm flex items-center gap-2">
-        <span class="material-symbols-outlined">error</span>
-        <?php echo htmlspecialchars($error); ?>
-    </div>
-<?php endif; ?>
+<div id="error-container" class="<?php echo $error ? '' : 'hidden'; ?> bg-error-container border border-error text-on-error-container px-4 py-3 rounded-lg mb-6 font-body-sm flex items-center gap-2">
+    <span class="material-symbols-outlined">error</span>
+    <span id="error-message"><?php echo htmlspecialchars($error); ?></span>
+</div>
 
 <!-- Form Section -->
-<form action="../../backend/Regist.php" class="space-y-6" method="POST">
+<form action="../../backend/Regist.php" class="space-y-6" method="POST" id="signup-form" novalidate>
 <div class="space-y-sm">
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="username">
@@ -171,28 +176,32 @@ $error = $_GET['error'] ?? '';
 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="phone">
                             Phone Number
                         </label>
-<input autocomplete="tel" class="block w-full px-4 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all duration-200" id="phone" name="phone" type="tel">
+<input autocomplete="tel" class="block w-full px-4 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all duration-200" id="phone" name="phone" required="" type="tel">
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="password">
                             Password
                         </label>
-<input autocomplete="new-password" class="block w-full px-4 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all duration-200" id="password" name="password" required="" type="password">
+<div class="relative">
+<input autocomplete="new-password" class="block w-full pl-4 pr-12 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all duration-200" id="password" name="password" required="" type="password" maxlength="8">
+<button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-on-surface-variant/70 hover:text-primary transition-colors toggle-password" data-target="password">
+    <span class="material-symbols-outlined text-xl">visibility_off</span>
+</button>
+</div>
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="konfirmasi">
                             Confirm Password
                         </label>
-<input autocomplete="new-password" class="block w-full px-4 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all duration-200" id="konfirmasi" name="konfirmasi" required="" type="password">
+<div class="relative">
+<input autocomplete="new-password" class="block w-full pl-4 pr-12 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all duration-200" id="konfirmasi" name="konfirmasi" required="" type="password" maxlength="8">
+<button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-on-surface-variant/70 hover:text-primary transition-colors toggle-password" data-target="konfirmasi">
+    <span class="material-symbols-outlined text-xl">visibility_off</span>
+</button>
 </div>
 </div>
-<!-- Terms & Conditions -->
-<div class="flex items-center">
-<input class="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary bg-surface-container-lowest cursor-pointer transition-colors" id="terms" name="terms" required="" type="checkbox">
-<label class="ml-3 block font-body-sm text-body-sm text-on-surface-variant cursor-pointer" for="terms">
-                        I agree to the <a class="text-primary hover:text-surface-tint underline decoration-primary/30 underline-offset-2 transition-colors" href="#">Terms of Service</a> and <a class="text-primary hover:text-surface-tint underline decoration-primary/30 underline-offset-2 transition-colors" href="#">Privacy Policy</a>.
-                    </label>
 </div>
+
 <!-- Action Button -->
 <div>
 <button class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-sm font-label-md text-label-md text-on-primary bg-primary hover:bg-surface-tint focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-surface transform active:scale-[0.98] transition-all duration-200" type="submit">
@@ -215,6 +224,102 @@ $error = $_GET['error'] ?? '';
     </a>
 </div>
 </div>
+<script>
+document.getElementById('signup-form').addEventListener('submit', function(e) {
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('konfirmasi').value;
+    const errorContainer = document.getElementById('error-container');
+    const errorMessage = document.getElementById('error-message');
+
+    function showError(msg) {
+        errorMessage.textContent = msg;
+        errorContainer.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 1. Check if all fields are empty
+    if (!username && !email && !phone && !password && !confirm) {
+        e.preventDefault();
+        showError('Semua field harus diisi.');
+        return;
+    }
+    // Check each field individually for specific error messages
+    if (!username) {
+        e.preventDefault();
+        showError('Nama Lengkap harus diisi.');
+        return;
+    }
+    if (!email) {
+        e.preventDefault();
+        showError('Email harus diisi.');
+        return;
+    }
+    if (!phone) {
+        e.preventDefault();
+        showError('Nomor telepon harus diisi.');
+        return;
+    }
+    if (!password) {
+        e.preventDefault();
+        showError('Password harus diisi.');
+        return;
+    }
+    if (!confirm) {
+        e.preventDefault();
+        showError('Konfirmasi password harus diisi.');
+        return;
+    }
 
 
+
+    // 3. Check email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        e.preventDefault();
+        showError('Format email tidak valid.');
+        return;
+    }
+
+    // 4. Check phone number length (kurang dari 11 ATAU lebih dari sama dengan 13)
+    if (phone.length < 11 || phone.length >= 13) {
+        e.preventDefault();
+        showError('Nomor telepon tidak valid (harus 11 atau 12 karakter).');
+        return;
+    }
+
+    // 5. Check password length (harus 8 karakter)
+    if (password.length !== 8) {
+        e.preventDefault();
+        showError('Password harus terdiri dari 8 karakter.');
+        return;
+    }
+
+    // 6. Check password confirmation
+    if (password !== confirm) {
+        e.preventDefault();
+        showError('Password dan konfirmasi tidak cocok.');
+        return;
+    }
+});
+
+// Toggle password visibility
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        const icon = this.querySelector('.material-symbols-outlined');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility_off';
+        }
+    });
+});
+</script>
 </body></html>

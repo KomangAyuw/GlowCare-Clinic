@@ -12,7 +12,7 @@ $user_id = (int)$_SESSION['user_id'];
 // Ambil ID pasien
 $qPasien = mysqli_query($conn, "SELECT id FROM pasien WHERE user_id = $user_id LIMIT 1");
 if (!$qPasien || mysqli_num_rows($qPasien) === 0) {
-    header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Profil pasien tidak ditemukan.'));
+    header('Location: ../../pages/user/dashboarduser.php?page=akun&error=' . urlencode('Profil pasien tidak ditemukan.'));
     exit;
 }
 $pasien = mysqli_fetch_assoc($qPasien);
@@ -26,17 +26,17 @@ if (isset($_POST['password_lama'])) {
     $konfirmasi    = $_POST['konfirmasi'] ?? '';
 
     if ($password_lama === '' || $password_baru === '' || $konfirmasi === '') {
-        header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Semua kolom password wajib diisi.'));
+        header('Location: ../../pages/user/dashboarduser.php?page=akun&error=' . urlencode('Semua kolom password wajib diisi.'));
         exit;
     }
 
     if ($password_baru !== $konfirmasi) {
-        header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Password baru tidak cocok dengan konfirmasi.'));
+        header('Location: ../../pages/user/dashboarduser.php?page=akun&error=' . urlencode('Password baru tidak cocok dengan konfirmasi.'));
         exit;
     }
 
     if (strlen($password_baru) < 8) {
-        header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Password baru minimal 8 karakter.'));
+        header('Location: ../../pages/user/dashboarduser.php?page=akun&error=' . urlencode('Password baru minimal 8 karakter.'));
         exit;
     }
 
@@ -44,7 +44,7 @@ if (isset($_POST['password_lama'])) {
     $user = mysqli_fetch_assoc($qUser);
 
     if (!password_verify($password_lama, $user['password'])) {
-        header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Password lama salah.'));
+        header('Location: ../../pages/user/dashboarduser.php?page=akun&error=' . urlencode('Password lama salah.'));
         exit;
     }
 
@@ -52,38 +52,59 @@ if (isset($_POST['password_lama'])) {
     $ok = mysqli_query($conn, "UPDATE users SET password = '" . mysqli_real_escape_string($conn, $hash) . "' WHERE id = $user_id");
 
     if ($ok) {
-        header('Location: ../../pages/user/dashboarduser.php?success=' . urlencode('Password berhasil diperbarui.'));
+        header('Location: ../../pages/user/dashboarduser.php?page=akun&success=' . urlencode('Password berhasil diperbarui.'));
     } else {
-        header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Gagal memperbarui password.'));
+        header('Location: ../../pages/user/dashboarduser.php?page=akun&error=' . urlencode('Gagal memperbarui password.'));
     }
 } else {
-    // Form update profile
-    $nama          = trim($_POST['nama'] ?? '');
-    $tanggal_lahir = $_POST['tanggal_lahir'] ?? null;
-    $jenis_kelamin = $_POST['jenis_kelamin'] ?? 'Perempuan';
-    $telepon       = trim($_POST['telepon'] ?? '');
-    $alamat        = trim($_POST['alamat'] ?? '');
+    // Check which form is submitted
+    $action = $_POST['action'] ?? '';
 
-    if ($nama === '') {
-        header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Nama wajib diisi.'));
-        exit;
-    }
+    if ($action === 'update_kontak') {
+        $telepon = trim($_POST['telepon'] ?? '');
 
-    $usia = null;
-    if (!empty($tanggal_lahir)) {
-        $usia = date('Y') - date('Y', strtotime($tanggal_lahir));
-    }
+        if ($telepon === '') {
+            header('Location: ../../pages/user/dashboarduser.php?page=akun&error=' . urlencode('Nomor telepon / WhatsApp wajib diisi.'));
+            exit;
+        }
 
-    $stmt = mysqli_prepare($conn, "UPDATE pasien SET nama=?, tanggal_lahir=?, usia=?, jenis_kelamin=?, telepon=?, no_telp=?, alamat=? WHERE id=?");
-    mysqli_stmt_bind_param($stmt, 'ssissssi', $nama, $tanggal_lahir, $usia, $jenis_kelamin, $telepon, $telepon, $alamat, $pasien_id);
-    $ok = mysqli_stmt_execute($stmt);
+        $stmt = mysqli_prepare($conn, "UPDATE pasien SET telepon=?, no_telp=? WHERE id=?");
+        mysqli_stmt_bind_param($stmt, 'ssi', $telepon, $telepon, $pasien_id);
+        $ok = mysqli_stmt_execute($stmt);
 
-    if ($ok) {
-        // Update username di session
-        $_SESSION['username'] = $nama;
-        header('Location: ../../pages/user/dashboarduser.php?success=' . urlencode('Profil berhasil diperbarui.'));
+        if ($ok) {
+            header('Location: ../../pages/user/dashboarduser.php?page=akun&success=' . urlencode('Kontak berhasil diperbarui.'));
+        } else {
+            header('Location: ../../pages/user/dashboarduser.php?page=akun&error=' . urlencode('Gagal memperbarui kontak: ' . mysqli_error($conn)));
+        }
     } else {
-        header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Gagal memperbarui profil: ' . mysqli_error($conn)));
+        // Default: update_diri
+        $nama          = trim($_POST['nama'] ?? '');
+        $tanggal_lahir = $_POST['tanggal_lahir'] ?? null;
+        $jenis_kelamin = $_POST['jenis_kelamin'] ?? 'Perempuan';
+        $alamat        = trim($_POST['alamat'] ?? '');
+
+        if ($nama === '' || empty($tanggal_lahir) || $jenis_kelamin === '' || $alamat === '') {
+            header('Location: ../../pages/user/dashboarduser.php?page=akun&error=' . urlencode('Semua data diri wajib diisi (Nama, Tanggal Lahir, Jenis Kelamin, dan Alamat).'));
+            exit;
+        }
+
+        $usia = null;
+        if (!empty($tanggal_lahir)) {
+            $usia = date('Y') - date('Y', strtotime($tanggal_lahir));
+        }
+
+        $stmt = mysqli_prepare($conn, "UPDATE pasien SET nama=?, tanggal_lahir=?, usia=?, jenis_kelamin=?, alamat=? WHERE id=?");
+        mysqli_stmt_bind_param($stmt, 'ssissi', $nama, $tanggal_lahir, $usia, $jenis_kelamin, $alamat, $pasien_id);
+        $ok = mysqli_stmt_execute($stmt);
+
+        if ($ok) {
+            // Update username di session
+            $_SESSION['username'] = $nama;
+            header('Location: ../../pages/user/dashboarduser.php?page=akun&success=' . urlencode('Profil berhasil diperbarui.'));
+        } else {
+            header('Location: ../../pages/user/dashboarduser.php?page=akun&error=' . urlencode('Gagal memperbarui profil: ' . mysqli_error($conn)));
+        }
     }
 }
 exit;

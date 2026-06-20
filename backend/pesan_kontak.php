@@ -18,8 +18,6 @@ $telp  = trim($_POST['telp']  ?? '');
 $email = trim($_POST['email'] ?? '');
 $pesan = trim($_POST['pesan'] ?? '');
 
-$treatment = trim($_POST['treatment'] ?? '');
-
 if (empty($nama)) {
     $errors[] = 'Nama lengkap wajib diisi.';
 }
@@ -34,10 +32,6 @@ if (empty($pesan)) {
 }
 
 if (empty($errors)) {
-    if (!empty($treatment)) {
-        $pesan = "Preferred Treatment: " . ucfirst($treatment) . "\n\n" . $pesan;
-    }
-
     $stmt = mysqli_prepare($conn,
         "INSERT INTO pesan_kontak (nama, telepon, email, pesan)
          VALUES (?, ?, ?, ?)"

@@ -125,9 +125,16 @@ $success = $_GET['success'] ?? '';
             }
         }
     </script>
-<style>.material-symbols-outlined {
+<style>
+.material-symbols-outlined {
     font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24
-    }</style>
+}
+/* Hide Microsoft Edge / IE native password reveal and clear button */
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}
+</style>
 </head>
 <body class="bg-surface text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container">
 <div class="flex min-h-screen w-full">
@@ -167,22 +174,13 @@ $success = $_GET['success'] ?? '';
 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="password">Password</label>
 <div class="relative">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">lock</span>
-<input autocomplete="current-password" class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface font-body-md focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm placeholder:text-outline-variant" id="password" name="password" placeholder="••••••••" required="" type="password">
+<input autocomplete="current-password" class="w-full pl-10 pr-12 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface font-body-md focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm placeholder:text-outline-variant" id="password" name="password" placeholder="••••••••" required="" type="password">
+<button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-on-surface-variant/70 hover:text-primary transition-colors toggle-password" data-target="password">
+  <span class="material-symbols-outlined text-xl">visibility_off</span>
+</button>
 </div>
 </div>
-<div class="flex items-center justify-between">
-<div class="flex items-center">
-<input class="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary bg-surface-container-lowest" id="remember-me" name="remember-me" type="checkbox">
-<label class="ml-2 block font-body-sm text-body-sm text-on-surface-variant" for="remember-me">
-                                Remember me
-                            </label>
-</div>
-<div class="text-sm">
-<a class="font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors hover:underline" href="#">
-                                Forgot your password?
-                            </a>
-</div>
-</div>
+
 <button class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm font-label-md text-label-md text-on-primary bg-primary hover:bg-on-primary-fixed-variant focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all active:scale-[0.98]" type="submit">
                         Sign In
                     </button>
@@ -205,5 +203,21 @@ $success = $_GET['success'] ?? '';
 </div>
 <div class="hidden lg:block lg:w-1/2 relative bg-surface-container-high"><div class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;../../asset/img/login.png&quot;);"></div></div>
 </div>
-
+<script>
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        const icon = this.querySelector('.material-symbols-outlined');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility_off';
+        }
+    });
+});
+</script>
 </body></html>

@@ -8,21 +8,27 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $username   = trim($_POST['username'] ?? '');
 $email      = trim($_POST['email'] ?? '');
+$phone      = trim($_POST['phone'] ?? '');
 $password   = $_POST['password'] ?? '';
 $confirm    = $_POST['konfirmasi'] ?? '';
 
-if ($username === '' || $email === '' || $password === '' || $confirm === '') {
+if ($username === '' || $email === '' || $phone === '' || $password === '' || $confirm === '') {
     header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Semua field harus diisi.'));
     exit;
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Email tidak valid.'));
+    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Format email tidak valid.'));
     exit;
 }
 
-if (strlen($password) < 8) {
-    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Password minimal 8 karakter.'));
+if (strlen($phone) < 11 || strlen($phone) >= 13) {
+    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Nomor telepon tidak valid (harus 11 atau 12 karakter).'));
+    exit;
+}
+
+if (strlen($password) !== 8) {
+    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Password harus terdiri dari 8 karakter.'));
     exit;
 }
 
@@ -37,6 +43,7 @@ $createTable = "CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    telepon VARCHAR(50) NULL,
     role VARCHAR(50) NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
@@ -45,8 +52,12 @@ mysqli_query($conn, $createTable);
 $alterTable = "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NOT NULL DEFAULT 'user'";
 mysqli_query($conn, $alterTable);
 
+$alterTablePhone = "ALTER TABLE users ADD COLUMN IF NOT EXISTS telepon VARCHAR(50) NULL";
+mysqli_query($conn, $alterTablePhone);
+
 $email = mysqli_real_escape_string($conn, $email);
 $username = mysqli_real_escape_string($conn, $username);
+$phone = mysqli_real_escape_string($conn, $phone);
 
 $checkEmail = "SELECT id FROM users WHERE email = '$email' LIMIT 1";
 $result = mysqli_query($conn, $checkEmail);
@@ -59,10 +70,10 @@ $hashPassword = password_hash($password, PASSWORD_DEFAULT);
 $hashPassword = mysqli_real_escape_string($conn, $hashPassword);
 $role = 'user';
 $role = mysqli_real_escape_string($conn, $role);
-$insertSql = "INSERT INTO users (username, email, password, role) VALUES ('$username', '$email', '$hashPassword', '$role')";
+$insertSql = "INSERT INTO users (username, email, telepon, password, role) VALUES ('$username', '$email', '$phone', '$hashPassword', '$role')";
 
 if (mysqli_query($conn, $insertSql)) {
-    header('Location: ../pages/auth/SignIn.php?success=' . urlencode('Registrasi berhasil. Silakan masuk.'));
+    header('Location: ../pages/auth/Signin.php?success=' . urlencode('Registrasi berhasil. Silakan masuk.'));
     exit;
 }
 

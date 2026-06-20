@@ -25,10 +25,20 @@ $tanggal      = $_POST['tanggal'] ?? '';
 $jam          = $_POST['jam'] ?? '';
 $treatment_id = $_POST['treatment_id'] !== '' ? (int)$_POST['treatment_id'] : null;
 $keluhan      = trim($_POST['keluhan'] ?? '');
-$alergi       = trim($_POST['alergi'] ?? 'Tidak ada');
+$alergi       = trim($_POST['alergi'] ?? '');
 
 if ($dokter_id <= 0 || $tanggal === '' || $jam === '') {
     header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Dokter, tanggal, dan jam wajib dipilih.'));
+    exit;
+}
+
+if ($keluhan === '') {
+    header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Keluhan utama wajib diisi.'));
+    exit;
+}
+
+if ($alergi === '') {
+    header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Riwayat alergi / kondisi khusus wajib diisi.'));
     exit;
 }
 

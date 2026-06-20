@@ -192,7 +192,7 @@ session_start();
 <p class="font-body-lg text-body-lg text-on-surface-variant mb-lg max-w-md">Klinik dermatologi profesional dengan perawatan eksklusif untuk kulit impian Anda.</p>
 <div class="flex flex-row items-center gap-md">
 <!-- Primary Button (Rose Gold/Primary style) -->
-<a href="kontak.php" class="font-label-md text-label-md bg-primary text-on-primary px-8 py-3 hover:bg-on-primary-fixed-variant transition-colors shadow-sm flex items-center justify-center gap-xs rounded-full">
+<a href="<?= isset($_SESSION['user_id']) ? 'pages/user/dashboarduser.php?page=daftar-konsul' : 'pages/auth/Signin.php' ?>" class="font-label-md text-label-md bg-primary text-on-primary px-8 py-3 hover:bg-on-primary-fixed-variant transition-colors shadow-sm flex items-center justify-center gap-xs rounded-full">
 <span class="">Book Appointment</span>
 </a>
 <!-- Secondary Button (Teal/Secondary style) -->
