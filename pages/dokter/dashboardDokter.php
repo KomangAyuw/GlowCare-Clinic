@@ -417,9 +417,6 @@ $tanggalHariIni = formatTanggal($today);
         <div class="nav-section-label" style="margin-top:8px">Pasien</div>
         <a class="nav-item" onclick="showPanel('daftar-pasien', this)">
             Daftar Pasien
-            <?php if (count($daftarPasien) > 0): ?>
-                <span class="nav-badge"><?= count($daftarPasien) ?></span>
-            <?php endif; ?>
         </a>
         <a class="nav-item" onclick="showPanel('rekam-medis', this)">
             Rekam Medis
@@ -454,15 +451,17 @@ $tanggalHariIni = formatTanggal($today);
         </div>
     </div>
 
-    <!-- ALERT SUCCESS/ERROR -->
-    <?php if (!empty($_GET['success'])): ?>
-        <div class="alert alert-success" style="margin:16px 28px 0; padding:12px 18px; background:#d4edda; border:1px solid #c3e6cb; border-radius:8px; color:#155724; font-size:13px;">
-            <?= htmlspecialchars($_GET['success']) ?>
-        </div>
-    <?php elseif (!empty($_GET['error'])): ?>
-        <div class="alert alert-error" style="margin:16px 28px 0; padding:12px 18px; background:#f8d7da; border:1px solid #f5c6cb; border-radius:8px; color:#721c24; font-size:13px;">
-            <?= htmlspecialchars($_GET['error']) ?>
-        </div>
+    <!-- ALERT SUCCESS/ERROR GLOBAL -->
+    <?php if (!in_array($_GET['page'] ?? '', ['profil', 'rekam-medis'])): ?>
+        <?php if (!empty($_GET['success'])): ?>
+            <div class="alert alert-success alert-notification" style="margin:16px 28px 0; padding:12px 18px; background:#d4edda; border:1px solid #c3e6cb; border-radius:8px; color:#155724; font-size:13px; transition: opacity 0.5s ease;">
+                <?= htmlspecialchars($_GET['success']) ?>
+            </div>
+        <?php elseif (!empty($_GET['error'])): ?>
+            <div class="alert alert-error alert-notification" style="margin:16px 28px 0; padding:12px 18px; background:#f8d7da; border:1px solid #f5c6cb; border-radius:8px; color:#721c24; font-size:13px; transition: opacity 0.5s ease;">
+                <?= htmlspecialchars($_GET['error']) ?>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 
     <!-- CONTENT -->
@@ -826,6 +825,19 @@ $tanggalHariIni = formatTanggal($today);
                 <button class="btn-primary" onclick="openModal('modal-rm-baru')">+ Tambah Rekam Medis</button>
             </div>
 
+            <!-- ALERT SUCCESS/ERROR LOCAL TO REKAM MEDIS -->
+            <?php if (($_GET['page'] ?? '') === 'rekam-medis'): ?>
+                <?php if (!empty($_GET['success'])): ?>
+                    <div class="alert alert-success alert-notification" style="margin-bottom:20px; padding:12px 18px; background:#d4edda; border:1px solid #c3e6cb; border-radius:8px; color:#155724; font-size:13px; transition: opacity 0.5s ease;">
+                        <?= htmlspecialchars($_GET['success']) ?>
+                    </div>
+                <?php elseif (!empty($_GET['error'])): ?>
+                    <div class="alert alert-error alert-notification" style="margin-bottom:20px; padding:12px 18px; background:#f8d7da; border:1px solid #f5c6cb; border-radius:8px; color:#721c24; font-size:13px; transition: opacity 0.5s ease;">
+                        <?= htmlspecialchars($_GET['error']) ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+
             <div class="filter-bar">
                 <input class="filter-input" type="text" id="cari-rm" placeholder="Cari nama pasien..." oninput="filterRM()">
                 <select class="filter-select" id="filter-rm-treatment" onchange="filterRM()">
@@ -904,8 +916,10 @@ $tanggalHariIni = formatTanggal($today);
                             onclick="openModalEdit(<?= (int)$rm['id'] ?>, '<?= htmlspecialchars(addslashes($rm['anamnesis'] ?? ''), ENT_QUOTES) ?>', '<?= htmlspecialchars(addslashes($rm['pemeriksaan'] ?? ''), ENT_QUOTES) ?>', '<?= htmlspecialchars(addslashes($rm['tindak_lanjut'] ?? ''), ENT_QUOTES) ?>', '<?= htmlspecialchars($rm['status']) ?>', '<?= $rm['jadwal_followup'] ?? '' ?>')">
                             Edit
                         </button>
-                        <button class="btn-outline" style="font-size:10px; padding:7px 16px"
-                            onclick="window.print()">Cetak</button>
+                        <button class="btn-outline" style="font-size:10px; padding:7px 16px; color:#c0392b; border-color:#e8b5ac;"
+                            onclick="konfirmasiHapusRM(<?= (int)$rm['id'] ?>, '<?= htmlspecialchars(addslashes($rm['nama_pasien']), ENT_QUOTES) ?>', '<?= htmlspecialchars(addslashes($rm['treatment'] ?? ''), ENT_QUOTES) ?>')">
+                            Hapus
+                        </button>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -996,6 +1010,19 @@ $tanggalHariIni = formatTanggal($today);
                 </div>
             </div>
 
+            <!-- ALERT SUCCESS/ERROR LOCAL TO PROFIL -->
+            <?php if (($_GET['page'] ?? '') === 'profil'): ?>
+                <?php if (!empty($_GET['success'])): ?>
+                    <div class="alert alert-success alert-notification" style="margin-bottom:20px; padding:12px 18px; background:#d4edda; border:1px solid #c3e6cb; border-radius:8px; color:#155724; font-size:13px; transition: opacity 0.5s ease;">
+                        <?= htmlspecialchars($_GET['success']) ?>
+                    </div>
+                <?php elseif (!empty($_GET['error'])): ?>
+                    <div class="alert alert-error alert-notification" style="margin-bottom:20px; padding:12px 18px; background:#f8d7da; border:1px solid #f5c6cb; border-radius:8px; color:#721c24; font-size:13px; transition: opacity 0.5s ease;">
+                        <?= htmlspecialchars($_GET['error']) ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+
             <!-- Hero profil -->
             <div class="profil-hero">
                 <div class="profil-avatar-wrap">
@@ -1033,10 +1060,6 @@ $tanggalHariIni = formatTanggal($today);
                     <div class="profil-stat">
                         <div class="profil-stat-val"><?= $totalPasien ?></div>
                         <div class="profil-stat-lbl">Total Pasien</div>
-                    </div>
-                    <div class="profil-stat" style="margin-top:8px">
-                        <div class="profil-stat-val"><?= (int)$statBulan['total_rm'] ?></div>
-                        <div class="profil-stat-lbl">Bulan Ini</div>
                     </div>
                 </div>
             </div>
@@ -1254,10 +1277,26 @@ $tanggalHariIni = formatTanggal($today);
     </div>
 </div>
 
+<!-- ══ MODAL: HAPUS REKAM MEDIS ══ -->
+<div class="modal-overlay" id="modal-hapus-rm" onclick="closeModalOutside(event,'modal-hapus-rm')">
+    <div class="modal" style="max-width:420px; text-align:center;">
+        <div style="width:56px;height:56px;background:#fce4df;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:24px;">🗑️</div>
+        <h3 class="modal-title">Hapus <em>Rekam Medis</em>?</h3>
+        <p class="modal-sub" id="hapus-rm-desc">Data ini akan dihapus permanen dan tidak dapat dikembalikan.</p>
+        <form method="POST" action="../../backend/dokter/hapus_rekam_medis.php">
+            <input type="hidden" name="rm_id" id="hapus-rm-id">
+            <div class="modal-footer" style="justify-content:center; gap:12px; margin-top:24px;">
+                <button type="button" class="btn-outline" onclick="closeModal('modal-hapus-rm')">Batal</button>
+                <button type="submit" style="background:#e05050; color:#fff; border:none; padding:10px 24px; border-radius:50px; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-family:'DM Sans',sans-serif; cursor:pointer;">Ya, Hapus</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"><span id="toast-msg">Berhasil disimpan</span></div>
 
-    <script src="../../asset/js/dokter.js?v=5"></script>
+    <script src="../../asset/js/dokter.js?v=6"></script>
     <!-- LOGOUT CONFIRMATION MODAL -->
     <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center">
         <div style="background:#fff;border-radius:20px;padding:40px 36px;width:360px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.18);animation:logoutFadeIn .25s ease">
@@ -1314,6 +1353,36 @@ $tanggalHariIni = formatTanggal($today);
     // Poll setiap 10 detik
     pollNotifications();
     setInterval(pollNotifications, 10000);
+    </script>
+
+    <!-- Page Routing, Notification Fadeout and URL parameter cleanup -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Parse URL params for routing
+        const params = new URLSearchParams(window.location.search);
+        const page = params.get('page');
+        if (page) {
+            const btn = document.querySelector(`.sidebar-nav .nav-item[onclick*="${page}"]`);
+            if (btn) {
+                showPanel(page, btn);
+            }
+        }
+
+        // Auto fadeout alert notifications and clear success/error params from URL after 10 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.alert-notification').forEach(el => {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 10000);
+
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('success') || url.searchParams.has('error')) {
+            url.searchParams.delete('success');
+            url.searchParams.delete('error');
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+        }
+    });
     </script>
 </body>
 </html>

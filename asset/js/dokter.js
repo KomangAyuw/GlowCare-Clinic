@@ -157,3 +157,11 @@ function switchTab(tabId, el) {
     if (target) target.classList.add('active');
     if (el) el.classList.add('active');
 }
+
+// ── Konfirmasi hapus rekam medis ─────────────
+function konfirmasiHapusRM(rmId, namaPasien, treatment) {
+    document.getElementById('hapus-rm-id').value = rmId;
+    const desc = document.getElementById('hapus-rm-desc');
+    if (desc) desc.textContent = `Yakin hapus rekam medis ${namaPasien} (${treatment})? Data ini akan dihapus permanen.`;
+    openModal('modal-hapus-rm');
+}

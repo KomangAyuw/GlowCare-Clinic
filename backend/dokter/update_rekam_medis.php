@@ -7,7 +7,7 @@ $user_id = (int)$_SESSION['user_id'];
 // Ambil ID dokter berdasarkan user_id
 $qDokter = mysqli_query($conn, "SELECT id FROM dokter WHERE user_id = $user_id LIMIT 1");
 if (!$qDokter || mysqli_num_rows($qDokter) === 0) {
-    header('Location: ../../pages/dokter/dashboardDokter.php?error=' . urlencode('Profil dokter tidak ditemukan.'));
+    header('Location: ../../pages/dokter/dashboardDokter.php?page=rekam-medis&error=' . urlencode('Profil dokter tidak ditemukan.'));
     exit;
 }
 $dokter = mysqli_fetch_assoc($qDokter);
@@ -22,7 +22,7 @@ $status          = $_POST['status'] ?? 'Selesai';
 $jadwal_followup = !empty($_POST['jadwal_followup']) ? $_POST['jadwal_followup'] : null;
 
 if ($rm_id <= 0) {
-    header('Location: ../../pages/dokter/dashboardDokter.php?error=' . urlencode('Rekam medis tidak valid.'));
+    header('Location: ../../pages/dokter/dashboardDokter.php?page=rekam-medis&error=' . urlencode('Rekam medis tidak valid.'));
     exit;
 }
 
@@ -40,9 +40,9 @@ if ($ok) {
     mysqli_stmt_bind_param($log, 'iss', $user_id, $judulLog, $deskLog);
     mysqli_stmt_execute($log);
 
-    header('Location: ../../pages/dokter/dashboardDokter.php?success=' . urlencode('Rekam medis berhasil diperbarui.'));
+    header('Location: ../../pages/dokter/dashboardDokter.php?page=rekam-medis&success=' . urlencode('Rekam medis berhasil diperbarui.'));
 } else {
-    header('Location: ../../pages/dokter/dashboardDokter.php?error=' . urlencode('Gagal memperbarui rekam medis: ' . mysqli_error($conn)));
+    header('Location: ../../pages/dokter/dashboardDokter.php?page=rekam-medis&error=' . urlencode('Gagal memperbarui rekam medis: ' . mysqli_error($conn)));
 }
 exit;
 ?>

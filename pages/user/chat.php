@@ -12,28 +12,35 @@ $profil  = $qProfil ? mysqli_fetch_assoc($qProfil) : [];
 $pasien_id    = (int)($profil['id'] ?? 0);
 $namaPasien   = htmlspecialchars($profil['nama'] ?? $profil['username'] ?? 'Pasien');
 
-// Ambil semua appointment pasien untuk sidebar
-$qAppts = mysqli_query($conn, "
-    SELECT a.id as appt_id, a.status as appt_status, d.nama as nama_dokter, d.spesialisasi,
-           t.nama as nama_treatment, a.tanggal, a.jam 
-    FROM appointment a 
+// Ambil dokter unik dengan janji temu terbaru untuk sidebar
+$qUniqueDocs = mysqli_query($conn, "
+    SELECT a.id as appt_id, a.status as appt_status, d.id as dokter_id, d.nama as nama_dokter, d.spesialisasi,
+           t.nama as nama_treatment, a.tanggal, a.jam
+    FROM appointment a
     JOIN dokter d ON a.dokter_id = d.id
     LEFT JOIN treatment t ON a.treatment_id = t.id
+    INNER JOIN (
+        SELECT dokter_id, MAX(CONCAT(tanggal, ' ', jam)) as max_datetime
+        FROM appointment
+        WHERE pasien_id = $pasien_id
+        GROUP BY dokter_id
+    ) latest ON a.dokter_id = latest.dokter_id AND CONCAT(a.tanggal, ' ', a.jam) = latest.max_datetime
     WHERE a.pasien_id = $pasien_id
     ORDER BY a.tanggal DESC, a.jam DESC
 ");
-$appointments = [];
-if ($qAppts) {
-    while ($row = mysqli_fetch_assoc($qAppts)) {
-        $appointments[] = $row;
+$unique_doctors = [];
+if ($qUniqueDocs) {
+    while ($row = mysqli_fetch_assoc($qUniqueDocs)) {
+        $unique_doctors[] = $row;
     }
 }
 
 // Appointment yang sedang dipilih
-$appt_id = (int)($_GET['appt_id'] ?? ($appointments[0]['appt_id'] ?? 0));
+$appt_id = (int)($_GET['appt_id'] ?? ($unique_doctors[0]['appt_id'] ?? 0));
 $consultation_id = 0;
 $dokter    = ['nama' => 'Dokter', 'spesialisasi' => '-'];
 $apptInfo  = null;
+$selected_dokter_id = 0;
 
 if ($appt_id > 0) {
     // Cari atau buat sesi konsultasi
@@ -52,6 +59,7 @@ if ($appt_id > 0) {
     }
 
     if (isset($dokter_id) && $dokter_id > 0) {
+        $selected_dokter_id = $dokter_id;
         $qDokter = mysqli_query($conn, "SELECT nama, spesialisasi FROM dokter WHERE id = $dokter_id LIMIT 1");
         if ($qDokter && mysqli_num_rows($qDokter) > 0) {
             $dokter = mysqli_fetch_assoc($qDokter);
@@ -60,11 +68,32 @@ if ($appt_id > 0) {
         }
     }
 
-    // Info appointment untuk header & tombol batal
-    foreach ($appointments as $a) {
-        if ($a['appt_id'] == $appt_id) {
-            $apptInfo = $a;
-            break;
+    // Ambil info detail untuk appointment terpilih
+    $qApptInfo = mysqli_query($conn, "
+        SELECT a.id as appt_id, a.status as appt_status, d.nama as nama_dokter, d.spesialisasi,
+               t.nama as nama_treatment, a.tanggal, a.jam 
+        FROM appointment a 
+        JOIN dokter d ON a.dokter_id = d.id
+        LEFT JOIN treatment t ON a.treatment_id = t.id
+        WHERE a.id = $appt_id AND a.pasien_id = $pasien_id
+        LIMIT 1
+    ");
+    $apptInfo = ($qApptInfo && mysqli_num_rows($qApptInfo) > 0) ? mysqli_fetch_assoc($qApptInfo) : null;
+}
+
+// Ambil riwayat sesi untuk dokter terpilih
+$session_history = [];
+if ($pasien_id > 0 && $selected_dokter_id > 0) {
+    $qHistory = mysqli_query($conn, "
+        SELECT a.id as appt_id, a.status as appt_status, a.tanggal, a.jam, t.nama as nama_treatment
+        FROM appointment a
+        LEFT JOIN treatment t ON a.treatment_id = t.id
+        WHERE a.pasien_id = $pasien_id AND a.dokter_id = $selected_dokter_id
+        ORDER BY a.tanggal DESC, a.jam DESC
+    ");
+    if ($qHistory) {
+        while ($row = mysqli_fetch_assoc($qHistory)) {
+            $session_history[] = $row;
         }
     }
 }
@@ -389,17 +418,17 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
     <div class="chat-sidebar">
         <div class="sidebar-header">
             <div class="sidebar-title">Konsultasi Saya</div>
-            <div class="sidebar-sub"><?= count($appointments) ?> Janji Temu</div>
+            <div class="sidebar-sub"><?= count($unique_doctors) ?> Dokter</div>
         </div>
         <div class="session-list">
-            <?php if (empty($appointments)): ?>
+            <?php if (empty($unique_doctors)): ?>
                 <div style="padding:24px; font-size:13px; color:#9a8f87; text-align:center;">
                     Belum ada janji temu.<br>
                     <a href="dashboarduser.php" style="color:#735a39; font-weight:500; text-decoration:none;">Buat Booking</a>
                 </div>
             <?php else: ?>
-                <?php foreach ($appointments as $a):
-                    $isActive = ($a['appt_id'] == $appt_id);
+                <?php foreach ($unique_doctors as $a):
+                    $isActive = ($apptInfo && $a['dokter_id'] == $selected_dokter_id);
                     $dotClass = match($a['appt_status']) {
                         'Selesai'    => 'dot-selesai',
                         'Dibatalkan' => 'dot-batal',
@@ -412,7 +441,7 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
                         <?= htmlspecialchars($a['nama_dokter']) ?>
                     </div>
                     <div class="doc-spec"><?= htmlspecialchars($a['nama_treatment'] ?? 'Konsultasi Umum') ?></div>
-                    <div class="doc-date"><?= date('d M Y, H:i', strtotime($a['tanggal'] . ' ' . $a['jam'])) ?> WIB</div>
+                    <div class="doc-date">Terakhir: <?= date('d M Y, H:i', strtotime($a['tanggal'] . ' ' . $a['jam'])) ?> WIB</div>
                 </div>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -425,24 +454,42 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
             <div class="chat-empty">
                 <div style="font-family:'Playfair Display',serif; font-size: 20px; color: #735a39; margin-bottom: 8px;">Konsultasi Chat</div>
                 <div class="chat-empty-text">Pilih konsultasi di sebelah kiri untuk memulai chat</div>
-                <?php if (empty($appointments)): ?>
+                <?php if (empty($unique_doctors)): ?>
                     <a href="dashboarduser.php" style="margin-top:8px; background:#735a39; color:#fff; padding:8px 20px; border-radius:50px; text-decoration:none; font-size:12px; font-weight:500;">Buat Janji Sekarang</a>
                 <?php endif; ?>
             </div>
         <?php else: ?>
 
             <!-- Chat Header -->
-            <div class="chat-header">
-                <div class="chat-doc-left">
+            <div class="chat-header" style="flex-wrap: wrap; gap: 12px; padding: 12px 24px;">
+                <div class="chat-doc-left" style="flex: 1; min-width: 200px;">
                     <div class="doc-avatar"><?= substr($dokter['nama'], 0, 1) ?></div>
                     <div>
                         <div class="doc-info-name"><?= $dokter['nama'] ?></div>
-                        <div class="doc-info-spec"><?= $dokter['spesialisasi'] ?></div>
+                        <div class="doc-info-spec" style="margin-bottom: 2px;"><?= $dokter['spesialisasi'] ?></div>
+                        
                         <?php if ($apptInfo): ?>
-                        <div class="appt-meta">
-                            <?= date('d M Y', strtotime($apptInfo['tanggal'])) ?> pukul <?= substr($apptInfo['jam'], 0, 5) ?> WIB
+                        <div class="appt-meta" style="margin-top: 4px;">
+                            Sesi Terpilih: <strong><?= date('d M Y', strtotime($apptInfo['tanggal'])) ?> pukul <?= substr($apptInfo['jam'], 0, 5) ?> WIB</strong>
                             · <span style="color:<?= $apptInfo['appt_status']==='Dibatalkan'?'#e05050':($apptInfo['appt_status']==='Selesai'?'#3dab74':'#735a39') ?>; font-weight:500;"><?= htmlspecialchars($apptInfo['appt_status']) ?></span>
                         </div>
+                        <?php endif; ?>
+
+                        <?php if (count($session_history) > 1): ?>
+                            <div style="margin-top: 6px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #4a3e36;">
+                                <span style="font-weight: 500;">Riwayat Janji Temu:</span>
+                                <select onchange="window.location.href='chat.php?appt_id=' + this.value" style="padding: 2px 6px; border-radius: 4px; border: 1px solid #d1c4b8; font-family: 'DM Sans', sans-serif; font-size: 11px; background: #faf8f5; color: #2b2621; outline: none; cursor: pointer;">
+                                    <?php foreach ($session_history as $history):
+                                        $selectedStr = ($history['appt_id'] == $appt_id) ? 'selected' : '';
+                                        $statusStr = $history['appt_status'];
+                                        $dateStr = date('d M Y, H:i', strtotime($history['tanggal'] . ' ' . $history['jam'])) . ' WIB';
+                                    ?>
+                                        <option value="<?= $history['appt_id'] ?>" <?= $selectedStr ?>>
+                                            <?= $dateStr ?> (<?= htmlspecialchars($history['nama_treatment'] ?? 'Konsultasi Umum') ?> - <?= $statusStr ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>

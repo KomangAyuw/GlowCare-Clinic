@@ -119,7 +119,7 @@ $success = $_GET['success'] ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GlowCare — Dashboard Pasien</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="../../asset/css/user.css?v=11">
+    <link rel="stylesheet" href="../../asset/css/user.css?v=14">
     <style>
         body {
             display: flex;

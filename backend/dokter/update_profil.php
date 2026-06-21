@@ -38,9 +38,9 @@ if ($nama_lengkap !== null) {
 }
 
 if ($ok) {
-    header('Location: ../../pages/dokter/dashboardDokter.php?success=' . urlencode('Profil berhasil diperbarui.'));
+    header('Location: ../../pages/dokter/dashboardDokter.php?page=profil&success=' . urlencode('Profil berhasil diperbarui.'));
 } else {
-    header('Location: ../../pages/dokter/dashboardDokter.php?error=' . urlencode('Gagal memperbarui profil: ' . mysqli_error($conn)));
+    header('Location: ../../pages/dokter/dashboardDokter.php?page=profil&error=' . urlencode('Gagal memperbarui profil: ' . mysqli_error($conn)));
 }
 exit;
 ?>

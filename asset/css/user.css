@@ -1052,22 +1052,27 @@ body {
 /* ══ TOAST ══ */
 .toast {
     position: fixed;
-    bottom: 32px; right: 32px;
-    background: #2D3436;
+    top: 64px; left: 260px; right: 0;
+    background: #e05050;
     color: #fff;
-    padding: 14px 24px;
-    border-radius: 50px;
+    padding: 16px 24px;
+    border-radius: 0;
     font-size: 13px;
+    font-weight: 500;
     z-index: 9999;
     display: none;
     align-items: center;
+    justify-content: center;
     gap: 10px;
+    box-shadow: 0 4px 12px rgba(224, 80, 80, 0.15);
+    text-align: center;
+    letter-spacing: 0.5px;
 }
 
-.toast.show { display: flex; animation: slideUp 0.3s ease; }
+.toast.show { display: flex; animation: slideDown 0.3s ease; }
 
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(14px); }
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-100%); }
     to   { opacity: 1; transform: translateY(0); }
 }
 

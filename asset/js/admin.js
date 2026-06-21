@@ -71,7 +71,8 @@ function editDokter(d){
     document.getElementById('md-telp').value=d.telepon||'';
     document.getElementById('md-email').value=d.email||'';
     document.getElementById('md-exp').value=d.pengalaman||0;
-    document.getElementById('md-rating').value=d.rating||5;
+    const ratingEl = document.getElementById('md-rating-display');
+    if (ratingEl) ratingEl.value = d.rating ? d.rating + ' / 5.0' : 'Belum ada ulasan';
     document.getElementById('md-status').value=d.status;
     document.getElementById('md-bio').value=d.bio||'';
     openModal('modal-dokter');
@@ -101,11 +102,37 @@ function editTreatment(t){
     document.getElementById('mt-kategori').value=t.kategori;
     document.getElementById('mt-durasi').value=t.durasi||'60 Menit';
     document.getElementById('mt-urutan').value=t.urutan;
-    document.getElementById('mt-gambar').value=t.gambar_url||'';
     document.getElementById('mt-desc').value=t.deskripsi||'';
     document.getElementById('mt-desc-panjang').value=t.deskripsi_panjang||'';
     document.getElementById('mt-status').value=t.status;
+    // Simpan URL gambar lama dan tampilkan preview
+    const lamaEl = document.getElementById('mt-gambar-lama');
+    const previewWrap = document.getElementById('mt-gambar-preview-wrap');
+    const previewImg = document.getElementById('mt-gambar-preview');
+    if (lamaEl) lamaEl.value = t.gambar_url || '';
+    if (previewWrap && previewImg && t.gambar_url) {
+        previewImg.src = t.gambar_url;
+        previewWrap.style.display = 'block';
+    } else if (previewWrap) {
+        previewWrap.style.display = 'none';
+    }
+    // Reset file input
+    const fileEl = document.getElementById('mt-gambar');
+    if (fileEl) fileEl.value = '';
     openModal('modal-treatment');
+function previewTreatmentImage(input) {
+    const wrap = document.getElementById('mt-gambar-preview-wrap');
+    const img  = document.getElementById('mt-gambar-preview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            img.src = e.target.result;
+            wrap.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 }
 
 function lihatPesan(pk) {

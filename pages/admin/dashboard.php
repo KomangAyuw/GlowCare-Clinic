@@ -1216,7 +1216,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     <div class="form-group"><label class="form-label">No. Telepon</label><input class="form-input" name="telepon" id="md-telp" placeholder="+62"></div>
                     <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" name="email" id="md-email" placeholder="dokter@glowcare.com"></div>
                     <div class="form-group"><label class="form-label">Pengalaman (Tahun)</label><input class="form-input" type="number" name="pengalaman" id="md-exp" placeholder="0" min="0"></div>
-                    <div class="form-group"><label class="form-label">Rating</label><input class="form-input" type="number" name="rating" id="md-rating" placeholder="5.0" min="0" max="5" step="0.1"></div>
+                    <div class="form-group"><label class="form-label">Rating <small style="color:#a89a8a;font-weight:300">(Otomatis dari ulasan pasien)</small></label><input class="form-input" type="text" id="md-rating-display" readonly style="background:#f5f3ee; cursor:default; color:#735a39; font-weight:600;" placeholder="Belum ada ulasan"></div>
                     <div class="form-group full"><label class="form-label">Status</label>
                         <select class="form-select" name="status" id="md-status"><option>Aktif</option><option>Cuti</option><option>Tidak Aktif</option></select>
                     </div>
@@ -1281,7 +1281,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
         <div class="modal" style="width:600px">
             <h3 class="modal-title" id="mt-title">Tambah <em>Treatment</em></h3>
             <p class="modal-sub">Data ini akan tampil di halaman index klinik</p>
-            <form method="POST" id="form-treatment">
+            <form method="POST" id="form-treatment" enctype="multipart/form-data">
                 <input type="hidden" name="id" id="mt-id">
                 <div class="form-row">
                     <div class="form-group full"><label class="form-label">Nama Treatment</label><input class="form-input" name="nama" id="mt-nama" placeholder="Contoh: Facelift Procedures" required></div>
@@ -1292,7 +1292,15 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     </div>
                     <div class="form-group"><label class="form-label">Estimasi Durasi</label><input class="form-input" name="durasi" id="mt-durasi" placeholder="Contoh: 60 Menit"></div>
                     <div class="form-group"><label class="form-label">Urutan Tampil</label><input class="form-input" type="number" name="urutan" id="mt-urutan" value="1" min="1"></div>
-                    <div class="form-group full"><label class="form-label">URL Gambar</label><input class="form-input" name="gambar_url" id="mt-gambar" placeholder="https://images.unsplash.com/..."></div>
+                    <div class="form-group full">
+                        <label class="form-label">Gambar Treatment</label>
+                        <div id="mt-gambar-preview-wrap" style="margin-bottom:8px; display:none">
+                            <img id="mt-gambar-preview" src="" alt="Preview" style="max-width:100%; max-height:180px; border-radius:8px; border:1px solid #efebe4; object-fit:cover;">
+                        </div>
+                        <input type="file" class="form-input" name="gambar" id="mt-gambar" accept="image/*" onchange="previewTreatmentImage(this)" style="padding:8px;">
+                        <input type="hidden" name="gambar_url_lama" id="mt-gambar-lama">
+                        <div style="font-size:11px;color:#a89a8a;margin-top:4px;">Format: JPG, PNG, WEBP. Maks. 2MB. Kosongkan jika tidak ingin mengubah gambar.</div>
+                    </div>
                     <div class="form-group full" style="background:#f5f3ee;padding:12px;border-radius:8px;border:1px dashed #d1c4b8"><p style="font-size:12px;color:#7a7571;margin:0">💡 Halaman detail treatment akan otomatis dibuat berdasarkan data di atas. Preview tersedia di tabel setelah disimpan.</p></div>
                     <div class="form-group full"><label class="form-label">Deskripsi Singkat (tampil di index)</label><textarea class="form-textarea" name="deskripsi" id="mt-desc" placeholder="Deskripsi singkat..."></textarea></div>
                     <div class="form-group full"><label class="form-label">Deskripsi Lengkap</label><textarea class="form-textarea" style="min-height:90px" name="deskripsi_panjang" id="mt-desc-panjang" placeholder="Deskripsi lengkap treatment..."></textarea></div>
