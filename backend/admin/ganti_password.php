@@ -10,17 +10,17 @@ $baru      = $_POST['password_baru'] ?? '';
 $konfirmasi= $_POST['konfirmasi'] ?? '';
 
 if ($baru !== $konfirmasi) {
-    header('Location: ../../pages/admin/dashboard.php?error='.urlencode('Password baru dan konfirmasi tidak cocok.')); exit;
+    header('Location: ../../pages/admin/dashboard.php?panel=profil&error='.urlencode('Password baru dan konfirmasi tidak cocok.')); exit;
 }
 if (strlen($baru) < 8) {
-    header('Location: ../../pages/admin/dashboard.php?error='.urlencode('Password minimal 8 karakter.')); exit;
+    header('Location: ../../pages/admin/dashboard.php?panel=profil&error='.urlencode('Password minimal 8 karakter.')); exit;
 }
 
 $uid  = (int)$_SESSION['user_id'];
 $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT password FROM users WHERE id=$uid"));
 
 if (!$user || !password_verify($lama, $user['password'])) {
-    header('Location: ../../pages/admin/dashboard.php?error='.urlencode('Password lama salah.')); exit;
+    header('Location: ../../pages/admin/dashboard.php?panel=profil&error='.urlencode('Password lama salah.')); exit;
 }
 
 $hash = password_hash($baru, PASSWORD_DEFAULT);
@@ -38,5 +38,5 @@ if ($ok) {
     $param = 'error='.urlencode('Gagal mengubah password.');
 }
 
-header("Location: ../../pages/admin/dashboard.php?$param");
+header("Location: ../../pages/admin/dashboard.php?panel=profil&$param");
 exit;

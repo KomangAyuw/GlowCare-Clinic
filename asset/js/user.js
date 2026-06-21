@@ -41,11 +41,14 @@
         if (e.target.classList.contains('modal-overlay')) closeModal(id);
     }
 
-    function showToast(msg) {
+    function showToast(msg, isSuccess) {
         const t = document.getElementById('toast');
         document.getElementById('toast-msg').textContent = msg;
+        t.className = 'toast'; // reset
+        if (isSuccess === true)  t.classList.add('toast-success');
+        if (isSuccess === false) t.classList.add('toast-error');
         t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3000);
+        setTimeout(() => t.classList.remove('show'), 3500);
     }
 
     // Step wizard

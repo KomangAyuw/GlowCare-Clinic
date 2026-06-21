@@ -7,7 +7,7 @@ $conn = require '../koneksi.php';
 
 $id = (int)($_POST['id'] ?? 0);
 if ($id <= 0) {
-    header('Location: ../../pages/admin/dashboard.php?error='.urlencode('ID tidak valid.')); exit;
+    header('Location: ../../pages/admin/dashboard.php?panel=treatment&error='.urlencode('ID tidak valid.')); exit;
 }
 
 $row  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT nama FROM treatment WHERE id=$id"));
@@ -28,5 +28,5 @@ if ($ok) {
     $param = 'error='.urlencode('Gagal menghapus treatment.');
 }
 
-header("Location: ../../pages/admin/dashboard.php?$param");
+header("Location: ../../pages/admin/dashboard.php?panel=treatment&$param");
 exit;

@@ -5,6 +5,7 @@ CREATE DATABASE IF NOT EXISTS `glowcareclinic` DEFAULT CHARACTER SET utf8mb4 COL
 USE `glowcareclinic`;
 
 -- Drop tables in order of dependencies
+DROP TABLE IF EXISTS `ulasan`;
 DROP TABLE IF EXISTS `pembayaran`;
 DROP TABLE IF EXISTS `rekam_medis`;
 DROP TABLE IF EXISTS `log_aktivitas`;
@@ -183,6 +184,20 @@ CREATE TABLE `pesan_kontak` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 12. ulasan table (Rating pasien ke dokter)
+CREATE TABLE `ulasan` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `dokter_id` INT NOT NULL,
+  `pasien_id` INT NOT NULL,
+  `appointment_id` INT NULL,
+  `rating` TINYINT NOT NULL DEFAULT 5,
+  `komentar` TEXT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`dokter_id`) REFERENCES `dokter` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`pasien_id`) REFERENCES `pasien` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`appointment_id`) REFERENCES `appointment` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- ──────────────────────────────────────────────────────────
 -- SEED DATA (DATA AWAL UNTUK PENGUJIAN)
@@ -201,7 +216,7 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`) VALUES
 
 -- Dokter Seed
 INSERT INTO `dokter` (`id`, `user_id`, `nama`, `nama_lengkap`, `gelar`, `no_str`, `no_sip`, `spesialisasi`, `telepon`, `no_telp`, `email`, `pengalaman`, `tahun_pengalaman`, `rating`, `status`, `bio`, `alamat`, `foto`, `total_pasien`) VALUES
-(1, 2, 'dr. Anisa Putri', 'Anisa Putri', 'dr. Sp.BP-RE', 'STR-BP-898213', 'SIP-BP-00122', 'Plastic Surgeon', '+62 812 3456 7890', '+62 812 3456 7890', 'anisa@glowcare.com', 10, 10, 5.0, 'Aktif', 'Spesialis bedah plastik rekonstruksi wajah terkemuka dengan keahlian khusus pada SMAS Facelift dan Blepharoplasty.', 'Jl. Kecantikan No. 12, Mataram', 'asset/img/doctor1.png', 12),
+(1, 2, 'dr. Anisa Putri', 'Anisa Putri', 'dr. Sp.BP-RE', 'STR-BP-898213', 'SIP-BP-00122', 'Plastic Surgeon', '+62 812 3456 7890', '+62 812 3456 7890', 'anisa@glowcare.com', 10, 10, 5.0, 'Aktif', 'Spesialis bedah plastik dan rekonstruksi wajah terkemuka dengan keahlian khusus pada SMAS Facelift dan Blepharoplasty.', 'Jl. Kecantikan No. 12, Mataram', 'asset/img/doctor1.png', 12),
 (2, 3, 'dr. Marina Crystine', 'Marina Crystine', 'dr. M.Biomed (AAM)', 'STR-AM-767812', 'SIP-AM-00125', 'Aesthetic Physician', '+62 812 3456 7891', '+62 812 3456 7891', 'marina@glowcare.com', 8, 8, 5.0, 'Aktif', 'Dokter estetika bersertifikat internasional dengan fokus perawatan dermatologi non-invasif, thread lifts, dan coolsculpting.', 'Jl. Kecantikan No. 12, Mataram', 'asset/img/doctor3.png', 5),
 (3, 4, 'dr. Michael Chen', 'Michael Chen', 'dr. Sp.KK', 'STR-KK-121289', 'SIP-KK-00130', 'Dermatologist', '+62 812 3456 7892', '+62 812 3456 7892', 'michael@glowcare.com', 12, 12, 5.0, 'Aktif', 'Spesialis Kulit & Kelamin senior berpengalaman luas dalam terapi dermatologi berbasis laser dan penanganan hiperpigmentasi.', 'Jl. Kecantikan No. 12, Mataram', 'asset/img/doctor2.png', 8);
 
@@ -252,6 +267,13 @@ INSERT INTO `jadwal` (`id`, `pasien_id`, `dokter_id`, `tanggal`, `jam_mulai`, `j
 (3, 1, 1, DATE_SUB(CURDATE(), INTERVAL 22 DAY), '09:00:00', '10:00:00', 'Facelift Consultation', 'Ruang A-1', '60 menit', 'Selesai'),
 (4, 1, 1, DATE_SUB(CURDATE(), INTERVAL 52 DAY), '10:00:00', '10:30:00', 'Botox Forehead', 'Ruang A-1', '30 menit', 'Selesai'),
 (5, 1, 3, DATE_SUB(CURDATE(), INTERVAL 73 DAY), '13:00:00', '13:45:00', 'Laser Treatment', 'Ruang C-1', '45px', 'Selesai');
+
+-- Keuangan Seed (Laporan Bulanan Admin - Sinkron dengan Pembayaran Lunas)
+INSERT INTO `keuangan` (`id`, `tanggal`, `jenis`, `kategori`, `keterangan`, `jumlah`, `metode`, `referensi`, `dibuat_oleh`, `created_at`) VALUES
+(1, CURDATE(), 'Pemasukan', 'Pendapatan Treatment', 'Pembayaran treatment Facelift Procedures pasien Budi Santoso (dokter dr. Anisa Putri)', 25000000.00, 'Transfer Bank', 'INV-SEED-02', 1, CURRENT_TIMESTAMP),
+(2, DATE_SUB(CURDATE(), INTERVAL 22 DAY), 'Pemasukan', 'Pendapatan Treatment', 'Pembayaran treatment Facelift Consultation pasien Siti Rahayu (dokter dr. Anisa Putri)', 500000.00, 'Tunai', 'INV-SEED-03', 1, DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 22 DAY)),
+(3, DATE_SUB(CURDATE(), INTERVAL 52 DAY), 'Pemasukan', 'Pendapatan Treatment', 'Pembayaran treatment Botox Forehead pasien Siti Rahayu (dokter dr. Anisa Putri)', 3500000.00, 'Tunai', 'INV-SEED-04', 1, DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 52 DAY)),
+(4, DATE_SUB(CURDATE(), INTERVAL 73 DAY), 'Pemasukan', 'Pendapatan Treatment', 'Pembayaran treatment Laser Treatment pasien Siti Rahayu (dokter dr. Marina Saputri)', 2000000.00, 'QRIS / E-Wallet', 'INV-SEED-05', 1, DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 73 DAY));
 
 -- Pembayaran Seed (Laporan Bulanan Admin)
 INSERT INTO `pembayaran` (`id`, `appointment_id`, `jumlah`, `status`, `created_at`) VALUES

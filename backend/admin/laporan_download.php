@@ -139,74 +139,55 @@ $pct = $tot_a > 0 ? round($tot_s / $tot_a * 100) : 0;
 <head>
 <meta charset="UTF-8">
 <title>Laporan <?= $periode ?> — GlowCare Clinic</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'DM Sans',sans-serif; color:#2D3436; background:#fff; font-size:13px; }
-  .page { max-width:820px; margin:0 auto; padding:40px 36px; }
+  body { font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; font-size: 13px; line-height: 1.5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { max-width: 800px; margin: 0 auto; padding: 30px 40px; }
+  
+  /* Kop Surat */
+  .kop-surat { text-align: center; border-bottom: 4px double #000000; padding-bottom: 12px; margin-bottom: 25px; }
+  .kop-surat h1 { font-size: 24px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; }
+  .kop-surat p { font-size: 11px; margin-bottom: 2px; }
 
-  /* Header */
-  .lap-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:24px; border-bottom:2px solid #d1c4b8; margin-bottom:28px; }
-  .lap-brand { font-family:'Playfair Display',serif; font-size:22px; color:#735a39; letter-spacing:1px; }
-  .lap-brand small { display:block; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:#64748b; font-family:'DM Sans',sans-serif; font-style:normal; margin-top:2px; }
-  .lap-periode { text-align:right; }
-  .lap-periode .big { font-family:'Playfair Display',serif; font-size:20px; color:#2D3436; }
-  .lap-periode .sub { font-size:11px; color:#64748b; margin-top:4px; }
+  /* Title */
+  .doc-title { text-align: center; margin-bottom: 25px; }
+  .doc-title h2 { font-size: 16px; font-weight: bold; text-decoration: underline; text-transform: uppercase; margin-bottom: 5px; }
+  .doc-title p { font-size: 12px; }
 
-  /* Section title */
-  .sec-title { font-family:'Playfair Display',serif; font-size:14px; color:#735a39; letter-spacing:1px; text-transform:uppercase; margin:28px 0 12px; padding-bottom:6px; border-bottom:1px solid #efe8e0; }
+  /* Sections */
+  .sec-title { font-size: 13px; font-weight: bold; text-transform: uppercase; margin: 25px 0 10px; border-bottom: 1px solid #000; padding-bottom: 4px; }
 
-  /* Stat pills */
-  .stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:28px; }
-  .stat-pill { background:#f9f6f2; border-radius:10px; padding:14px 16px; border-left:4px solid #d1c4b8; }
-  .stat-pill.green { border-color:#3dab74; }
-  .stat-pill.red   { border-color:#e05050; }
-  .stat-pill.gold  { border-color:#c9970e; }
-  .stat-pill .lbl { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#64748b; margin-bottom:5px; }
-  .stat-pill .val { font-family:'Playfair Display',serif; font-size:20px; color:#2D3436; }
-  .stat-pill .sub { font-size:10px; color:#64748b; margin-top:3px; }
+  /* Tables */
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+  table.data-table th { padding: 8px 10px; font-weight: bold; text-transform: uppercase; background: #f2f2f2; border: 1px solid #000; font-size: 11px; }
+  table.data-table td { padding: 8px 10px; border: 1px solid #000; vertical-align: middle; }
+  table.data-table tfoot tr { font-weight: bold; background: #f9f9f9; }
 
-  /* Table */
-  table { width:100%; border-collapse:collapse; font-size:12px; }
-  thead tr { background:#f5ede5; }
-  th { padding:9px 12px; text-align:left; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:#594323; border-bottom:1px solid #d1c4b8; }
-  td { padding:10px 12px; border-bottom:1px solid #f5f3ee; vertical-align:middle; }
-  tfoot tr { background:#f9f6f2; font-weight:600; }
-  .right { text-align:right; }
-  .center { text-align:center; }
-  .badge-green { background:#e8f9f1; color:#3dab74; padding:2px 8px; border-radius:20px; font-size:10px; }
-  .badge-red   { background:#fef0f0; color:#e05050; padding:2px 8px; border-radius:20px; font-size:10px; }
-  .badge-gray  { background:#f5f5f5; color:#888; padding:2px 8px; border-radius:20px; font-size:10px; }
-  .green-text  { color:#3dab74; }
-  .red-text    { color:#e05050; }
+  .right { text-align: right; }
+  .center { text-align: center; }
 
-  /* Keuangan section */
-  .keu-sum { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
-  .keu-card { padding:14px 16px; border-radius:10px; border:1px solid #d1c4b8; }
-  .keu-card .lbl { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#64748b; margin-bottom:4px; }
-  .keu-card .val { font-size:18px; font-family:'Playfair Display',serif; }
-  .keu-card.masuk  { border-top:3px solid #3dab74; }
-  .keu-card.keluar { border-top:3px solid #e05050; }
-  .keu-card.saldo  { border-top:3px solid #735a39; }
+  /* Sign block */
+  .signature-container { margin-top: 50px; display: flex; justify-content: flex-end; page-break-inside: avoid; }
+  .signature-box { text-align: center; width: 230px; font-size: 12px; }
+  .signature-box .name { font-weight: bold; text-decoration: underline; margin-top: 70px; }
 
   /* Footer */
-  .lap-footer { margin-top:48px; padding-top:16px; border-top:1px solid #d1c4b8; display:flex; justify-content:space-between; font-size:11px; color:#64748b; }
+  .lap-footer { margin-top: 40px; padding-top: 10px; border-top: 1px solid #ccc; display: flex; justify-content: space-between; font-size: 10px; color: #555; }
 
-  /* Print */
+  /* Print Bar */
+  .print-bar { background: #735a39; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 12px 36px; position: sticky; top: 0; z-index: 100; font-family: sans-serif; }
+  .print-bar .info { font-size: 13px; font-weight: 500; flex: 1; }
+  .print-bar .btn-group { display: flex; gap: 10px; align-items: center; }
+  .print-btn { background: #fff; color: #735a39; border: none; padding: 8px 20px; border-radius: 50px; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+  .print-btn:hover { background: #f9f6f2; }
+  .back-btn { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.6); padding: 8px 20px; border-radius: 50px; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  .back-btn:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
+
   @media print {
-    body { font-size:11px; }
-    .no-print { display:none !important; }
-    .page { padding:20px; }
-    @page { margin:1.5cm; }
+    .no-print { display: none !important; }
+    .page { padding: 10px 0; }
+    body { font-size: 11px; }
   }
-  /* Tombol print */
-  .print-bar { background:#735a39; color:#fff; display:flex; justify-content:space-between; align-items:center; padding:12px 36px; position:sticky; top:0; z-index:100; gap:12px; }
-  .print-bar .info { font-size:13px; font-weight:500; flex:1; }
-  .print-bar .btn-group { display:flex; gap:10px; align-items:center; }
-  .print-btn { background:#fff; color:#735a39; border:none; padding:8px 20px; border-radius:50px; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; cursor:pointer; font-family:'DM Sans',sans-serif; }
-  .print-btn:hover { background:#f9f6f2; }
-  .back-btn { background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,0.6); padding:8px 20px; border-radius:50px; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; cursor:pointer; font-family:'DM Sans',sans-serif; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s; }
-  .back-btn:hover { background:rgba(255,255,255,0.15); border-color:#fff; }
 </style>
 </head>
 <body>
@@ -216,124 +197,128 @@ $pct = $tot_a > 0 ? round($tot_s / $tot_a * 100) : 0;
   <div class="info">Laporan Bulanan — <?= $periode ?> · GlowCare Clinic</div>
   <div class="btn-group">
     <a href="../../pages/admin/dashboard.php?panel=laporan" class="back-btn">&#8592; Kembali</a>
-    <button class="print-btn" onclick="window.print()">Cetak / Simpan PDF</button>
+    <button class="print-btn" onclick="window.print()">Cetak PDF</button>
   </div>
 </div>
 
 <div class="page">
 
   <!-- Kop Surat -->
-  <div class="kop-surat" style="display: flex; align-items: center; justify-content: center; position: relative; padding-bottom: 15px; border-bottom: 4px double #2D3436; margin-bottom: 25px;">
-    <div style="text-align: center; width: 100%;">
-      <h1 style="font-family: 'Playfair Display', serif; font-size: 26px; color: #735a39; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Klinik Kecantikan GlowCare</h1>
-      <p style="font-size: 11px; color: #585552; margin-top: 4px; font-weight: 400; letter-spacing: 0.5px;">Jl. Raya Pejanggik No. 45, Mataram, Nusa Tenggara Barat</p>
-      <p style="font-size: 11px; color: #585552; letter-spacing: 0.5px;">Telp: (0370) 621435 | Email: info@glowcareclinic.co.id | Web: www.glowcareclinic.co.id</p>
-    </div>
+  <div class="kop-surat">
+    <h1>Klinik Kecantikan GlowCare</h1>
+    <p>Jl. Raya Pejanggik No. 45, Mataram, Nusa Tenggara Barat</p>
+    <p>Telp: (0370) 621435 | Email: info@glowcareclinic.co.id | Web: www.glowcareclinic.co.id</p>
   </div>
 
-  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px;">
-    <div>
-      <h2 style="font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; text-transform: uppercase; color: #2D3436;">Laporan Bulanan Klinik</h2>
-      <p style="font-size: 11px; color: #64748b; margin-top: 2px;">Tipe Dokumen: Rekapitulasi Operasional & Keuangan</p>
-    </div>
-    <div style="text-align: right; font-size: 11px; color: #2D3436; line-height: 1.5;">
-      <div>Periode Laporan: <strong><?= $periode ?></strong></div>
-      <div>Tanggal Cetak: <?= date('d/m/Y H:i') ?></div>
-    </div>
+  <!-- Judul Laporan -->
+  <div class="doc-title">
+    <h2>LAPORAN BULANAN OPERASIONAL & KEUANGAN</h2>
+    <p>Periode Laporan: <strong><?= $periode ?></strong></p>
+    <p style="font-size: 11px; color: #444; margin-top: 3px;">No. Dokumen: 045/DIR-GC/<?= date('m/Y', strtotime($lap_tahun . '-' . $lap_bulan . '-01')) ?></p>
   </div>
 
-  <!-- Stat Pills -->
-  <div class="stat-row">
-    <div class="stat-pill">
-      <div class="lbl">Total Appointment</div>
-      <div class="val"><?= $tot_a ?></div>
-      <div class="sub"><?= count($rows) ?> dokter</div>
-    </div>
-    <div class="stat-pill green">
-      <div class="lbl">Selesai</div>
-      <div class="val"><?= $tot_s ?></div>
-      <div class="sub"><?= $pct ?>% dari total</div>
-    </div>
-    <div class="stat-pill red">
-      <div class="lbl">Dibatalkan</div>
-      <div class="val"><?= $tot_b ?></div>
-      <div class="sub">&nbsp;</div>
-    </div>
-    <div class="stat-pill gold">
-      <div class="lbl">Total Pendapatan</div>
-      <div class="val" style="font-size:16px"><?= rupiah_fmt((float)$tot_p) ?></div>
-      <div class="sub">pembayaran lunas</div>
-    </div>
-  </div>
+  <!-- Ringkasan Eksekutif -->
+  <div class="sec-title">I. Ringkasan Eksekutif (Executive Summary)</div>
+  <table class="data-table">
+    <tbody>
+      <tr>
+        <td style="width: 40%; font-weight: bold; background: #f9f9f9;">Total Appointment (Janji Temu)</td>
+        <td><strong><?= $tot_a ?></strong> Janji Temu</td>
+      </tr>
+      <tr>
+        <td style="font-weight: bold; background: #f9f9f9;">Janji Temu Terealisasi (Selesai)</td>
+        <td><strong><?= $tot_s ?></strong> Selesai (<?= $pct ?>% dari total)</td>
+      </tr>
+      <tr>
+        <td style="font-weight: bold; background: #f9f9f9;">Janji Temu Dibatalkan</td>
+        <td><strong><?= $tot_b ?></strong> Batal</td>
+      </tr>
+      <tr>
+        <td style="font-weight: bold; background: #f9f9f9;">Total Pendapatan Terrealisasi</td>
+        <td><strong><?= rupiah_fmt((float)$tot_p) ?></strong> (Pembayaran Lunas)</td>
+      </tr>
+    </tbody>
+  </table>
 
   <!-- A: Tabel Appointment -->
-  <div class="sec-title">A. Rekap Appointment Per Dokter</div>
-  <table>
+  <div class="sec-title">II. Rekapitulasi Kinerja dan Pendapatan Dokter</div>
+  <table class="data-table">
     <thead>
       <tr>
-        <th>Dokter</th>
+        <th style="width: 5%;" class="center">No</th>
+        <th>Nama Dokter</th>
         <th>Spesialisasi</th>
-        <th class="center">Total Appt</th>
-        <th class="center">Selesai</th>
-        <th class="center">Dibatalkan</th>
-        <th class="right">Pendapatan</th>
-        <th class="center">Rating</th>
+        <th class="center" style="width: 15%;">Total Appt</th>
+        <th class="center" style="width: 15%;">Selesai</th>
+        <th class="center" style="width: 15%;">Dibatalkan</th>
+        <th class="right" style="width: 20%;">Pendapatan</th>
+        <th class="center" style="width: 12%;">Rating</th>
       </tr>
     </thead>
     <tbody>
-    <?php foreach ($rows as $r): ?>
+    <?php $no = 1; foreach ($rows as $r): ?>
       <tr>
-        <td><?= htmlspecialchars($r['nama_dokter']) ?></td>
+        <td class="center"><?= $no++ ?></td>
+        <td style="font-weight: bold;"><?= htmlspecialchars($r['nama_dokter']) ?></td>
         <td><?= htmlspecialchars($r['spesialisasi'] ?? '-') ?></td>
-        <td class="center"><strong><?= $r['total_appt'] ?></strong></td>
-        <td class="center"><span class="badge-green"><?= $r['selesai'] ?></span></td>
-        <td class="center">
-          <?php if ($r['batal'] > 0): ?>
-            <span class="badge-red"><?= $r['batal'] ?></span>
-          <?php else: ?>
-            <span style="color:#b0bec5">—</span>
-          <?php endif; ?>
-        </td>
-        <td class="right green-text"><strong><?= rupiah_fmt((float)$r['pendapatan']) ?></strong></td>
-        <td class="center"><?= number_format($r['rating'],1) ?> / 5.0</td>
+        <td class="center"><?= $r['total_appt'] ?></td>
+        <td class="center"><?= $r['selesai'] ?></td>
+        <td class="center"><?= $r['batal'] > 0 ? $r['batal'] : '—' ?></td>
+        <td class="right" style="font-weight: bold;"><?= rupiah_fmt((float)$r['pendapatan']) ?></td>
+        <td class="center"><?= number_format($r['rating'], 1) ?> / 5.0</td>
       </tr>
     <?php endforeach; ?>
     </tbody>
     <tfoot>
       <tr>
-        <td colspan="2"><strong>Total</strong></td>
-        <td class="center"><?= $tot_a ?></td>
-        <td class="center"><?= $tot_s ?></td>
-        <td class="center red-text"><?= $tot_b ?></td>
-        <td class="right green-text"><?= rupiah_fmt((float)$tot_p) ?></td>
-        <td></td>
+        <td colspan="3" class="center"><strong>TOTAL / RATA-RATA</strong></td>
+        <td class="center"><strong><?= $tot_a ?></strong></td>
+        <td class="center"><strong><?= $tot_s ?></strong></td>
+        <td class="center" style="color: #c62828;"><strong><?= $tot_b ?></strong></td>
+        <td class="right"><strong><?= rupiah_fmt((float)$tot_p) ?></strong></td>
+        <td class="center">
+          <?php
+            $avg_rating = 0;
+            if (count($rows) > 0) {
+                $sum_r = 0;
+                foreach ($rows as $r) { $sum_r += $r['rating']; }
+                $avg_rating = $sum_r / count($rows);
+            }
+            echo number_format($avg_rating, 1) . ' / 5.0';
+          ?>
+        </td>
       </tr>
     </tfoot>
   </table>
 
   <!-- B: Keuangan -->
   <?php if ($keu_ok): ?>
-  <div class="sec-title">B. Ringkasan Keuangan</div>
-  <div class="keu-sum">
-    <div class="keu-card masuk">
-      <div class="lbl">Total Pemasukan</div>
-      <div class="val green-text"><?= rupiah_fmt($tot_masuk) ?></div>
-    </div>
-    <div class="keu-card keluar">
-      <div class="lbl">Total Pengeluaran</div>
-      <div class="val red-text"><?= rupiah_fmt($tot_keluar) ?></div>
-    </div>
-    <div class="keu-card saldo">
-      <div class="lbl">Saldo Bersih</div>
-      <div class="val" style="color:<?= ($tot_masuk-$tot_keluar)>=0?'#3dab74':'#e05050' ?>"><?= rupiah_fmt($tot_masuk - $tot_keluar) ?></div>
-    </div>
-  </div>
+  <div class="sec-title">III. Ringkasan Keuangan Bulanan</div>
+  <table class="data-table">
+    <tbody>
+      <tr>
+        <td style="width: 40%; font-weight: bold; background: #f9f9f9;">Total Arus Kas Masuk (Pemasukan)</td>
+        <td style="font-weight: bold; color: #2e7d32;"><?= rupiah_fmt($tot_masuk) ?></td>
+      </tr>
+      <tr>
+        <td style="font-weight: bold; background: #f9f9f9;">Total Arus Kas Keluar (Pengeluaran)</td>
+        <td style="font-weight: bold; color: #c62828;"><?= rupiah_fmt($tot_keluar) ?></td>
+      </tr>
+      <tr>
+        <td style="font-weight: bold; background: #f9f9f9;">Saldo Bersih (Net Margin)</td>
+        <td style="font-weight: bold; color: <?= ($tot_masuk - $tot_keluar) >= 0 ? '#2e7d32' : '#c62828' ?>;">
+          <?= rupiah_fmt($tot_masuk - $tot_keluar) ?>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
   <?php if (!empty($keu_rows)): ?>
-  <div class="sec-title">C. Detail Transaksi Keuangan</div>
-  <table>
+  <div class="sec-title">IV. Rincian Detail Transaksi Keuangan</div>
+  <table class="data-table">
     <thead>
       <tr>
+        <th style="width: 5%;" class="center">No</th>
         <th>Tanggal</th>
         <th>Jenis</th>
         <th>Kategori</th>
@@ -343,21 +328,20 @@ $pct = $tot_a > 0 ? round($tot_s / $tot_a * 100) : 0;
       </tr>
     </thead>
     <tbody>
-    <?php foreach ($keu_rows as $kr): ?>
+    <?php $no_k = 1; foreach ($keu_rows as $kr): ?>
       <tr>
+        <td class="center"><?= $no_k++ ?></td>
         <td style="white-space:nowrap"><?= date('d M Y', strtotime($kr['tanggal'])) ?></td>
         <td>
-          <?php if ($kr['jenis']==='Pemasukan'): ?>
-            <span class="badge-green">Pemasukan</span>
-          <?php else: ?>
-            <span class="badge-red">Pengeluaran</span>
-          <?php endif; ?>
+          <span style="font-weight: bold; color: <?= $kr['jenis'] === 'Pemasukan' ? '#2e7d32' : '#c62828' ?>;">
+            <?= htmlspecialchars($kr['jenis']) ?>
+          </span>
         </td>
         <td><?= htmlspecialchars($kr['kategori']) ?></td>
         <td><?= htmlspecialchars($kr['keterangan']) ?></td>
         <td><?= htmlspecialchars($kr['metode']) ?></td>
-        <td class="right" style="font-weight:600;color:<?= $kr['jenis']==='Pemasukan'?'#3dab74':'#e05050' ?>">
-          <?= $kr['jenis']==='Pemasukan'?'+':'-' ?><?= rupiah_fmt((float)$kr['jumlah']) ?>
+        <td class="right" style="font-weight: bold; color: <?= $kr['jenis'] === 'Pemasukan' ? '#2e7d32' : '#c62828' ?>;">
+          <?= $kr['jenis'] === 'Pemasukan' ? '+' : '-' ?><?= rupiah_fmt((float)$kr['jumlah']) ?>
         </td>
       </tr>
     <?php endforeach; ?>
@@ -367,18 +351,18 @@ $pct = $tot_a > 0 ? round($tot_s / $tot_a * 100) : 0;
   <?php endif; ?>
 
   <!-- Tanda Tangan Persetujuan -->
-  <div style="margin-top: 50px; display: flex; justify-content: flex-end; page-break-inside: avoid;">
-    <div style="text-align: center; width: 250px; font-size: 12px; line-height: 1.6;">
+  <div class="signature-container">
+    <div class="signature-box">
       <p>Mataram, <?= date('d') . ' ' . $bln_ind[$lap_bulan] . ' ' . $lap_tahun ?></p>
-      <p style="margin-bottom: 75px;">Pimpinan Klinik GlowCare,</p>
-      <p><strong>Dr. dr. Ayu Larasati, M.Biomed</strong></p>
-      <p style="font-size: 10px; color: #64748b; border-top: 1px solid #d1c4b8; margin-top: 5px; padding-top: 2px;">NIP. 198804122015032001</p>
+      <p style="margin-top: 5px;">Pimpinan Klinik GlowCare,</p>
+      <p class="name">Dr. dr. Ayu Larasati, M.Biomed</p>
+      <p style="font-size: 11px; margin-top: 2px;">NIP. 198804122015032001</p>
     </div>
   </div>
 
   <!-- Footer -->
   <div class="lap-footer">
-    <span>GlowCare Clinic — Dokumen Rahasia</span>
+    <span>GlowCare Clinic — Dokumen Internal Rahasia</span>
     <span>Laporan <?= $periode ?> · Dicetak <?= date('d/m/Y H:i') ?></span>
   </div>
 

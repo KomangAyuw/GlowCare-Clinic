@@ -17,7 +17,7 @@ $status       = $_POST['status'] ?? 'Aktif';
 $bio          = trim($_POST['bio'] ?? '');
 
 if ($nama === '') {
-    header('Location: ../../pages/admin/dashboard.php?error='.urlencode('Nama dokter wajib diisi.')); exit;
+    header('Location: ../../pages/admin/dashboard.php?panel=dokter&error='.urlencode('Nama dokter wajib diisi.')); exit;
 }
 $rating = min(5.0, max(0.0, $rating));
 
@@ -39,18 +39,18 @@ if (isset($_FILES['foto']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
             if (move_uploaded_file($_FILES['foto']['tmp_name'], $upload_dir . $filename)) {
                 $foto_val = $filename;
             } else {
-                header('Location: ../../pages/admin/dashboard.php?error='.urlencode('Gagal menyimpan file foto dokter.')); exit;
+                header('Location: ../../pages/admin/dashboard.php?panel=dokter&error='.urlencode('Gagal menyimpan file foto dokter.')); exit;
             }
         } else {
-            header('Location: ../../pages/admin/dashboard.php?error='.urlencode('Format foto harus JPG, JPEG, PNG, GIF, atau WEBP.')); exit;
+            header('Location: ../../pages/admin/dashboard.php?panel=dokter&error='.urlencode('Format foto harus JPG, JPEG, PNG, GIF, atau WEBP.')); exit;
         }
     } else {
-        header('Location: ../../pages/admin/dashboard.php?error='.urlencode('Error mengunggah foto. Code: ' . $_FILES['foto']['error'])); exit;
+        header('Location: ../../pages/admin/dashboard.php?panel=dokter&error='.urlencode('Error mengunggah foto. Code: ' . $_FILES['foto']['error'])); exit;
     }
 }
 
 if (empty($foto_val)) {
-    header('Location: ../../pages/admin/dashboard.php?error='.urlencode('Foto dokter wajib diunggah.')); exit;
+    header('Location: ../../pages/admin/dashboard.php?panel=dokter&error='.urlencode('Foto dokter wajib diunggah.')); exit;
 }
 
 if ($id > 0) {
@@ -82,5 +82,5 @@ if ($ok) {
 }
 
 $param = $ok ? 'success='.urlencode($msg) : 'error='.urlencode($msg);
-header("Location: ../../pages/admin/dashboard.php?$param");
+header("Location: ../../pages/admin/dashboard.php?panel=dokter&$param");
 exit;

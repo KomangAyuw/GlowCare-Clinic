@@ -1076,6 +1076,17 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
+.toast.toast-success {
+    background: #e8f5d8;
+    color: #2e4414;
+    box-shadow: 0 4px 12px rgba(197, 218, 168, 0.4);
+}
+.toast.toast-error {
+    background: #fce4df;
+    color: #6b3a2d;
+    box-shadow: 0 4px 12px rgba(232, 181, 172, 0.4);
+}
+
 /* ══ UPCOMING EMPTY ══ */
 .empty-state {
     text-align: center;

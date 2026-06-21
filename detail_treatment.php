@@ -18,7 +18,11 @@ $nama     = htmlspecialchars($tr['nama']);
 $kategori = htmlspecialchars($tr['kategori']);
 $durasi   = htmlspecialchars($tr['durasi'] ?? '60 Menit');
 $desc     = htmlspecialchars($tr['deskripsi_panjang'] ?? $tr['deskripsi'] ?? '');
-$img      = htmlspecialchars($tr['gambar_url'] ?? '');
+$img      = $tr['gambar_url'] ?? '';
+if ($img && strpos($img, 'http') !== 0 && strpos($img, 'asset/') !== 0) {
+    $img = 'backend/uploads/' . $img;
+}
+$img      = htmlspecialchars($img);
 
 // Map categories to icons & benefit data
 $category_data = [

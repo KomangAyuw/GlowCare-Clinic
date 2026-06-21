@@ -15,7 +15,7 @@ $treatment_id = $_POST['treatment_id'] !== '' ? (int)$_POST['treatment_id'] : nu
 $status       = $_POST['status'] ?? 'Aktif';
 
 if ($dokter_id <= 0 || $hari === '') {
-    header('Location: ../../pages/admin/dashboard.php?error='.urlencode('Dokter dan hari wajib dipilih.')); exit;
+    header('Location: ../../pages/admin/dashboard.php?panel=jadwal&error='.urlencode('Dokter dan hari wajib dipilih.')); exit;
 }
 
 if ($id > 0) {
@@ -45,5 +45,5 @@ if ($ok) {
 }
 
 $param = $ok ? 'success='.urlencode($msg) : 'error='.urlencode($msg);
-header("Location: ../../pages/admin/dashboard.php?$param");
+header("Location: ../../pages/admin/dashboard.php?panel=jadwal&$param");
 exit;

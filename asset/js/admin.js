@@ -1,4 +1,4 @@
-const titles = {dashboard:'Dashboard',pasien:'Data Pasien',dokter:'Data Dokter',jadwal:'Jadwal Dokter',aktivitas:'Aktivitas',pesan:'Pesan Kontak',laporan:'Laporan',treatment:'Treatment',profil:'Profil',keuangan:'Keuangan',pengumuman:'Pengumuman'};
+const titles = {dashboard:'Dashboard',pasien:'Data Pasien',dokter:'Data Dokter',jadwal:'Jadwal Dokter',aktivitas:'Aktivitas',pesan:'Pesan Kontak',laporan:'Laporan',treatment:'Treatment',profil:'Profil',keuangan:'Keuangan',pengumuman:'Pengumuman',appointment:'Janji Temu'};
 
 function showPanel(id,el){
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -20,6 +20,13 @@ function closeModalOutside(e,id){if(e.target.classList.contains('modal-overlay')
 function showToast(msg,ok=true){
     const t=document.getElementById('toast');
     t.innerHTML=(ok?'✅ ':'❌ ')+'<span>'+msg+'</span>';
+    if(ok) {
+        t.classList.remove('toast-error');
+        t.classList.add('toast-success');
+    } else {
+        t.classList.remove('toast-success');
+        t.classList.add('toast-error');
+    }
     t.classList.add('show');
     setTimeout(()=>t.classList.remove('show'),3500);
 }
@@ -111,7 +118,11 @@ function editTreatment(t){
     const previewImg = document.getElementById('mt-gambar-preview');
     if (lamaEl) lamaEl.value = t.gambar_url || '';
     if (previewWrap && previewImg && t.gambar_url) {
-        previewImg.src = t.gambar_url;
+        let imgSrc = t.gambar_url;
+        if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('asset/')) {
+            imgSrc = '../../backend/uploads/' + imgSrc;
+        }
+        previewImg.src = imgSrc;
         previewWrap.style.display = 'block';
     } else if (previewWrap) {
         previewWrap.style.display = 'none';
@@ -120,6 +131,8 @@ function editTreatment(t){
     const fileEl = document.getElementById('mt-gambar');
     if (fileEl) fileEl.value = '';
     openModal('modal-treatment');
+}
+
 function previewTreatmentImage(input) {
     const wrap = document.getElementById('mt-gambar-preview-wrap');
     const img  = document.getElementById('mt-gambar-preview');
@@ -131,8 +144,6 @@ function previewTreatmentImage(input) {
         };
         reader.readAsDataURL(input.files[0]);
     }
-}
-
 }
 
 function lihatPesan(pk) {
@@ -169,31 +180,61 @@ function lihatPesan(pk) {
     }
 
     // Tombol "Tandai Baca" jika belum dibaca
-    const footer   = document.getElementById('mp-detail-footer');
-    const existing = footer.querySelector('form.baca-form');
-    if (existing) existing.remove();
-
-    if (!pk.sudah_baca || pk.sudah_baca == 0) {
-        const f = document.createElement('form');
-        f.method  = 'POST';
-        f.action  = '../../backend/admin/kelola_pesan.php';
-        f.className = 'baca-form';
-        f.style.display = 'inline';
-        f.innerHTML = `
-            <input type="hidden" name="aksi" value="baca">
-            <input type="hidden" name="id"   value="${pk.id}">
-            <button type="submit" class="btn-save" style="font-size:11px;padding:7px 14px">Tandai Sudah Dibaca</button>
-        `;
-        footer.appendChild(f);
+    const btnBaca = document.getElementById('mp-btn-baca');
+    if (btnBaca) {
+        if (!pk.sudah_baca || pk.sudah_baca == 0) {
+            btnBaca.style.display = 'inline-block';
+        } else {
+            btnBaca.style.display = 'none';
+        }
     }
 
     openModal('modal-pesan');
 }
+
+function tandaiPesanBaca() {
+    const form = document.getElementById('form-balas-pesan');
+    if (form) {
+        form.querySelector('[name="aksi"]').value = 'baca';
+        form.submit();
+    }
+}
+// ── PENGUMUMAN ──
+function editPengumuman(p){
+    document.getElementById('mpe-title').innerHTML='Edit <em>Pengumuman</em>';
+    document.getElementById('form-pengumuman').action='../../backend/admin/simpan_pengumuman.php';
+    document.getElementById('mpe-id').value=p.id;
+    document.getElementById('mpe-judul').value=p.judul;
+    document.getElementById('mpe-target').value=p.target;
+    document.getElementById('mpe-konten').value=p.konten;
+    openModal('modal-pengumuman');
+}
+function openAddPengumuman(){
+    document.getElementById('mpe-title').innerHTML='Tambah <em>Pengumuman</em>';
+    document.getElementById('form-pengumuman').action='../../backend/admin/simpan_pengumuman.php';
+    document.getElementById('form-pengumuman').reset();
+    document.getElementById('mpe-id').value='';
+    openModal('modal-pengumuman');
+}
+
+// ── APPOINTMENT / PEMBAYARAN ──
+function openPaymentModal(ap){
+    document.getElementById('pay-appt-id').value=ap.id;
+    document.getElementById('pay-pasien').value=ap.nama_pasien;
+    document.getElementById('pay-dokter').value=ap.nama_dokter;
+    document.getElementById('pay-treatment').value=ap.nama_treatment || 'Konsultasi Umum';
+    document.getElementById('pay-jumlah').value=ap.jumlah_pembayaran || '';
+    document.getElementById('pay-metode').value='Tunai';
+    document.getElementById('pay-ref').value='';
+    openModal('modal-pembayaran');
+}
+
 // Set form action untuk Tambah baru
 document.getElementById('form-pasien').action='../../backend/admin/simpan_pasien.php';
 document.getElementById('form-dokter').action='../../backend/admin/simpan_dokter.php';
 document.getElementById('form-jadwal').action='../../backend/admin/simpan_jadwal.php';
 document.getElementById('form-treatment').action='../../backend/admin/simpan_treatment.php';
+document.getElementById('form-pengumuman') && (document.getElementById('form-pengumuman').action='../../backend/admin/simpan_pengumuman.php');
 
 // ── CONFIRM DELETE ──
 function confirmDelete(file,id,nama){
@@ -208,3 +249,8 @@ function closeConfirm(){document.getElementById('confirm-overlay').classList.rem
 const up=new URLSearchParams(window.location.search);
 if(up.get('success')) showToast(decodeURIComponent(up.get('success')));
 if(up.get('error'))   showToast(decodeURIComponent(up.get('error')),false);
+
+// Bersihkan parameter URL agar reload kembali ke panel dashboard dan toast tidak berulang
+if(up.has('success') || up.has('error') || up.has('panel')) {
+    window.history.replaceState({}, '', window.location.pathname);
+}

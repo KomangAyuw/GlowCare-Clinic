@@ -119,7 +119,7 @@ $success = $_GET['success'] ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GlowCare — Dashboard Pasien</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="../../asset/css/user.css?v=14">
+    <link rel="stylesheet" href="../../asset/css/user.css?v=16">
     <style>
         body {
             display: flex;
@@ -591,19 +591,7 @@ $success = $_GET['success'] ?? '';
         </div>
 
 
-    <!-- ALERT SUCCESS/ERROR -->
-    <?php if (($_GET['page'] ?? '') !== 'akun'): ?>
-        <?php if ($error): ?>
-            <div class="alert-notification alert-danger" style="margin: 20px 48px -10px; padding: 12px 20px; background: #fce4df; border: 1px solid #e8b5ac; border-radius: 8px; color: #6b3a2d; font-size: 13px; transition: opacity 0.5s ease;">
-                Peringatan: <?= htmlspecialchars($error) ?>
-            </div>
-        <?php endif; ?>
-        <?php if ($success): ?>
-            <div class="alert-notification alert-success" style="margin: 20px 48px -10px; padding: 12px 20px; background: #e8f5d8; border: 1px solid #c5daa8; border-radius: 8px; color: #5a6f2d; font-size: 13px; transition: opacity 0.5s ease;">
-                Sukses: <?= htmlspecialchars($success) ?>
-            </div>
-        <?php endif; ?>
-    <?php endif; ?>
+
 
     <!-- ══════════════════════════════════════════
         PAGE: BERANDA
@@ -1062,19 +1050,19 @@ $success = $_GET['success'] ?? '';
                 <?php endforeach; ?>
 
                 <?php if ($nextAppt): ?>
-                    <div style="padding: 16px; background:#f8ede3; border:1px solid #f7ede5; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:center;">
-                        <span style="font-size:24px; font-weight:bold; color:#e05050;">!</span>
-                        <div>
-                            <div style="font-weight:500; color:#4a321f;">Pengingat Janji Temu Estetika</div>
-                            <div style="font-size:12px; color:#735a39; margin-top:3px;">Anda memiliki konsultasi medis terjadwal dengan <strong><?= htmlspecialchars($nextAppt['nama_dokter']) ?></strong> pada <?= date('d M Y', strtotime($nextAppt['tanggal'])) ?> pukul <?= substr($nextAppt['jam'], 0, 5) ?> WIB.</div>
+                    <div style="padding: 16px; background:#fbf8f3; border:1px solid #efebe4; border-radius:10px; margin-bottom:12px; display:flex; gap:15px; align-items:flex-start;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#e05050; flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        <div style="flex: 1;">
+                            <div style="font-weight:500; color:#4a321f; font-family: 'Playfair Display', serif; font-size: 15px;">Pengingat Janji Temu Estetika</div>
+                            <div style="font-size:12px; color:#7d6756; margin-top:4px; line-height: 1.5;">Anda memiliki konsultasi medis terjadwal dengan <strong><?= htmlspecialchars($nextAppt['nama_dokter']) ?></strong> pada <?= date('d M Y', strtotime($nextAppt['tanggal'])) ?> pukul <?= substr($nextAppt['jam'], 0, 5) ?> WIB.</div>
                         </div>
                     </div>
                 <?php endif; ?>
-                <div style="padding: 16px; background:#f8ede3; border:1px solid #f7ede5; border-radius:10px; display:flex; gap:15px; align-items:center;">
-                    <span style="font-size:24px; font-weight:bold; color:#735a39;">✓</span>
-                    <div>
-                        <div style="font-weight:500; color:#4a321f;">Selamat Bergabung!</div>
-                        <div style="font-size:12px; color:#735a39; margin-top:3px;">Pendaftaran akun Anda di sistem klinik kecantikan GlowCare Clinic Mataram berhasil. Nikmati layanan premium kami!</div>
+                <div style="padding: 16px; background:#fbf8f3; border:1px solid #efebe4; border-radius:10px; display:flex; gap:15px; align-items:flex-start;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#735a39; flex-shrink: 0; margin-top: 2px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <div style="flex: 1;">
+                        <div style="font-weight:500; color:#4a321f; font-family: 'Playfair Display', serif; font-size: 15px;">Selamat Bergabung!</div>
+                        <div style="font-size:12px; color:#7d6756; margin-top:4px; line-height: 1.5;">Pendaftaran akun Anda di sistem klinik kecantikan GlowCare Clinic Mataram berhasil. Nikmati layanan premium kami!</div>
                     </div>
                 </div>
             </div>
@@ -1306,7 +1294,7 @@ $success = $_GET['success'] ?? '';
     <!-- Toast -->
     <div class="toast" id="toast"><span id="toast-msg"></span></div>
 
-    <script src="../../asset/js/user.js?v=3"></script>
+    <script src="../../asset/js/user.js?v=4"></script>
     <script>
         // Set variables for booking wizard
         let selectedDocId = <?= $dokter_list[0]['id'] ?? 0 ?>;
@@ -1479,17 +1467,17 @@ $success = $_GET['success'] ?? '';
     document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(window.location.search);
         const page = params.get('page');
+
+        // Navigasi ke panel yang ditentukan oleh ?page=
         if (page) {
             const btn = document.querySelector('.nav-item[onclick*="' + page + '"]');
-            if (btn) {
-                showPage(page, btn);
-            }
-            
+            if (btn) showPage(page, btn);
+
             const docId = params.get('dokter_id');
             if (docId && typeof startBookingDokter === 'function') {
                 startBookingDokter(docId);
             }
-            
+
             const treatmentId = params.get('treatment_id');
             if (treatmentId) {
                 const selectEl = document.getElementById('booking-treatment-select');
@@ -1500,19 +1488,20 @@ $success = $_GET['success'] ?? '';
             }
         }
 
-        // Auto fadeout alert notifications and clear success/error params from URL
-        setTimeout(() => {
-            document.querySelectorAll('.alert-notification').forEach(el => {
-                el.style.opacity = '0';
-                setTimeout(() => el.remove(), 500);
-            });
-        }, 5000);
-
-        const url = new URL(window.location.href);
-        if (url.searchParams.has('success') || url.searchParams.has('error')) {
-            url.searchParams.delete('success');
-            url.searchParams.delete('error');
-            window.history.replaceState({}, document.title, url.pathname + url.search);
+        // Tampilkan toast dari ?success / ?error (sekali saja, lalu bersihkan URL)
+        const successMsg = params.get('success');
+        const errorMsg   = params.get('error');
+        if (successMsg || errorMsg) {
+            setTimeout(() => {
+                if (typeof showToast === 'function') {
+                    showToast(successMsg || errorMsg, !!successMsg);
+                }
+            }, 150);
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('success');
+            cleanUrl.searchParams.delete('error');
+            cleanUrl.searchParams.delete('page');
+            window.history.replaceState({}, document.title, cleanUrl.pathname);
         }
     });
 

@@ -25,16 +25,24 @@ $dokter_aktif     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n
 $appt_hari_ini    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM appointment WHERE tanggal=CURDATE()"))['n'];
 
 $pendapatan_bulan = 0;
+$pengeluaran_bulan = 0;
+$laba_bersih_bulan = 0;
 try {
     $r_pendapatan = mysqli_query($conn, "SELECT COALESCE(SUM(jumlah),0) AS n FROM keuangan WHERE jenis='Pemasukan' AND MONTH(tanggal)=MONTH(NOW()) AND YEAR(tanggal)=YEAR(NOW())");
     if ($r_pendapatan) {
         $pendapatan_bulan = mysqli_fetch_assoc($r_pendapatan)['n'];
     }
+    $r_pengeluaran = mysqli_query($conn, "SELECT COALESCE(SUM(jumlah),0) AS n FROM keuangan WHERE jenis='Pengeluaran' AND MONTH(tanggal)=MONTH(NOW()) AND YEAR(tanggal)=YEAR(NOW())");
+    if ($r_pengeluaran) {
+        $pengeluaran_bulan = mysqli_fetch_assoc($r_pengeluaran)['n'];
+    }
+    $laba_bersih_bulan = (float)$pendapatan_bulan - (float)$pengeluaran_bulan;
 } catch (Exception $e) {
     try {
         $r_pembayaran = mysqli_query($conn, "SELECT COALESCE(SUM(jumlah),0) AS n FROM pembayaran WHERE status='Lunas' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())");
         if ($r_pembayaran) {
             $pendapatan_bulan = mysqli_fetch_assoc($r_pembayaran)['n'];
+            $laba_bersih_bulan = (float)$pendapatan_bulan;
         }
     } catch (Exception $ex) {}
 }
@@ -84,6 +92,16 @@ $pesan_list  = mysqli_query($conn, "SELECT * FROM pesan_kontak ORDER BY created_
 $pesan_belum = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM pesan_kontak WHERE sudah_baca=0"))['n'];
 $admin        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id=".(int)$_SESSION['user_id']));
 $pengumuman_list = mysqli_query($conn, "SELECT * FROM pengumuman ORDER BY created_at DESC LIMIT 50");
+$appointment_list = mysqli_query($conn, "
+    SELECT a.*, p.nama AS nama_pasien, d.nama AS nama_dokter, t.nama AS nama_treatment, py.status AS status_pembayaran, py.jumlah AS jumlah_pembayaran 
+    FROM appointment a 
+    JOIN pasien p ON a.pasien_id=p.id 
+    JOIN dokter d ON a.dokter_id=d.id 
+    LEFT JOIN treatment t ON a.treatment_id=t.id 
+    LEFT JOIN pembayaran py ON py.appointment_id=a.id 
+    ORDER BY a.tanggal DESC, a.jam DESC 
+    LIMIT 200
+");
 
 // ── Keuangan ──
 $keu_bulan = (int)($_GET['keu_bulan'] ?? date('n'));
@@ -128,7 +146,6 @@ $dlist_modal  = mysqli_query($conn, "SELECT id,nama FROM dokter WHERE status='Ak
 $tlist_modal  = mysqli_query($conn, "SELECT id,nama FROM treatment WHERE status='Aktif' ORDER BY urutan");
 
 function rupiah(float $n): string {
-    if ($n >= 1_000_000) return 'Rp '.number_format($n/1_000_000,1,',','.').' Jt';
     return 'Rp '.number_format($n,0,',','.');
 }
 function badge_appt(string $s): string {
@@ -157,7 +174,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>GlowCare Admin Dashboard</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap">
-    <link rel="stylesheet" href="../../asset/css/admin.css?v=11">
+    <link rel="stylesheet" href="../../asset/css/admin.css?v=15">
     <style>
         body {
             background: #f7f6f3 !important;
@@ -310,6 +327,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
             <a class="nav-item" onclick="showPanel('pasien',this)">Data Pasien</a>
             <a class="nav-item" onclick="showPanel('dokter',this)">Data Dokter</a>
             <a class="nav-item" onclick="showPanel('jadwal',this)">Jadwal Dokter</a>
+            <a class="nav-item" onclick="showPanel('appointment',this)">Janji Temu (Booking)</a>
             <div class="nav-section-label">Konten</div>
             <a class="nav-item" onclick="showPanel('treatment',this)">Treatment</a>
             <div class="nav-section-label">Pesan</div>
@@ -377,8 +395,8 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                 </div>
                 <div class="stat-card orange">
                     <div class="stat-icon"></div>
-                    <div class="stat-value"><?= rupiah((float)$pendapatan_bulan) ?></div>
-                    <div class="stat-label">Pendapatan Bulan Ini</div>
+                    <div class="stat-value"><?= rupiah($laba_bersih_bulan) ?></div>
+                    <div class="stat-label">Laba Bersih Bulan Ini</div>
                 </div>
             </div>
             <div class="two-col">
@@ -511,9 +529,9 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                                 <div style="display:flex;align-items:center;gap:8px">
                                     <?php
                                     $foto = !empty($d['foto']) 
-                                        ? (strpos($d['foto'], 'http') === 0 || strpos($d['foto'], 'asset/') === 0 ? $d['foto'] : '../../backend/uploads/' . $d['foto']) 
+                                        ? (strpos($d['foto'], 'http') === 0 ? $d['foto'] : (strpos($d['foto'], 'asset/') === 0 ? '../../' . $d['foto'] : '../../backend/uploads/' . $d['foto'])) 
                                         : '';
-                                    if ($foto): ?>
+                                     if ($foto): ?>
                                         <img class="avatar" src="<?= htmlspecialchars($foto) ?>" style="object-fit:cover; width:30px; height:30px; border-radius:50%; margin-right:8px;" alt="<?= htmlspecialchars($d['nama']) ?>">
                                     <?php else: ?>
                                         <span class="avatar"><?= strtoupper(substr($d['nama'],0,1)) ?></span>
@@ -577,7 +595,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     <div class="jdc-header">
                         <?php
                         $j_foto = !empty($grp['foto']) 
-                            ? (strpos($grp['foto'], 'http') === 0 || strpos($grp['foto'], 'asset/') === 0 ? $grp['foto'] : '../../backend/uploads/' . $grp['foto']) 
+                            ? (strpos($grp['foto'], 'http') === 0 ? $grp['foto'] : (strpos($grp['foto'], 'asset/') === 0 ? '../../' . $grp['foto'] : '../../backend/uploads/' . $grp['foto'])) 
                             : '';
                         if ($j_foto): ?>
                             <img class="jdc-avatar" src="<?= htmlspecialchars($j_foto) ?>" style="object-fit:cover; width:44px; height:44px; border-radius:50%; margin-right:16px;" alt="<?= htmlspecialchars($grp['nama']) ?>">
@@ -643,7 +661,14 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     <thead><tr><th>No</th><th>Gambar</th><th>Nama</th><th>Kategori</th><th>Durasi</th><th>Deskripsi</th><th>Status</th><th>Aksi</th></tr></thead>
                     <tbody>
                     <?php mysqli_data_seek($treatment_list,0); while($tr=mysqli_fetch_assoc($treatment_list)):
-                        $img=$tr['gambar_url']?:($tr['gambar_file']?'../../uploads/treatment/'.$tr['gambar_file']:''); ?>
+                        $img = $tr['gambar_url'] ?? '';
+                        if ($img && strpos($img, 'http') !== 0) {
+                            if (strpos($img, 'asset/') === 0) {
+                                $img = '../../' . $img;
+                            } else {
+                                $img = '../../backend/uploads/' . $img;
+                            }
+                        } ?>
                         <tr>
                             <td style="color:#7a7571;font-size:11px"><?= $tr['urutan'] ?></td>
                             <td>
@@ -814,7 +839,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     <h2 class="section-title">Kelola <em>Pengumuman</em></h2>
                     <p class="section-sub">Buat pengumuman baru yang akan dikirim sebagai notifikasi ke pasien &amp; dokter</p>
                 </div>
-                <button class="btn-add" onclick="openModal('modal-pengumuman')">+ Tambah Pengumuman</button>
+                <button class="btn-add" onclick="openAddPengumuman()">+ Tambah Pengumuman</button>
             </div>
             <div class="card">
                 <table class="data-table">
@@ -845,7 +870,60 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             <td style="max-width:300px; font-size:12px; color:#585552; line-height:1.5;"><?= nl2br(htmlspecialchars($p['konten'])) ?></td>
                             <td style="font-size:12px; color:#7a7571; white-space:nowrap;"><?= date('d M Y, H:i', strtotime($p['created_at'])) ?> WIB</td>
                             <td>
+                                <button class="act-btn" style="border: 1px solid #d1c4b8; padding: 4px 10px; margin-right: 4px;" onclick="editPengumuman(<?= htmlspecialchars(json_encode($p)) ?>)" title="Edit">Edit</button>
                                 <button class="act-btn" style="border: 1px solid #e05050; color: #e05050; padding: 4px 10px;" onclick="confirmDelete('hapus_pengumuman.php', '<?= $p['id'] ?>', 'pengumuman ini')" title="Hapus">Hapus</button>
+                            </td>
+                        </tr>
+                    <?php endwhile; endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ══ PANEL APPOINTMENT ══ -->
+        <div class="panel" id="panel-appointment">
+            <div class="page-header">
+                <div>
+                    <h2 class="section-title">Kelola <em>Janji Temu (Booking)</em></h2>
+                    <p class="section-sub">Daftar booking pasien beserta status kehadiran & pembayaran</p>
+                </div>
+            </div>
+            <div class="card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Pasien</th>
+                            <th>Dokter</th>
+                            <th>Layanan</th>
+                            <th>Jadwal</th>
+                            <th>Status Kehadiran</th>
+                            <th>Status Pembayaran</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php if (!$appointment_list || mysqli_num_rows($appointment_list) === 0): ?>
+                        <tr><td colspan="7" style="text-align:center; color:#7a7571; padding:24px">Belum ada janji temu terdaftar.</td></tr>
+                    <?php else: mysqli_data_seek($appointment_list, 0); while($ap = mysqli_fetch_assoc($appointment_list)): ?>
+                        <tr>
+                            <td><strong style="color:#2D3436; font-size:13px;"><?= htmlspecialchars($ap['nama_pasien']) ?></strong></td>
+                            <td><?= htmlspecialchars($ap['nama_dokter']) ?></td>
+                            <td><?= htmlspecialchars($ap['nama_treatment'] ?: 'Konsultasi Umum') ?></td>
+                            <td style="font-size:12px; color:#585552; white-space:nowrap;"><?= date('d M Y', strtotime($ap['tanggal'])) ?> · <?= substr($ap['jam'], 0, 5) ?> WIB</td>
+                            <td><?= badge_appt($ap['status']) ?></td>
+                            <td>
+                                <?php if ($ap['status_pembayaran'] === 'Lunas'): ?>
+                                    <span class="badge badge-green">Lunas (Rp <?= number_format($ap['jumlah_pembayaran'], 0, ',', '.') ?>)</span>
+                                <?php else: ?>
+                                    <span class="badge badge-yellow">Belum Lunas</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($ap['status_pembayaran'] !== 'Lunas' && $ap['status'] !== 'Dibatalkan'): ?>
+                                    <button class="act-btn" style="border: 1px solid #735a39; color:#735a39; padding: 4px 10px; margin-right: 4px;" onclick="openPaymentModal(<?= htmlspecialchars(json_encode($ap)) ?>)" title="Bayar">Input Pembayaran</button>
+                                <?php else: ?>
+                                    <span style="font-size:12px; color:#a89a8a; font-style:italic;">Selesai</span>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endwhile; endif; ?>
@@ -863,7 +941,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                 </div>
                 <div style="display:flex;gap:10px">
                     <a href="../../backend/admin/laporan_download.php?format=csv&lap_bulan=<?= $lap_bulan ?>&lap_tahun=<?= $lap_tahun ?>" class="btn-lap-download btn-lap-csv">Download CSV</a>
-                    <a href="../../backend/admin/laporan_download.php?format=print&lap_bulan=<?= $lap_bulan ?>&lap_tahun=<?= $lap_tahun ?>" target="_blank" class="btn-lap-download btn-lap-print">Cetak / PDF</a>
+                    <a href="../../backend/admin/laporan_download.php?format=print&lap_bulan=<?= $lap_bulan ?>&lap_tahun=<?= $lap_tahun ?>" target="_blank" class="btn-lap-download btn-lap-print">Cetak PDF</a>
                 </div>
             </div>
 
@@ -1353,17 +1431,17 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             <optgroup label="Pemasukan" id="keu-opt-masuk">
                                 <option>Pendapatan Konsultasi</option>
                                 <option>Pendapatan Treatment</option>
-                                <option>Pendapatan Produk</option>
-                                <option>Pendapatan Lainnya</option>
                             </optgroup>
                             <optgroup label="Pengeluaran" id="keu-opt-keluar" style="display:none">
-                                <option>Gaji Karyawan</option>
-                                <option>Bahan &amp; Alat Medis</option>
-                                <option>Sewa &amp; Utilitas</option>
+                                <option>Gaji Karyawan (Admin & Perawat)</option>
+                                <option>Honorarium Dokter</option>
+                                <option>Produk &amp; Bahan Perawatan</option>
+                                <option>Alat &amp; Perlengkapan Medis</option>
+                                <option>Sewa Tempat &amp; Utilitas</option>
                                 <option>Pemasaran &amp; Promosi</option>
-                                <option>Pemeliharaan Alat</option>
-                                <option>Transportasi</option>
-                                <option>Pengeluaran Lainnya</option>
+                                <option>Pemeliharaan &amp; Kalibrasi Alat</option>
+                                <option>Laundry &amp; Kebersihan Klinik</option>
+                                <option>Perlengkapan Kantor</option>
                             </optgroup>
                         </select>
                     </div>
@@ -1443,16 +1521,12 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                         style="min-height:100px;margin-bottom:12px"
                         placeholder="Tulis balasan untuk dikirimkan ke email pengunjung..."></textarea>
                     <div style="font-size:11px;color:#94a3b8;margin-bottom:14px">Balasan akan dikirim ke email pengunjung secara otomatis.</div>
-                    <div style="display:flex;gap:10px;justify-content:flex-end">
-                        <button type="button" class="btn-cancel" onclick="closeModal('modal-pesan')">Tutup</button>
-                        <button type="submit" class="btn-save" id="mp-btn-kirim">Kirim Balasan</button>
+                    <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">
+                        <button type="button" class="btn-cancel" style="padding:7px 16px;font-size:10px" onclick="closeModal('modal-pesan')">Tutup</button>
+                        <button type="button" class="btn-save" id="mp-btn-baca" style="background:#8c7d70;display:none;padding:7px 16px;font-size:10px" onclick="tandaiPesanBaca()">Tandai Sudah Dibaca</button>
+                        <button type="submit" class="btn-save" id="mp-btn-kirim" style="padding:7px 16px;font-size:10px">Kirim Balasan</button>
                     </div>
                 </form>
-            </div>
-
-            <!-- Footer aksi tambahan -->
-            <div class="modal-footer" id="mp-detail-footer" style="border-top:1px solid #F9F7F2;margin-top:4px;padding-top:12px">
-                <!-- JS inject tombol Tandai Baca jika belum dibaca -->
             </div>
         </div>
     </div>
@@ -1460,17 +1534,18 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
     <!-- ═══ MODAL TAMBAH PENGUMUMAN ═══ -->
     <div class="modal-overlay" id="modal-pengumuman" onclick="closeModalOutside(event,'modal-pengumuman')">
         <div class="modal" style="width:500px;">
-            <h3 class="modal-title">Tambah <em>Pengumuman</em></h3>
+            <h3 class="modal-title" id="mpe-title">Tambah <em>Pengumuman</em></h3>
             <p class="modal-sub">Kirim pengumuman/notifikasi baru ke sistem</p>
-            <form method="POST" action="../../backend/admin/simpan_pengumuman.php">
+            <form method="POST" action="../../backend/admin/simpan_pengumuman.php" id="form-pengumuman">
+                <input type="hidden" name="id" id="mpe-id" value="">
                 <div class="form-row">
                     <div class="form-group full">
                         <label class="form-label">Judul Pengumuman</label>
-                        <input class="form-input" name="judul" placeholder="Contoh: Jadwal Libur Lebaran Klinik" required>
+                        <input class="form-input" name="judul" id="mpe-judul" placeholder="Contoh: Jadwal Libur Lebaran Klinik" required>
                     </div>
                     <div class="form-group full">
                         <label class="form-label">Target Penerima</label>
-                        <select class="form-select" name="target" required>
+                        <select class="form-select" name="target" id="mpe-target" required>
                             <option value="Semua">Semua (Pasien &amp; Dokter)</option>
                             <option value="Pasien">Hanya Pasien</option>
                             <option value="Dokter">Hanya Dokter</option>
@@ -1478,12 +1553,59 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     </div>
                     <div class="form-group full">
                         <label class="form-label">Konten Pengumuman</label>
-                        <textarea class="form-textarea" name="konten" style="min-height:120px;" placeholder="Tulis isi pengumuman secara lengkap..." required></textarea>
+                        <textarea class="form-textarea" name="konten" id="mpe-konten" style="min-height:120px;" placeholder="Tulis isi pengumuman secara lengkap..." required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-cancel" onclick="closeModal('modal-pengumuman')">Batal</button>
                     <button type="submit" class="btn-save">Simpan &amp; Kirim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL INPUT PEMBAYARAN ═══ -->
+    <div class="modal-overlay" id="modal-pembayaran" onclick="closeModalOutside(event,'modal-pembayaran')">
+        <div class="modal" style="width:500px;">
+            <h3 class="modal-title">Proses <em>Pembayaran Pasien</em></h3>
+            <p class="modal-sub">Input nominal biaya tindakan riil untuk pelunasan janji temu</p>
+            <form method="POST" action="../../backend/admin/proses_bayar.php" id="form-pembayaran">
+                <input type="hidden" name="appointment_id" id="pay-appt-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nama Pasien</label>
+                        <input class="form-input" id="pay-pasien" readonly style="background:#faf6ee; border-color:#efebe4; cursor:default">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Dokter Pemeriksa</label>
+                        <input class="form-input" id="pay-dokter" readonly style="background:#faf6ee; border-color:#efebe4; cursor:default">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Layanan / Tindakan</label>
+                        <input class="form-input" id="pay-treatment" readonly style="background:#faf6ee; border-color:#efebe4; cursor:default">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Total Biaya Tindakan (Rp)</label>
+                        <input type="number" class="form-input" name="jumlah" id="pay-jumlah" min="1" placeholder="Masukkan total nominal yang harus dibayar..." required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Metode Pembayaran</label>
+                        <select class="form-select" name="metode" id="pay-metode" required>
+                            <option value="Tunai">Tunai</option>
+                            <option value="Transfer Bank">Transfer Bank</option>
+                            <option value="QRIS / E-Wallet">QRIS / E-Wallet</option>
+                            <option value="Kartu Debit">Kartu Debit</option>
+                            <option value="Kartu Kredit">Kartu Kredit</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">No. Referensi (Opsional)</label>
+                        <input class="form-input" name="referensi" id="pay-ref" placeholder="No. ref transfer / slip kasir">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal('modal-pembayaran')">Batal</button>
+                    <button type="submit" class="btn-save">Proses Pelunasan &amp; Simpan</button>
                 </div>
             </form>
         </div>
@@ -1507,7 +1629,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
 
     <div class="toast" id="toast">✅ <span id="toast-msg">Berhasil</span></div>
 
-    <script src="../../asset/js/admin.js?v=3"></script>
+    <script src="../../asset/js/admin.js?v=6"></script>
     <script>
     // ── Keuangan JS ─────────────────────────────────────────
     function openKeuanganModal() {
@@ -1561,7 +1683,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
     <?php
     // PHP auto-open panel berdasarkan GET param (lebih handal)
     $auto_panel = '';
-    if (isset($_GET['panel']) && in_array($_GET['panel'], ['laporan','keuangan','pasien','dokter','jadwal','aktivitas','pesan','treatment','profil'])) {
+    if (isset($_GET['panel']) && in_array($_GET['panel'], ['laporan','keuangan','pasien','dokter','jadwal','aktivitas','pesan','treatment','profil','pengumuman','appointment'])) {
         $auto_panel = $_GET['panel'];
     } elseif (isset($_GET['lap_bulan'])) {
         $auto_panel = 'laporan';

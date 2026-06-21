@@ -7,6 +7,19 @@ if (!isset($_SESSION['user_id'])) {
 
 $conn = require '../koneksi.php';
 
+// Auto-migrasi tabel ulasan jika belum ada
+mysqli_query($conn, "CREATE TABLE IF NOT EXISTS `ulasan` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `dokter_id` INT NOT NULL,
+  `pasien_id` INT NOT NULL,
+  `appointment_id` INT NULL,
+  `rating` TINYINT NOT NULL DEFAULT 5,
+  `komentar` TEXT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`dokter_id`) REFERENCES `dokter` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`pasien_id`) REFERENCES `pasien` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
 $user_id    = (int)$_SESSION['user_id'];
 $dokter_id  = (int)($_POST['dokter_id'] ?? 0);
 $rating_val = (int)($_POST['rating'] ?? 5);
@@ -40,5 +53,5 @@ if ($qAvg) {
     mysqli_query($conn, "UPDATE dokter SET rating = $avg WHERE id = $dokter_id");
 }
 
-header('Location: ../../pages/user/dashboarduser.php?success=' . urlencode('Terima kasih! Ulasan Anda berhasil terkirim.'));
+header('Location: ../../pages/user/dashboarduser.php?page=riwayat&success=' . urlencode('Terima kasih! Ulasan Anda berhasil terkirim.'));
 exit;

@@ -7,7 +7,7 @@ $conn = require '../koneksi.php';
 
 $id = (int)($_POST['id'] ?? 0);
 if ($id <= 0) {
-    header('Location: ../../pages/admin/dashboard.php?error='.urlencode('ID tidak valid.')); exit;
+    header('Location: ../../pages/admin/dashboard.php?panel=pasien&error='.urlencode('ID tidak valid.')); exit;
 }
 
 // Ambil nama dulu untuk log
@@ -31,6 +31,6 @@ if ($ok) {
     $param = 'error='.urlencode('Gagal menghapus pasien. Mungkin ada data terkait (appointment).');
 }
 
-header("Location: ../../pages/admin/dashboard.php?$param");
+header("Location: ../../pages/admin/dashboard.php?panel=pasien&$param");
 exit;
 ?>

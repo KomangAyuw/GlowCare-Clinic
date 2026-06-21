@@ -17,7 +17,7 @@ $catatan       = trim($_POST['catatan_medis'] ?? '');
 $status        = $_POST['status'] ?? 'Aktif';
 
 if ($nama === '' || $no_pasien === '') {
-    header('Location: ../../pages/admin/dashboard.php?error='.urlencode('Nama dan No. Pasien wajib diisi.')); exit;
+    header('Location: ../../pages/admin/dashboard.php?panel=pasien&error='.urlencode('Nama dan No. Pasien wajib diisi.')); exit;
 }
 
 $tgl = $tanggal_lahir ?: null;
@@ -50,6 +50,6 @@ if ($ok) {
 }
 
 $param = $ok ? 'success='.urlencode($msg) : 'error='.urlencode($msg);
-header("Location: ../../pages/admin/dashboard.php?$param");
+header("Location: ../../pages/admin/dashboard.php?panel=pasien&$param");
 exit;
 ?>

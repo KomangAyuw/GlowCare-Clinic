@@ -7,7 +7,7 @@ $conn = require '../koneksi.php';
 
 $id = (int)($_POST['id'] ?? 0);
 if ($id <= 0) {
-    header('Location: ../../pages/admin/dashboard.php?error='.urlencode('ID tidak valid.')); exit;
+    header('Location: ../../pages/admin/dashboard.php?panel=jadwal&error='.urlencode('ID tidak valid.')); exit;
 }
 
 $stmt = mysqli_prepare($conn, "DELETE FROM jadwal_dokter WHERE id=?");
@@ -25,5 +25,5 @@ if ($ok) {
     $param = 'error='.urlencode('Gagal menghapus jadwal.');
 }
 
-header("Location: ../../pages/admin/dashboard.php?$param");
+header("Location: ../../pages/admin/dashboard.php?panel=jadwal&$param");
 exit;

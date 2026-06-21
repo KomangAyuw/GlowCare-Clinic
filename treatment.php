@@ -222,7 +222,11 @@ while($r = mysqli_fetch_assoc($q)) {
     else $cat_class = 'other';
     $durasi = htmlspecialchars($tr['durasi'] ?? '60 Menit');
     $nama = htmlspecialchars($tr['nama']);
-    $img = htmlspecialchars($tr['gambar_url']);
+    $img = $tr['gambar_url'] ?? '';
+    if ($img && strpos($img, 'http') !== 0 && strpos($img, 'asset/') !== 0) {
+        $img = 'backend/uploads/' . $img;
+    }
+    $img = htmlspecialchars($img);
     $kat = htmlspecialchars($tr['kategori']);
     $desc = htmlspecialchars($tr['deskripsi_panjang'] ?? $tr['deskripsi'] ?? '');
 ?>
