@@ -47,32 +47,34 @@ $createTable = "CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(50) NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-mysqli_query($conn, $createTable);
+$conn->exec($createTable);
 
 $alterTable = "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NOT NULL DEFAULT 'user'";
-mysqli_query($conn, $alterTable);
+$conn->exec($alterTable);
 
 $alterTablePhone = "ALTER TABLE users ADD COLUMN IF NOT EXISTS telepon VARCHAR(50) NULL";
-mysqli_query($conn, $alterTablePhone);
+$conn->exec($alterTablePhone);
 
-$email = mysqli_real_escape_string($conn, $email);
-$username = mysqli_real_escape_string($conn, $username);
-$phone = mysqli_real_escape_string($conn, $phone);
-
-$checkEmail = "SELECT id FROM users WHERE email = '$email' LIMIT 1";
-$result = mysqli_query($conn, $checkEmail);
-if ($result && mysqli_num_rows($result) > 0) {
+$stmtCheck = $conn->prepare("SELECT id FROM users WHERE email = :email LIMIT 1");
+$stmtCheck->execute(['email' => $email]);
+if ($stmtCheck->fetch()) {
     header('Location: ../../pages/auth/SignUp.php?error=' . urlencode('Email sudah terdaftar.'));
     exit;
 }
 
 $hashPassword = password_hash($password, PASSWORD_DEFAULT);
-$hashPassword = mysqli_real_escape_string($conn, $hashPassword);
 $role = 'user';
-$role = mysqli_real_escape_string($conn, $role);
-$insertSql = "INSERT INTO users (username, email, telepon, password, role) VALUES ('$username', '$email', '$phone', '$hashPassword', '$role')";
 
-if (mysqli_query($conn, $insertSql)) {
+$stmtInsert = $conn->prepare("INSERT INTO users (username, email, telepon, password, role) VALUES (:username, :email, :telepon, :password, :role)");
+$inserted = $stmtInsert->execute([
+    'username' => $username,
+    'email'    => $email,
+    'telepon'  => $phone,
+    'password' => $hashPassword,
+    'role'     => $role
+]);
+
+if ($inserted) {
     header('Location: ../../pages/auth/Signin.php?success=' . urlencode('Registrasi berhasil. Silakan masuk.'));
     exit;
 }

@@ -6,11 +6,9 @@ $conn = require_once '../../backend/config/koneksi.php';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) { header('Location: treatment.php'); exit; }
 
-$stmt = mysqli_prepare($conn, "SELECT * FROM treatment WHERE id=? AND status='Aktif'");
-mysqli_stmt_bind_param($stmt, 'i', $id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$tr = mysqli_fetch_assoc($result);
+$stmt = $conn->prepare("SELECT * FROM treatment WHERE id=? AND status='Aktif'");
+$stmt->execute([$id]);
+$tr = $stmt->fetch();
 
 if (!$tr) { header('Location: treatment.php'); exit; }
 

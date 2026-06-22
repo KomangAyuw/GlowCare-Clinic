@@ -18,30 +18,28 @@ if ($dokter_id <= 0 || $hari === '') {
     header('Location: ../../pages/admin/dashboard.php?panel=jadwal&error='.urlencode('Dokter dan hari wajib dipilih.')); exit;
 }
 
-if ($id > 0) {
-    $stmt = mysqli_prepare($conn,
-        "UPDATE jadwal_dokter SET dokter_id=?,hari=?,jam_mulai=?,jam_selesai=?,max_pasien=?,treatment_id=?,status=? WHERE id=?");
-    mysqli_stmt_bind_param($stmt, 'isssissi',
-        $dokter_id,$hari,$jam_mulai,$jam_selesai,$max_pasien,$treatment_id,$status,$id);
-    $ok  = mysqli_stmt_execute($stmt);
-    $msg = $ok ? 'Jadwal berhasil diperbarui.' : mysqli_error($conn);
-    $judul = 'Jadwal Diperbarui'; $desk = "Jadwal $hari diperbarui.";
-} else {
-    $stmt = mysqli_prepare($conn,
-        "INSERT INTO jadwal_dokter (dokter_id,hari,jam_mulai,jam_selesai,max_pasien,treatment_id,status) VALUES (?,?,?,?,?,?,?)");
-    mysqli_stmt_bind_param($stmt, 'isssiss',
-        $dokter_id,$hari,$jam_mulai,$jam_selesai,$max_pasien,$treatment_id,$status);
-    $ok  = mysqli_stmt_execute($stmt);
-    $msg = $ok ? 'Jadwal baru berhasil ditambahkan.' : mysqli_error($conn);
-    $judul = 'Jadwal Baru'; $desk = "Jadwal $hari ditambahkan.";
-}
+try {
+    if ($id > 0) {
+        $stmt = $conn->prepare("UPDATE jadwal_dokter SET dokter_id=?,hari=?,jam_mulai=?,jam_selesai=?,max_pasien=?,treatment_id=?,status=? WHERE id=?");
+        $ok = $stmt->execute([$dokter_id,$hari,$jam_mulai,$jam_selesai,$max_pasien,$treatment_id,$status,$id]);
+        $msg = 'Jadwal berhasil diperbarui.';
+        $judul = 'Jadwal Diperbarui'; $desk = "Jadwal $hari diperbarui.";
+    } else {
+        $stmt = $conn->prepare("INSERT INTO jadwal_dokter (dokter_id,hari,jam_mulai,jam_selesai,max_pasien,treatment_id,status) VALUES (?,?,?,?,?,?,?)");
+        $ok = $stmt->execute([$dokter_id,$hari,$jam_mulai,$jam_selesai,$max_pasien,$treatment_id,$status]);
+        $msg = 'Jadwal baru berhasil ditambahkan.';
+        $judul = 'Jadwal Baru'; $desk = "Jadwal $hari ditambahkan.";
+    }
 
-if ($ok) {
-    $uid  = (int)$_SESSION['user_id'];
-    $tipe = 'Jadwal';
-    $log  = mysqli_prepare($conn, "INSERT INTO log_aktivitas (user_id,tipe,judul,deskripsi,referensi_tabel) VALUES (?,?,?,?,'jadwal_dokter')");
-    mysqli_stmt_bind_param($log, 'isss', $uid, $tipe, $judul, $desk);
-    mysqli_stmt_execute($log);
+    if ($ok) {
+        $uid  = (int)$_SESSION['user_id'];
+        $tipe = 'Jadwal';
+        $log  = $conn->prepare("INSERT INTO log_aktivitas (user_id,tipe,judul,deskripsi,referensi_tabel) VALUES (?,?,?,?,'jadwal_dokter')");
+        $log->execute([$uid, $tipe, $judul, $desk]);
+    }
+} catch (Exception $e) {
+    $ok = false;
+    $msg = $e->getMessage();
 }
 
 $param = $ok ? 'success='.urlencode($msg) : 'error='.urlencode($msg);

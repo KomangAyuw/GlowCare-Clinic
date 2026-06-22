@@ -13,13 +13,15 @@ $user_id = (int)$_SESSION['user_id'];
 $role = $_SESSION['role'] ?? 'pasien';
 
 if ($role === 'dokter') {
-    $qDokter = mysqli_query($conn, "SELECT id FROM dokter WHERE user_id = $user_id LIMIT 1");
-    $dokter = mysqli_fetch_assoc($qDokter);
+    $stmt = $conn->prepare("SELECT id FROM dokter WHERE user_id = :user_id LIMIT 1");
+    $stmt->execute(['user_id' => $user_id]);
+    $dokter = $stmt->fetch();
     $sender_id = $dokter['id'] ?? 0;
     $sender_type = 'Dokter';
 } else {
-    $qPasien = mysqli_query($conn, "SELECT id FROM pasien WHERE user_id = $user_id LIMIT 1");
-    $pasien = mysqli_fetch_assoc($qPasien);
+    $stmt = $conn->prepare("SELECT id FROM pasien WHERE user_id = :user_id LIMIT 1");
+    $stmt->execute(['user_id' => $user_id]);
+    $pasien = $stmt->fetch();
     $sender_id = $pasien['id'] ?? 0;
     $sender_type = 'Pasien';
 }
@@ -56,12 +58,17 @@ if ($message === '' && $image_url === null) {
     exit;
 }
 
-$msg_escaped = mysqli_real_escape_string($conn, $message);
-$img_escaped = $image_url ? "'" . mysqli_real_escape_string($conn, $image_url) . "'" : "NULL";
+$stmtInsert = $conn->prepare("INSERT INTO messages (consultation_id, sender_type, sender_id, message, image_url, created_at) VALUES (:consultation_id, :sender_type, :sender_id, :message, :image_url, NOW())");
+$inserted = $stmtInsert->execute([
+    'consultation_id' => $consultation_id,
+    'sender_type'      => $sender_type,
+    'sender_id'        => $sender_id,
+    'message'          => $message,
+    'image_url'        => $image_url
+]);
 
-$sql = "INSERT INTO messages (consultation_id, sender_type, sender_id, message, image_url, created_at) VALUES ($consultation_id, '$sender_type', $sender_id, '$msg_escaped', $img_escaped, NOW())";
-if (mysqli_query($conn, $sql)) {
+if ($inserted) {
     echo json_encode(['status' => 'success']);
 } else {
-    echo json_encode(['status' => 'error', 'message' => mysqli_error($conn)]);
+    echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan pesan ke database.']);
 }

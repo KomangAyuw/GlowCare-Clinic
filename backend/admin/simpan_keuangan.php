@@ -24,30 +24,31 @@ if (!$tanggal || !$kategori || !$keterangan || $jumlah <= 0) {
 
 if (!in_array($jenis, ['Pemasukan', 'Pengeluaran'])) $jenis = 'Pemasukan';
 
-if ($id > 0) {
-    // UPDATE
-    $stmt = mysqli_prepare($conn, "UPDATE keuangan SET tanggal=?,jenis=?,kategori=?,keterangan=?,jumlah=?,metode=?,referensi=?,catatan=? WHERE id=?");
-    mysqli_stmt_bind_param($stmt, 'ssssdsssi', $tanggal, $jenis, $kategori, $keterangan, $jumlah, $metode, $referensi, $catatan, $id);
-    $ok     = mysqli_stmt_execute($stmt);
-    $aksi   = 'Transaksi Diperbarui';
-    $desk   = "$jenis '$keterangan' diperbarui. Jumlah: Rp " . number_format($jumlah, 0, ',', '.');
-} else {
-    // INSERT
-    $stmt = mysqli_prepare($conn, "INSERT INTO keuangan (tanggal,jenis,kategori,keterangan,jumlah,metode,referensi,catatan,dibuat_oleh) VALUES (?,?,?,?,?,?,?,?,?)");
-    mysqli_stmt_bind_param($stmt, 'ssssdsssi', $tanggal, $jenis, $kategori, $keterangan, $jumlah, $metode, $referensi, $catatan, $uid);
-    $ok     = mysqli_stmt_execute($stmt);
-    $aksi   = 'Transaksi Dicatat';
-    $desk   = "$jenis '$keterangan' sebesar Rp " . number_format($jumlah, 0, ',', '.') . " dicatat.";
-}
+try {
+    if ($id > 0) {
+        // UPDATE
+        $stmt = $conn->prepare("UPDATE keuangan SET tanggal=?,jenis=?,kategori=?,keterangan=?,jumlah=?,metode=?,referensi=?,catatan=? WHERE id=?");
+        $ok = $stmt->execute([$tanggal, $jenis, $kategori, $keterangan, $jumlah, $metode, $referensi, $catatan, $id]);
+        $aksi   = 'Transaksi Diperbarui';
+        $desk   = "$jenis '$keterangan' diperbarui. Jumlah: Rp " . number_format($jumlah, 0, ',', '.');
+    } else {
+        // INSERT
+        $stmt = $conn->prepare("INSERT INTO keuangan (tanggal,jenis,kategori,keterangan,jumlah,metode,referensi,catatan,dibuat_oleh) VALUES (?,?,?,?,?,?,?,?,?)");
+        $ok = $stmt->execute([$tanggal, $jenis, $kategori, $keterangan, $jumlah, $metode, $referensi, $catatan, $uid]);
+        $aksi   = 'Transaksi Dicatat';
+        $desk   = "$jenis '$keterangan' sebesar Rp " . number_format($jumlah, 0, ',', '.') . " dicatat.";
+    }
 
-if ($ok) {
-    // Log aktivitas
-    $log = mysqli_prepare($conn, "INSERT INTO log_aktivitas (user_id,tipe,judul,deskripsi,referensi_tabel) VALUES (?,'Keuangan',?,?,'keuangan')");
-    mysqli_stmt_bind_param($log, 'iss', $uid, $aksi, $desk);
-    mysqli_stmt_execute($log);
-    header('Location: ../../pages/admin/dashboard.php?panel=keuangan&success=' . urlencode('Transaksi berhasil disimpan.'));
-} else {
-    header('Location: ../../pages/admin/dashboard.php?panel=keuangan&error=' . urlencode('Gagal menyimpan transaksi: ' . mysqli_error($conn)));
+    if ($ok) {
+        // Log aktivitas
+        $log = $conn->prepare("INSERT INTO log_aktivitas (user_id,tipe,judul,deskripsi,referensi_tabel) VALUES (?,'Keuangan',?,?,'keuangan')");
+        $log->execute([$uid, $aksi, $desk]);
+        header('Location: ../../pages/admin/dashboard.php?panel=keuangan&success=' . urlencode('Transaksi berhasil disimpan.'));
+    } else {
+        header('Location: ../../pages/admin/dashboard.php?panel=keuangan&error=' . urlencode('Gagal menyimpan transaksi.'));
+    }
+} catch (Exception $e) {
+    header('Location: ../../pages/admin/dashboard.php?panel=keuangan&error=' . urlencode('Gagal menyimpan transaksi: ' . $e->getMessage()));
 }
 exit;
 ?>

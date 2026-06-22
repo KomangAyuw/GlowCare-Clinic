@@ -7,14 +7,15 @@ $user_id = (int)$_SESSION['user_id'];
 $today   = date('Y-m-d');
 
 // ── 1. PROFIL DOKTER ──────────────────────────
-$qProfil = mysqli_query($conn, "
+$stmtProfil = $conn->prepare("
     SELECT u.username, u.email, d.*
     FROM   users u
     LEFT JOIN dokter d ON d.user_id = u.id
-    WHERE  u.id = $user_id
+    WHERE  u.id = :user_id
     LIMIT  1
 ");
-$profil = $qProfil ? mysqli_fetch_assoc($qProfil) : [];
+$stmtProfil->execute(['user_id' => $user_id]);
+$profil = $stmtProfil->fetch() ?: [];
 
 $namaLengkap  = htmlspecialchars($profil['nama_lengkap']     ?? $profil['username'] ?? 'Dokter');
 $gelar        = htmlspecialchars($profil['gelar']            ?? '');
@@ -42,52 +43,50 @@ if ($gelar && stripos($namaDisplay, $gelar) === false) {
     }
 }
 
-$qStatHari = mysqli_query($conn, "
+$stmtStatHari = $conn->prepare("
     SELECT
         COUNT(*) AS total,
         SUM(status = 'Selesai') AS selesai,
         SUM(status IN ('Menunggu','Berlangsung','Terjadwal')) AS menunggu
     FROM jadwal
-    WHERE dokter_id = $dokter_id AND tanggal = '$today'
+    WHERE dokter_id = :dokter_id AND tanggal = :today
 ");
-$statHari = $qStatHari ? mysqli_fetch_assoc($qStatHari) : ['total'=>0,'selesai'=>0,'menunggu'=>0];
+$stmtStatHari->execute(['dokter_id' => $dokter_id, 'today' => $today]);
+$statHari = $stmtStatHari->fetch() ?: ['total'=>0,'selesai'=>0,'menunggu'=>0];
 
-
-$qTotalPasien = mysqli_query($conn, "
+$stmtTotalPasien = $conn->prepare("
     SELECT COUNT(DISTINCT pasien_id) AS total
     FROM rekam_medis
-    WHERE dokter_id = $dokter_id
+    WHERE dokter_id = :dokter_id
 ");
-$totalPasien = $qTotalPasien ? (int)mysqli_fetch_assoc($qTotalPasien)['total'] : 0;
-
+$stmtTotalPasien->execute(['dokter_id' => $dokter_id]);
+$totalPasien = (int)($stmtTotalPasien->fetch()['total'] ?? 0);
 
 $bulanIni = date('Y-m');
-$qStatBulan = mysqli_query($conn, "
+$stmtStatBulan = $conn->prepare("
     SELECT
         COUNT(*) AS total_rm,
         SUM(treatment = 'Facelift') AS facelift,
         SUM(treatment = 'Rhinoplasty') AS rhinoplasty,
         SUM(treatment = 'Blepharoplasty') AS blepharoplasty
     FROM rekam_medis
-    WHERE dokter_id = $dokter_id
-      AND DATE_FORMAT(tanggal, '%Y-%m') = '$bulanIni'
+    WHERE dokter_id = :dokter_id
+      AND DATE_FORMAT(tanggal, '%Y-%m') = :bulan_ini
 ");
-$statBulan = $qStatBulan ? mysqli_fetch_assoc($qStatBulan) : ['total_rm'=>0,'facelift'=>0,'rhinoplasty'=>0,'blepharoplasty'=>0];
+$stmtStatBulan->execute(['dokter_id' => $dokter_id, 'bulan_ini' => $bulanIni]);
+$statBulan = $stmtStatBulan->fetch() ?: ['total_rm'=>0,'facelift'=>0,'rhinoplasty'=>0,'blepharoplasty'=>0];
 
-$qJadwal = mysqli_query($conn, "
+$stmtJadwal = $conn->prepare("
     SELECT j.*, p.nama AS nama_pasien, p.usia, p.jenis_kelamin,
            p.keluhan, p.id AS pasien_id,
            (SELECT id FROM appointment WHERE pasien_id = j.pasien_id AND dokter_id = j.dokter_id AND tanggal = j.tanggal AND TIME_FORMAT(jam, '%H:%i') = TIME_FORMAT(j.jam_mulai, '%H:%i') LIMIT 1) AS appt_id
     FROM   jadwal j
     JOIN   pasien p ON p.id = j.pasien_id
-    WHERE  j.dokter_id = $dokter_id AND j.tanggal = '$today'
+    WHERE  j.dokter_id = :dokter_id AND j.tanggal = :today
     ORDER  BY j.jam_mulai ASC
 ");
-$jadwalHariIni = [];
-while ($row = mysqli_fetch_assoc($qJadwal)) {
-    $jadwalHariIni[] = $row;
-}
-
+$stmtJadwal->execute(['dokter_id' => $dokter_id, 'today' => $today]);
+$jadwalHariIni = $stmtJadwal->fetchAll() ?: [];
 
 $pasienBerikutnya = null;
 foreach ($jadwalHariIni as $j) {
@@ -97,7 +96,7 @@ foreach ($jadwalHariIni as $j) {
     }
 }
 
-$qPasien = mysqli_query($conn, "
+$stmtPasien = $conn->prepare("
     SELECT
         p.*,
         j.treatment,
@@ -105,132 +104,123 @@ $qPasien = mysqli_query($conn, "
         j.tanggal,
         j.status AS status_jadwal,
         COUNT(rm.id) AS total_kunjungan,
-        (SELECT id FROM appointment WHERE pasien_id = p.id AND dokter_id = $dokter_id ORDER BY tanggal DESC, jam DESC LIMIT 1) AS appt_id
+        (SELECT id FROM appointment WHERE pasien_id = p.id AND dokter_id = :dokter_id ORDER BY tanggal DESC, jam DESC LIMIT 1) AS appt_id
     FROM pasien p
     LEFT JOIN jadwal j ON j.pasien_id = p.id
-        AND j.dokter_id = $dokter_id
-        AND j.tanggal = '$today'
+        AND j.dokter_id = :dokter_id2
+        AND j.tanggal = :today
     LEFT JOIN rekam_medis rm ON rm.pasien_id = p.id
-        AND rm.dokter_id = $dokter_id
-    WHERE j.dokter_id = $dokter_id OR rm.dokter_id = $dokter_id
+        AND rm.dokter_id = :dokter_id3
+    WHERE j.dokter_id = :dokter_id4 OR rm.dokter_id = :dokter_id5
     GROUP BY p.id, j.id
     ORDER BY j.jam_mulai ASC
 ");
-$daftarPasien = [];
-while ($row = mysqli_fetch_assoc($qPasien)) {
-    $daftarPasien[] = $row;
-}
+$stmtPasien->execute([
+    'dokter_id' => $dokter_id,
+    'dokter_id2' => $dokter_id,
+    'today' => $today,
+    'dokter_id3' => $dokter_id,
+    'dokter_id4' => $dokter_id,
+    'dokter_id5' => $dokter_id
+]);
+$daftarPasien = $stmtPasien->fetchAll() ?: [];
 
-
-$qRM = mysqli_query($conn, "
+$stmtRM = $conn->prepare("
     SELECT rm.*, p.nama AS nama_pasien, p.no_rekam AS no_pasien, rm.ruangan
     FROM   rekam_medis rm
     JOIN   pasien p ON p.id = rm.pasien_id
-    WHERE  rm.dokter_id = $dokter_id
+    WHERE  rm.dokter_id = :dokter_id
     ORDER  BY rm.tanggal DESC, rm.id DESC
     LIMIT  20
 ");
-$daftarRM = [];
-while ($row = mysqli_fetch_assoc($qRM)) {
-    $daftarRM[] = $row;
-}
+$stmtRM->execute(['dokter_id' => $dokter_id]);
+$daftarRM = $stmtRM->fetchAll() ?: [];
 
 // Daftar pasien untuk dropdown modal (pasien unik dokter ini)
-$qPasienDropdown = mysqli_query($conn, "
+$stmtPasienDropdown = $conn->prepare("
     SELECT DISTINCT p.id, p.nama, p.no_rekam
     FROM pasien p
     JOIN jadwal j ON j.pasien_id = p.id
-    WHERE j.dokter_id = $dokter_id
+    WHERE j.dokter_id = :dokter_id
     ORDER BY p.nama ASC
 ");
-$pasienDropdown = [];
-while ($row = mysqli_fetch_assoc($qPasienDropdown)) {
-    $pasienDropdown[] = $row;
-}
+$stmtPasienDropdown->execute(['dokter_id' => $dokter_id]);
+$pasienDropdown = $stmtPasienDropdown->fetchAll() ?: [];
 
 // ── 6. JADWAL MINGGUAN ────────────────────────
 // Senin minggu ini
 $senin = date('Y-m-d', strtotime('monday this week'));
 $sabtu = date('Y-m-d', strtotime('saturday this week'));
-$qMinggu = mysqli_query($conn, "
+$stmtMinggu = $conn->prepare("
     SELECT j.*, p.nama AS nama_pasien
     FROM   jadwal j
     JOIN   pasien p ON p.id = j.pasien_id
-    WHERE  j.dokter_id = $dokter_id
-      AND  j.tanggal BETWEEN '$senin' AND '$sabtu'
+    WHERE  j.dokter_id = :dokter_id
+      AND  j.tanggal BETWEEN :senin AND :sabtu
     ORDER  BY j.tanggal ASC, j.jam_mulai ASC
 ");
+$stmtMinggu->execute([
+    'dokter_id' => $dokter_id,
+    'senin' => $senin,
+    'sabtu' => $sabtu
+]);
 $jadwalMinggu = [];
-while ($row = mysqli_fetch_assoc($qMinggu)) {
+while ($row = $stmtMinggu->fetch()) {
     $jadwalMinggu[$row['tanggal']][] = $row;
 }
 
 // ── 7. NOTIFIKASI DOKTER ──────────────────────
-$qNewAppt = mysqli_query($conn, "
+$stmtNewAppt = $conn->prepare("
     SELECT a.*, p.nama AS nama_pasien, t.nama AS nama_treatment
     FROM appointment a
     JOIN pasien p ON a.pasien_id = p.id
     LEFT JOIN treatment t ON a.treatment_id = t.id
-    WHERE a.dokter_id = $dokter_id AND a.status = 'Menunggu'
+    WHERE a.dokter_id = :dokter_id AND a.status = 'Menunggu'
     ORDER BY a.tanggal DESC, a.jam DESC
 ");
-$newAppointments = [];
-if ($qNewAppt) {
-    while ($row = mysqli_fetch_assoc($qNewAppt)) {
-        $newAppointments[] = $row;
-    }
-}
+$stmtNewAppt->execute(['dokter_id' => $dokter_id]);
+$newAppointments = $stmtNewAppt->fetchAll() ?: [];
 
-$qUnreadChat = mysqli_query($conn, "
+$stmtUnreadChat = $conn->prepare("
     SELECT m.*, p.nama AS nama_pasien, c.id AS consultation_id
     FROM messages m
     JOIN consultations c ON m.consultation_id = c.id
     JOIN pasien p ON c.pasien_id = p.id
-    WHERE c.dokter_id = $dokter_id 
+    WHERE c.dokter_id = :dokter_id 
       AND m.sender_type = 'Pasien' 
       AND m.is_read = 0
     GROUP BY c.id
     ORDER BY m.created_at DESC
 ");
-$unreadChats = [];
-if ($qUnreadChat) {
-    while ($row = mysqli_fetch_assoc($qUnreadChat)) {
-        $unreadChats[] = $row;
-    }
-}
+$stmtUnreadChat->execute(['dokter_id' => $dokter_id]);
+$unreadChats = $stmtUnreadChat->fetchAll() ?: [];
 
 // Cek pengumuman baru dalam 7 hari terakhir
-$qRecentPengumuman = mysqli_query($conn, "SELECT COUNT(*) AS n FROM pengumuman WHERE target IN ('Semua', 'Dokter') AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
-$recent_pengumuman = $qRecentPengumuman ? mysqli_fetch_assoc($qRecentPengumuman)['n'] : 0;
+$stmtRecentPengumuman = $conn->query("SELECT COUNT(*) AS n FROM pengumuman WHERE target IN ('Semua', 'Dokter') AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+$recent_pengumuman = $stmtRecentPengumuman->fetch()['n'] ?? 0;
 $totalNotifCount = count($newAppointments) + count($unreadChats) + $recent_pengumuman;
 
 // Query pengumuman untuk ditampilkan
-$qPengumuman = mysqli_query($conn, "SELECT * FROM pengumuman WHERE target IN ('Semua', 'Dokter') ORDER BY created_at DESC LIMIT 20");
-$pengumuman_list = [];
-if ($qPengumuman) {
-    while ($p = mysqli_fetch_assoc($qPengumuman)) {
-        $pengumuman_list[] = $p;
-    }
-}
+$stmtPengumuman = $conn->query("SELECT * FROM pengumuman WHERE target IN ('Semua', 'Dokter') ORDER BY created_at DESC LIMIT 20");
+$pengumuman_list = $stmtPengumuman->fetchAll() ?: [];
 
 // ── 8. ULASAN PASIEN ─────────────────────────
-$qUlasan = mysqli_query($conn, "
+$stmtUlasan = $conn->prepare("
     SELECT u.*, p.nama AS nama_pasien
     FROM ulasan u
     JOIN pasien p ON p.id = u.pasien_id
-    WHERE u.dokter_id = $dokter_id
+    WHERE u.dokter_id = :dokter_id
     ORDER BY u.created_at DESC
     LIMIT 50
 ");
+$stmtUlasan->execute(['dokter_id' => $dokter_id]);
 $daftarUlasan = [];
 $totalUlasan = 0;
 $sumRating = 0;
-if ($qUlasan) {
-    while ($row = mysqli_fetch_assoc($qUlasan)) {
-        $daftarUlasan[] = $row;
-        $sumRating += (int)$row['rating'];
-        $totalUlasan++;
-    }
+while ($row = $stmtUlasan->fetch()) {
+    $daftarUlasan[] = $row;
+    $sumRating += (int)$row['rating'];
+    $totalUlasan++;
 }
 $avgRating = $totalUlasan > 0 ? round($sumRating / $totalUlasan, 1) : 0;
 

@@ -8,7 +8,7 @@ $conn = require_once '../../backend/config/koneksi.php';
 
 // Auto-migrasi tabel pengumuman
 try {
-    mysqli_query($conn, "CREATE TABLE IF NOT EXISTS `pengumuman` (
+    $conn->exec("CREATE TABLE IF NOT EXISTS `pengumuman` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
         `judul` VARCHAR(255) NOT NULL,
         `konten` TEXT NOT NULL,
@@ -20,45 +20,46 @@ try {
 }
 
 // ── Statistik ──
-$total_pasien     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM pasien"))['n'];
-$dokter_aktif     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM dokter WHERE status='Aktif'"))['n'];
-$appt_hari_ini    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM appointment WHERE tanggal=CURDATE()"))['n'];
+$total_pasien     = $conn->query("SELECT COUNT(*) AS n FROM pasien")->fetch()['n'] ?? 0;
+$dokter_aktif     = $conn->query("SELECT COUNT(*) AS n FROM dokter WHERE status='Aktif'")->fetch()['n'] ?? 0;
+$appt_hari_ini    = $conn->query("SELECT COUNT(*) AS n FROM appointment WHERE tanggal=CURDATE()")->fetch()['n'] ?? 0;
 
 $pendapatan_bulan = 0;
 $pengeluaran_bulan = 0;
 $laba_bersih_bulan = 0;
 try {
-    $r_pendapatan = mysqli_query($conn, "SELECT COALESCE(SUM(jumlah),0) AS n FROM keuangan WHERE jenis='Pemasukan' AND MONTH(tanggal)=MONTH(NOW()) AND YEAR(tanggal)=YEAR(NOW())");
+    $r_pendapatan = $conn->query("SELECT COALESCE(SUM(jumlah),0) AS n FROM keuangan WHERE jenis='Pemasukan' AND MONTH(tanggal)=MONTH(NOW()) AND YEAR(tanggal)=YEAR(NOW())");
     if ($r_pendapatan) {
-        $pendapatan_bulan = mysqli_fetch_assoc($r_pendapatan)['n'];
+        $pendapatan_bulan = $r_pendapatan->fetch()['n'];
     }
-    $r_pengeluaran = mysqli_query($conn, "SELECT COALESCE(SUM(jumlah),0) AS n FROM keuangan WHERE jenis='Pengeluaran' AND MONTH(tanggal)=MONTH(NOW()) AND YEAR(tanggal)=YEAR(NOW())");
+    $r_pengeluaran = $conn->query("SELECT COALESCE(SUM(jumlah),0) AS n FROM keuangan WHERE jenis='Pengeluaran' AND MONTH(tanggal)=MONTH(NOW()) AND YEAR(tanggal)=YEAR(NOW())");
     if ($r_pengeluaran) {
-        $pengeluaran_bulan = mysqli_fetch_assoc($r_pengeluaran)['n'];
+        $pengeluaran_bulan = $r_pengeluaran->fetch()['n'];
     }
     $laba_bersih_bulan = (float)$pendapatan_bulan - (float)$pengeluaran_bulan;
 } catch (Exception $e) {
     try {
-        $r_pembayaran = mysqli_query($conn, "SELECT COALESCE(SUM(jumlah),0) AS n FROM pembayaran WHERE status='Lunas' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())");
+        $r_pembayaran = $conn->query("SELECT COALESCE(SUM(jumlah),0) AS n FROM pembayaran WHERE status='Lunas' AND MONTH(created_at)=MONTH(NOW()) AND YEAR(created_at)=YEAR(NOW())");
         if ($r_pembayaran) {
-            $pendapatan_bulan = mysqli_fetch_assoc($r_pembayaran)['n'];
+            $pendapatan_bulan = $r_pembayaran->fetch()['n'];
             $laba_bersih_bulan = (float)$pendapatan_bulan;
         }
     } catch (Exception $ex) {}
 }
 
 // ── Data per panel ──
-$appt_today   = mysqli_query($conn, "SELECT a.id,a.jam,a.status,p.nama AS nama_pasien,d.nama AS nama_dokter,t.nama AS nama_treatment FROM appointment a JOIN pasien p ON a.pasien_id=p.id JOIN dokter d ON a.dokter_id=d.id LEFT JOIN treatment t ON a.treatment_id=t.id WHERE a.tanggal=CURDATE() ORDER BY a.jam ASC LIMIT 10");
-$aktivitas    = mysqli_query($conn, "SELECT * FROM log_aktivitas ORDER BY created_at DESC LIMIT 5");
-$pasien_list  = mysqli_query($conn, "SELECT p.*, (SELECT t.nama FROM appointment a2 LEFT JOIN treatment t ON t.id=a2.treatment_id WHERE a2.pasien_id=p.id ORDER BY a2.id DESC LIMIT 1) AS treatment_terakhir FROM pasien p ORDER BY p.id DESC LIMIT 100");
-$dokter_list  = mysqli_query($conn, "SELECT * FROM dokter ORDER BY id ASC");
-$jadwal_list  = mysqli_query($conn, "SELECT j.*,d.nama AS nama_dokter,d.foto AS foto_dokter,t.nama AS nama_treatment FROM jadwal_dokter j JOIN dokter d ON j.dokter_id=d.id LEFT JOIN treatment t ON j.treatment_id=t.id ORDER BY d.nama ASC");
-$log_list     = mysqli_query($conn, "SELECT * FROM log_aktivitas ORDER BY created_at DESC LIMIT 50");
-$treatment_list = mysqli_query($conn, "SELECT * FROM treatment ORDER BY urutan ASC");
+$appt_today   = $conn->query("SELECT a.id,a.jam,a.status,p.nama AS nama_pasien,d.nama AS nama_dokter,t.nama AS nama_treatment FROM appointment a JOIN pasien p ON a.pasien_id=p.id JOIN dokter d ON a.dokter_id=d.id LEFT JOIN treatment t ON a.treatment_id=t.id WHERE a.tanggal=CURDATE() ORDER BY a.jam ASC LIMIT 10")->fetchAll() ?: [];
+$aktivitas    = $conn->query("SELECT * FROM log_aktivitas ORDER BY created_at DESC LIMIT 5")->fetchAll() ?: [];
+$pasien_list  = $conn->query("SELECT p.*, (SELECT t.nama FROM appointment a2 LEFT JOIN treatment t ON t.id=a2.treatment_id WHERE a2.pasien_id=p.id ORDER BY a2.id DESC LIMIT 1) AS treatment_terakhir FROM pasien p ORDER BY p.id DESC LIMIT 100")->fetchAll() ?: [];
+$dokter_list  = $conn->query("SELECT * FROM dokter ORDER BY id ASC")->fetchAll() ?: [];
+$jadwal_list  = $conn->query("SELECT j.*,d.nama AS nama_dokter,d.foto AS foto_dokter,t.nama AS nama_treatment FROM jadwal_dokter j JOIN dokter d ON j.dokter_id=d.id LEFT JOIN treatment t ON j.treatment_id=t.id ORDER BY d.nama ASC")->fetchAll() ?: [];
+$log_list     = $conn->query("SELECT * FROM log_aktivitas ORDER BY created_at DESC LIMIT 50")->fetchAll() ?: [];
+$treatment_list = $conn->query("SELECT * FROM treatment ORDER BY urutan ASC")->fetchAll() ?: [];
+
 // Laporan filter
 $lap_bulan = (int)($_GET['lap_bulan'] ?? date('n'));
 $lap_tahun = (int)($_GET['lap_tahun'] ?? date('Y'));
-$laporan   = mysqli_query($conn, "SELECT d.nama AS nama_dokter,
+$stmtLaporan = $conn->prepare("SELECT d.nama AS nama_dokter,
     COUNT(a.id) AS total_appt,
     COALESCE(SUM(a.status='Selesai'),0) AS selesai,
     COALESCE(SUM(a.status='Dibatalkan'),0) AS batal,
@@ -67,32 +68,39 @@ $laporan   = mysqli_query($conn, "SELECT d.nama AS nama_dokter,
     d.spesialisasi, d.rating
     FROM dokter d
     LEFT JOIN appointment a ON a.dokter_id=d.id
-        AND MONTH(a.tanggal)=$lap_bulan AND YEAR(a.tanggal)=$lap_tahun
+        AND MONTH(a.tanggal) = :lap_bulan AND YEAR(a.tanggal) = :lap_tahun
     LEFT JOIN pembayaran py ON py.appointment_id=a.id AND py.status='Lunas'
     GROUP BY d.id,d.nama,d.spesialisasi,d.rating
     ORDER BY pendapatan DESC");
+$stmtLaporan->execute(['lap_bulan' => $lap_bulan, 'lap_tahun' => $lap_tahun]);
+$laporan = $stmtLaporan->fetchAll() ?: [];
 
 // Auto-migrasi kolom balasan: hanya ALTER jika kolom belum ada
 try {
-    $_db = mysqli_fetch_assoc(mysqli_query($conn, "SELECT DATABASE() AS db"))['db'];
+    $_db = $conn->query("SELECT DATABASE() AS db")->fetch()['db'];
     $_cols_exist = [];
-    $_chk = mysqli_query($conn, "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_SCHEMA='$_db' AND TABLE_NAME='pesan_kontak'
+    $_chk = $conn->prepare("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = :db AND TABLE_NAME='pesan_kontak'
         AND COLUMN_NAME IN ('balasan','dibalas_at','dibalas_oleh')");
-    while ($_r = mysqli_fetch_assoc($_chk)) $_cols_exist[] = $_r['COLUMN_NAME'];
-    if (!in_array('balasan',    $_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `balasan` TEXT NULL AFTER `sudah_baca`");
-    if (!in_array('dibalas_at', $_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_at` TIMESTAMP NULL AFTER `balasan`");
-    if (!in_array('dibalas_oleh',$_cols_exist)) mysqli_query($conn, "ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_oleh` VARCHAR(100) NULL AFTER `dibalas_at`");
+    $_chk->execute(['db' => $_db]);
+    while ($_r = $_chk->fetch()) $_cols_exist[] = $_r['COLUMN_NAME'];
+    if (!in_array('balasan',    $_cols_exist)) $conn->exec("ALTER TABLE `pesan_kontak` ADD COLUMN `balasan` TEXT NULL AFTER `sudah_baca`");
+    if (!in_array('dibalas_at', $_cols_exist)) $conn->exec("ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_at` TIMESTAMP NULL AFTER `balasan`");
+    if (!in_array('dibalas_oleh',$_cols_exist)) $conn->exec("ALTER TABLE `pesan_kontak` ADD COLUMN `dibalas_oleh` VARCHAR(100) NULL AFTER `dibalas_at`");
     unset($_db, $_cols_exist, $_chk, $_r);
 } catch (Exception $e) {
     // Abaikan error migrasi jika kolom/tabel belum siap
 }
 
-$pesan_list  = mysqli_query($conn, "SELECT * FROM pesan_kontak ORDER BY created_at DESC LIMIT 50");
-$pesan_belum = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM pesan_kontak WHERE sudah_baca=0"))['n'];
-$admin        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id=".(int)$_SESSION['user_id']));
-$pengumuman_list = mysqli_query($conn, "SELECT * FROM pengumuman ORDER BY created_at DESC LIMIT 50");
-$appointment_list = mysqli_query($conn, "
+$pesan_list  = $conn->query("SELECT * FROM pesan_kontak ORDER BY created_at DESC LIMIT 50")->fetchAll() ?: [];
+$pesan_belum = $conn->query("SELECT COUNT(*) AS n FROM pesan_kontak WHERE sudah_baca=0")->fetch()['n'] ?? 0;
+
+$stmtAdmin = $conn->prepare("SELECT * FROM users WHERE id = :admin_id");
+$stmtAdmin->execute(['admin_id' => (int)$_SESSION['user_id']]);
+$admin = $stmtAdmin->fetch() ?: [];
+
+$pengumuman_list = $conn->query("SELECT * FROM pengumuman ORDER BY created_at DESC LIMIT 50")->fetchAll() ?: [];
+$appointment_list = $conn->query("
     SELECT a.*, p.nama AS nama_pasien, d.nama AS nama_dokter, t.nama AS nama_treatment, py.status AS status_pembayaran, py.jumlah AS jumlah_pembayaran 
     FROM appointment a 
     JOIN pasien p ON a.pasien_id=p.id 
@@ -101,7 +109,7 @@ $appointment_list = mysqli_query($conn, "
     LEFT JOIN pembayaran py ON py.appointment_id=a.id 
     ORDER BY a.tanggal DESC, a.jam DESC 
     LIMIT 200
-");
+")->fetchAll() ?: [];
 
 // ── Keuangan ──
 $keu_bulan = (int)($_GET['keu_bulan'] ?? date('n'));
@@ -109,7 +117,7 @@ $keu_tahun = (int)($_GET['keu_tahun'] ?? date('Y'));
 $keu_filter_jenis = $_GET['keu_jenis'] ?? '';
 // Pastikan tabel ada (aman jika belum di-setup)
 try {
-    mysqli_query($conn, "CREATE TABLE IF NOT EXISTS `keuangan` (
+    $conn->exec("CREATE TABLE IF NOT EXISTS `keuangan` (
       `id` INT AUTO_INCREMENT PRIMARY KEY, `tanggal` DATE NOT NULL,
       `jenis` ENUM('Pemasukan','Pengeluaran') NOT NULL DEFAULT 'Pemasukan',
       `kategori` VARCHAR(100) NOT NULL, `keterangan` VARCHAR(255) NOT NULL,
@@ -122,28 +130,35 @@ try {
     // Abaikan error jika pembuatan tabel gagal
 }
 
-$keu_where = "MONTH(tanggal)=$keu_bulan AND YEAR(tanggal)=$keu_tahun";
+$keu_where = "MONTH(tanggal) = :keu_bulan AND YEAR(tanggal) = :keu_tahun";
+$keu_params = ['keu_bulan' => $keu_bulan, 'keu_tahun' => $keu_tahun];
 if ($keu_filter_jenis === 'Pemasukan' || $keu_filter_jenis === 'Pengeluaran') {
-    $keu_where .= " AND jenis='" . mysqli_real_escape_string($conn, $keu_filter_jenis) . "'";
+    $keu_where .= " AND jenis = :keu_jenis";
+    $keu_params['keu_jenis'] = $keu_filter_jenis;
 }
 
 try {
-    $keu_list = mysqli_query($conn, "SELECT * FROM keuangan WHERE $keu_where ORDER BY tanggal DESC, id DESC");
-    $keu_stats = mysqli_fetch_assoc(mysqli_query($conn, "SELECT
+    $stmtKeuList = $conn->prepare("SELECT * FROM keuangan WHERE $keu_where ORDER BY tanggal DESC, id DESC");
+    $stmtKeuList->execute($keu_params);
+    $keu_list = $stmtKeuList->fetchAll() ?: [];
+
+    $stmtKeuStats = $conn->prepare("SELECT
         COALESCE(SUM(CASE WHEN jenis='Pemasukan' THEN jumlah ELSE 0 END),0) AS total_masuk,
         COALESCE(SUM(CASE WHEN jenis='Pengeluaran' THEN jumlah ELSE 0 END),0) AS total_keluar,
         COUNT(*) AS total_trx
-        FROM keuangan WHERE MONTH(tanggal)=$keu_bulan AND YEAR(tanggal)=$keu_tahun"));
+        FROM keuangan WHERE MONTH(tanggal) = :keu_bulan AND YEAR(tanggal) = :keu_tahun");
+    $stmtKeuStats->execute(['keu_bulan' => $keu_bulan, 'keu_tahun' => $keu_tahun]);
+    $keu_stats = $stmtKeuStats->fetch() ?: ['total_masuk' => 0, 'total_keluar' => 0, 'total_trx' => 0];
     $keu_saldo = $keu_stats['total_masuk'] - $keu_stats['total_keluar'];
 } catch (Exception $e) {
-    $keu_list = false;
+    $keu_list = [];
     $keu_stats = ['total_masuk' => 0, 'total_keluar' => 0, 'total_trx' => 0];
     $keu_saldo = 0;
 }
 
 // Daftar dokter & treatment untuk select di modal
-$dlist_modal  = mysqli_query($conn, "SELECT id,nama FROM dokter WHERE status='Aktif' ORDER BY nama");
-$tlist_modal  = mysqli_query($conn, "SELECT id,nama FROM treatment WHERE status='Aktif' ORDER BY urutan");
+$dlist_modal  = $conn->query("SELECT id,nama FROM dokter WHERE status='Aktif' ORDER BY nama")->fetchAll() ?: [];
+$tlist_modal  = $conn->query("SELECT id,nama FROM treatment WHERE status='Aktif' ORDER BY urutan")->fetchAll() ?: [];
 
 function rupiah(float $n): string {
     return 'Rp '.number_format($n,0,',','.');
@@ -165,7 +180,14 @@ function badge_appt(string $s): string {
 $bln_ind = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 $hari_ind = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '.date('Y');
+
+$time_cond_log = isset($_SESSION['last_view_log_time']) ? $_SESSION['last_view_log_time'] : date('Y-m-d H:i:s');
+$stmtUnreadLogs = $conn->prepare("SELECT COUNT(*) AS n FROM log_aktivitas WHERE created_at > :time_cond");
+$stmtUnreadLogs->execute(['time_cond' => $time_cond_log]);
+$unread_logs = (int)($stmtUnreadLogs->fetch()['n'] ?? 0);
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="id">
@@ -342,15 +364,9 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
             <a class="nav-item active" onclick="showPanel('dashboard',this)">Dashboard</a>
             <a class="nav-item" onclick="showPanel('aktivitas',this)">
                 Aktivitas
-                <?php
-                $time_cond = isset($_SESSION['last_view_log_time']) 
-                    ? "'" . mysqli_real_escape_string($conn, $_SESSION['last_view_log_time']) . "'" 
-                    : "DATE(NOW())";
-                $unread = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM log_aktivitas WHERE created_at > $time_cond"))['n'];
-                if ($unread > 0) {
-                    echo "<span class='nav-badge' id='aktivitas-badge'>$unread</span>";
-                }
-                ?>
+                <?php if ($unread_logs > 0): ?>
+                <span class='nav-badge' id='aktivitas-badge'><?= $unread_logs ?></span>
+                <?php endif; ?>
             </a>
             <div class="nav-section-label">Manajemen</div>
             <a class="nav-item" onclick="showPanel('pasien',this)">Data Pasien</a>
@@ -441,7 +457,12 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             <?php
                         $bulan_lbl=['Jan','Feb','Mar','Apr','Mei','Jun'];
                         $chart_data=[];
-                        for($m=1;$m<=6;$m++){$r=mysqli_fetch_assoc(mysqli_query($conn,"SELECT COUNT(*) AS n FROM appointment WHERE MONTH(tanggal)=$m AND YEAR(tanggal)=".date('Y')));$chart_data[$m]=(int)$r['n'];}
+                        for($m=1;$m<=6;$m++){
+                            $stmtChart = $conn->prepare("SELECT COUNT(*) AS n FROM appointment WHERE MONTH(tanggal)=:m AND YEAR(tanggal)=:y");
+                            $stmtChart->execute(['m' => $m, 'y' => date('Y')]);
+                            $r = $stmtChart->fetch();
+                            $chart_data[$m]=(int)($r['n'] ?? 0);
+                        }
                         $max_val=max(array_values($chart_data))?:1;
                         ?>
                             <div class="chart-bars">
@@ -463,7 +484,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                                 →</a>
                         </div>
                         <div class="activity-list">
-                            <?php mysqli_data_seek($aktivitas,0); while($ak=mysqli_fetch_assoc($aktivitas)): ?>
+                            <?php foreach ($aktivitas as $ak): ?>
                             <div class="activity-item">
                                 <div class="activity-dot"></div>
                                 <div>
@@ -473,7 +494,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                                     </div>
                                 </div>
                             </div>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
@@ -492,12 +513,12 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if(mysqli_num_rows($appt_today)===0): ?>
+                            <?php if(empty($appt_today)): ?>
                             <tr>
                                 <td colspan="5" style="text-align:center;color:#7a7571;padding:24px">Tidak ada
                                     appointment hari ini.</td>
                             </tr>
-                            <?php else: while($ap=mysqli_fetch_assoc($appt_today)): ?>
+                            <?php else: foreach($appt_today as $ap): ?>
                             <tr>
                                 <td><span
                                         class="avatar"><?= strtoupper(substr($ap['nama_pasien'],0,1)) ?></span><?= htmlspecialchars($ap['nama_pasien']) ?>
@@ -507,7 +528,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                                 <td><?= date('H:i',strtotime($ap['jam'])) ?></td>
                                 <td><?= badge_appt($ap['status']) ?></td>
                             </tr>
-                            <?php endwhile; endif; ?>
+                            <?php endforeach; endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -536,7 +557,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             </tr>
                         </thead>
                         <tbody>
-                            <?php mysqli_data_seek($pasien_list,0); while($p=mysqli_fetch_assoc($pasien_list)):
+                            <?php foreach($pasien_list as $p):
                         $usia=$p['tanggal_lahir']?(date('Y')-date('Y',strtotime($p['tanggal_lahir']))).''  :'-'; ?>
                             <tr>
                                 <td style="color:#7a7571;font-size:11px">#<?= htmlspecialchars($p['no_pasien']) ?></td>
@@ -569,7 +590,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                                         title="Hapus">Hapus</button>
                                 </td>
                             </tr>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                     <div style="padding:14px 18px;border-top:1px solid #F9F7F2;font-size:12px;color:#7a7571">Total
@@ -603,7 +624,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             </tr>
                         </thead>
                         <tbody>
-                            <?php mysqli_data_seek($dokter_list,0); while($d=mysqli_fetch_assoc($dokter_list)):
+                            <?php foreach($dokter_list as $d):
                         switch($d['status']){
                             case 'Aktif': $badge_d='badge-green'; break;
                             case 'Cuti': $badge_d='badge-yellow'; break;
@@ -644,7 +665,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                                         title="Hapus">Hapus</button>
                                 </td>
                             </tr>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -663,8 +684,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                 <?php
             // Group jadwal by doctor
             $grouped = [];
-            mysqli_data_seek($jadwal_list, 0);
-            while ($j = mysqli_fetch_assoc($jadwal_list)) {
+            foreach ($jadwal_list as $j) {
                 $did = $j['dokter_id'];
                 if (!isset($grouped[$did])) {
                     $grouped[$did] = ['nama' => $j['nama_dokter'], 'foto' => $j['foto_dokter'] ?? '', 'jadwal' => []];
@@ -778,7 +798,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             </tr>
                         </thead>
                         <tbody>
-                            <?php mysqli_data_seek($treatment_list,0); while($tr=mysqli_fetch_assoc($treatment_list)):
+                            <?php foreach($treatment_list as $tr):
                         $img = $tr['gambar_url'] ?? '';
                         if ($img && strpos($img, 'http') !== 0) {
                             if (strpos($img, 'asset/') === 0) {
@@ -824,7 +844,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                                         title="Hapus">Hapus</button>
                                 </td>
                             </tr>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -839,7 +859,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                         <div class="card-title">Riwayat Aktivitas</div>
                     </div>
                     <div style="padding:0 22px 22px">
-                        <?php mysqli_data_seek($log_list,0); while($lg=mysqli_fetch_assoc($log_list)): ?>
+                        <?php foreach($log_list as $lg): ?>
                         <div class="activity-item">
                             <div class="activity-dot"></div>
                             <div style="flex:1">
@@ -849,7 +869,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                                 <div class="activity-time"><?= date('d M Y, H:i',strtotime($lg['created_at'])) ?></div>
                             </div>
                         </div>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
@@ -875,15 +895,14 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                         </thead>
                         <tbody>
                             <?php
-                    if (mysqli_num_rows($pesan_list) === 0): ?>
+                    if (empty($pesan_list)): ?>
                             <tr>
                                 <td colspan="6" style="text-align:center;color:#7a7571;padding:32px">
                                     Belum ada pesan masuk.
                                 </td>
                             </tr>
                             <?php else:
-                        mysqli_data_seek($pesan_list, 0);
-                        while ($pk = mysqli_fetch_assoc($pesan_list)):
+                        foreach ($pesan_list as $pk):
                             $belum = !$pk['sudah_baca'];
                     ?>
                             <tr style="<?= $belum ? 'background:#fbf9f4;font-weight:500' : '' ?>">
@@ -965,12 +984,12 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                                         title="Hapus">Hapus</button>
                                 </td>
                             </tr>
-                            <?php endwhile; endif; ?>
+                            <?php endforeach; endif; ?>
                         </tbody>
                     </table>
 
                     <div style="padding:14px 18px;border-top:1px solid #F9F7F2;font-size:12px;color:#7a7571">
-                        Total <?= mysqli_num_rows($pesan_list) ?> pesan
+                        Total <?= count($pesan_list) ?> pesan
                         <?php if ($pesan_belum > 0): ?>
                         · <span style="color:#735a39;font-weight:600"><?= $pesan_belum ?> belum dibaca</span>
                         <?php endif; ?>
@@ -1000,12 +1019,12 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (!$pengumuman_list || mysqli_num_rows($pengumuman_list) === 0): ?>
+                            <?php if (empty($pengumuman_list)): ?>
                             <tr>
                                 <td colspan="5" style="text-align:center; color:#7a7571; padding:24px">Belum ada
                                     pengumuman.</td>
                             </tr>
-                            <?php else: mysqli_data_seek($pengumuman_list, 0); while($p = mysqli_fetch_assoc($pengumuman_list)): ?>
+                            <?php else: foreach ($pengumuman_list as $p): ?>
                             <tr>
                                 <td><strong
                                         style="color:#2D3436; font-size:13px;"><?= htmlspecialchars($p['judul']) ?></strong>
@@ -1034,7 +1053,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                                         title="Hapus">Hapus</button>
                                 </td>
                             </tr>
-                            <?php endwhile; endif; ?>
+                            <?php endforeach; endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -1062,42 +1081,42 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (!$appointment_list || mysqli_num_rows($appointment_list) === 0): ?>
-                            <tr>
-                                <td colspan="7" style="text-align:center; color:#7a7571; padding:24px">Belum ada janji
-                                    temu terdaftar.</td>
-                            </tr>
-                            <?php else: mysqli_data_seek($appointment_list, 0); while($ap = mysqli_fetch_assoc($appointment_list)): ?>
-                            <tr>
-                                <td><strong
-                                        style="color:#2D3436; font-size:13px;"><?= htmlspecialchars($ap['nama_pasien']) ?></strong>
-                                </td>
-                                <td><?= htmlspecialchars($ap['nama_dokter']) ?></td>
-                                <td><?= htmlspecialchars($ap['nama_treatment'] ?: 'Konsultasi Umum') ?></td>
-                                <td style="font-size:12px; color:#585552; white-space:nowrap;">
-                                    <?= date('d M Y', strtotime($ap['tanggal'])) ?> · <?= substr($ap['jam'], 0, 5) ?>
-                                    WIB</td>
-                                <td><?= badge_appt($ap['status']) ?></td>
-                                <td>
-                                    <?php if ($ap['status_pembayaran'] === 'Lunas'): ?>
-                                    <span class="badge badge-green">Lunas (Rp
-                                        <?= number_format($ap['jumlah_pembayaran'], 0, ',', '.') ?>)</span>
-                                    <?php else: ?>
-                                    <span class="badge badge-yellow">Belum Lunas</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if ($ap['status_pembayaran'] !== 'Lunas' && $ap['status'] !== 'Dibatalkan'): ?>
-                                    <button class="act-btn"
-                                        style="border: 1px solid #735a39; color:#735a39; padding: 4px 10px; margin-right: 4px;"
-                                        onclick="openPaymentModal(<?= htmlspecialchars(json_encode($ap)) ?>)"
-                                        title="Bayar">Input Pembayaran</button>
-                                    <?php else: ?>
-                                    <span style="font-size:12px; color:#a89a8a; font-style:italic;">Selesai</span>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                            <?php endwhile; endif; ?>
+                             <?php if (empty($appointment_list)): ?>
+                             <tr>
+                                 <td colspan="7" style="text-align:center; color:#7a7571; padding:24px">Belum ada janji
+                                     temu terdaftar.</td>
+                             </tr>
+                             <?php else: foreach ($appointment_list as $ap): ?>
+                             <tr>
+                                 <td><strong
+                                         style="color:#2D3436; font-size:13px;"><?= htmlspecialchars($ap['nama_pasien']) ?></strong>
+                                 </td>
+                                 <td><?= htmlspecialchars($ap['nama_dokter']) ?></td>
+                                 <td><?= htmlspecialchars($ap['nama_treatment'] ?: 'Konsultasi Umum') ?></td>
+                                 <td style="font-size:12px; color:#585552; white-space:nowrap;">
+                                     <?= date('d M Y', strtotime($ap['tanggal'])) ?> · <?= substr($ap['jam'], 0, 5) ?>
+                                     WIB</td>
+                                 <td><?= badge_appt($ap['status']) ?></td>
+                                 <td>
+                                     <?php if ($ap['status_pembayaran'] === 'Lunas'): ?>
+                                     <span class="badge badge-green">Lunas (Rp
+                                         <?= number_format($ap['jumlah_pembayaran'], 0, ',', '.') ?>)</span>
+                                     <?php else: ?>
+                                     <span class="badge badge-yellow">Belum Lunas</span>
+                                     <?php endif; ?>
+                                 </td>
+                                 <td>
+                                     <?php if ($ap['status_pembayaran'] !== 'Lunas' && $ap['status'] !== 'Dibatalkan'): ?>
+                                     <button class="act-btn"
+                                         style="border: 1px solid #735a39; color:#735a39; padding: 4px 10px; margin-right: 4px;"
+                                         onclick="openPaymentModal(<?= htmlspecialchars(json_encode($ap)) ?>)"
+                                         title="Bayar">Input Pembayaran</button>
+                                     <?php else: ?>
+                                     <span style="font-size:12px; color:#a89a8a; font-style:italic;">Selesai</span>
+                                     <?php endif; ?>
+                                 </td>
+                             </tr>
+                             <?php endforeach; endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -1122,8 +1141,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
             // Hitung total & stats untuk kartu ringkasan
             $lap_rows = [];
             $tot_a=$tot_s=$tot_b=$tot_bl=$tot_p=0;
-            mysqli_data_seek($laporan,0);
-            while($lp=mysqli_fetch_assoc($laporan)) {
+            foreach ($laporan as $lp) {
                 $lap_rows[] = $lp;
                 $tot_a += $lp['total_appt'];
                 $tot_s += $lp['selesai'];
@@ -1341,67 +1359,67 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
+                             <?php
                     $no_keu = 0;
-                    if (mysqli_num_rows($keu_list) === 0): ?>
-                            <tr>
-                                <td colspan="8" style="text-align:center;color:#64748b;padding:48px">
-                                    Belum ada transaksi untuk periode ini.
-                                </td>
-                            </tr>
-                            <?php else:
-                        while ($keu = mysqli_fetch_assoc($keu_list)):
+                    if (empty($keu_list)): ?>
+                             <tr>
+                                 <td colspan="8" style="text-align:center;color:#64748b;padding:48px">
+                                     Belum ada transaksi untuk periode ini.
+                                 </td>
+                             </tr>
+                             <?php else:
+                        foreach ($keu_list as $keu):
                             $no_keu++;
                             $is_masuk = $keu['jenis'] === 'Pemasukan';
                     ?>
-                            <tr>
-                                <td style="white-space:nowrap;font-size:12px;color:#64748b">
-                                    <?= date('d M Y', strtotime($keu['tanggal'])) ?>
-                                </td>
-                                <td>
-                                    <span
-                                        class="keu-jenis-badge <?= $is_masuk ? 'keu-badge-masuk' : 'keu-badge-keluar' ?>">
-                                        <?= $is_masuk ? '↑ Pemasukan' : '↓ Pengeluaran' ?>
-                                    </span>
-                                </td>
-                                <td><span class="badge badge-pink"><?= htmlspecialchars($keu['kategori']) ?></span></td>
-                                <td>
-                                    <div class="td-name" style="font-size:13px">
-                                        <?= htmlspecialchars($keu['keterangan']) ?></div>
-                                    <?php if ($keu['catatan']): ?>
-                                    <div style="font-size:11px;color:#64748b;margin-top:2px">
-                                        <?= htmlspecialchars(mb_substr($keu['catatan'],0,60)) ?><?= mb_strlen($keu['catatan'])>60?'…':'' ?>
-                                    </div>
-                                    <?php endif; ?>
-                                </td>
-                                <td style="font-size:12px"><?= htmlspecialchars($keu['metode']) ?></td>
-                                <td style="font-size:11px;color:#64748b">
-                                    <?= htmlspecialchars($keu['referensi'] ?: '-') ?></td>
-                                <td
-                                    style="text-align:right;font-weight:600;white-space:nowrap;font-size:14px;color:<?= $is_masuk ? '#3dab74' : '#e05050' ?>">
-                                    <?= $is_masuk ? '+' : '-' ?><?= rupiah((float)$keu['jumlah']) ?>
-                                </td>
-                                <td style="white-space:nowrap">
-                                    <button class="act-btn jdc-btn-edit"
-                                        onclick="editKeuangan(<?= htmlspecialchars(json_encode($keu)) ?>)"
-                                        title="Edit">Edit</button>
-                                    <button class="act-btn jdc-btn-hapus"
-                                        onclick="confirmDelete('hapus_keuangan.php','<?= $keu['id'] ?>','transaksi ini')"
-                                        title="Hapus">Hapus</button>
-                                </td>
-                            </tr>
-                            <?php endwhile; endif; ?>
-                        </tbody>
-                    </table>
-                    <?php if (mysqli_num_rows($keu_list) > 0): ?>
-                    <div
-                        style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-top:1px solid #F9F7F2;font-size:12px;color:#64748b">
-                        <span><?= $no_keu ?> transaksi ditemukan</span>
-                        <span style="font-weight:600;color:<?= $saldo_positif?'#3dab74':'#e05050'?>">
-                            Saldo: <?= $saldo_positif?'+':'-' ?><?= rupiah(abs((float)$keu_saldo)) ?>
-                        </span>
-                    </div>
-                    <?php endif; ?>
+                             <tr>
+                                 <td style="white-space:nowrap;font-size:12px;color:#64748b">
+                                     <?= date('d M Y', strtotime($keu['tanggal'])) ?>
+                                 </td>
+                                 <td>
+                                     <span
+                                         class="keu-jenis-badge <?= $is_masuk ? 'keu-badge-masuk' : 'keu-badge-keluar' ?>">
+                                         <?= $is_masuk ? '↑ Pemasukan' : '↓ Pengeluaran' ?>
+                                     </span>
+                                 </td>
+                                 <td><span class="badge badge-pink"><?= htmlspecialchars($keu['kategori']) ?></span></td>
+                                 <td>
+                                     <div class="td-name" style="font-size:13px">
+                                         <?= htmlspecialchars($keu['keterangan']) ?></div>
+                                     <?php if ($keu['catatan']): ?>
+                                     <div style="font-size:11px;color:#64748b;margin-top:2px">
+                                         <?= htmlspecialchars(mb_substr($keu['catatan'],0,60)) ?><?= mb_strlen($keu['catatan'])>60?'…':'' ?>
+                                     </div>
+                                     <?php endif; ?>
+                                 </td>
+                                 <td style="font-size:12px"><?= htmlspecialchars($keu['metode']) ?></td>
+                                 <td style="font-size:11px;color:#64748b">
+                                     <?= htmlspecialchars($keu['referensi'] ?: '-') ?></td>
+                                 <td
+                                     style="text-align:right;font-weight:600;white-space:nowrap;font-size:14px;color:<?= $is_masuk ? '#3dab74' : '#e05050' ?>">
+                                     <?= $is_masuk ? '+' : '-' ?><?= rupiah((float)$keu['jumlah']) ?>
+                                 </td>
+                                 <td style="white-space:nowrap">
+                                     <button class="act-btn jdc-btn-edit"
+                                         onclick="editKeuangan(<?= htmlspecialchars(json_encode($keu)) ?>)"
+                                         title="Edit">Edit</button>
+                                     <button class="act-btn jdc-btn-hapus"
+                                         onclick="confirmDelete('hapus_keuangan.php','<?= $keu['id'] ?>','transaksi ini')"
+                                         title="Hapus">Hapus</button>
+                                 </td>
+                             </tr>
+                             <?php endforeach; endif; ?>
+                         </tbody>
+                     </table>
+                     <?php if (count($keu_list) > 0): ?>
+                     <div
+                         style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-top:1px solid #F9F7F2;font-size:12px;color:#64748b">
+                         <span><?= $no_keu ?> transaksi ditemukan</span>
+                         <span style="font-weight:600;color:<?= $saldo_positif?'#3dab74':'#e05050'?>">
+                             Saldo: <?= $saldo_positif?'+':'-' ?><?= rupiah(abs((float)$keu_saldo)) ?>
+                         </span>
+                     </div>
+                     <?php endif; ?>
                 </div>
             </div>
 
@@ -1565,9 +1583,9 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                 <div class="form-row">
                     <div class="form-group full"><label class="form-label">Dokter</label>
                         <select class="form-select" name="dokter_id" id="mj-dokter">
-                            <?php mysqli_data_seek($dlist_modal,0); while($dl=mysqli_fetch_assoc($dlist_modal)): ?>
+                            <?php foreach ($dlist_modal as $dl): ?>
                             <option value="<?= $dl['id'] ?>"><?= htmlspecialchars($dl['nama']) ?></option>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="form-group full"><label class="form-label">Hari</label>
@@ -1586,9 +1604,9 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                     <div class="form-group"><label class="form-label">Treatment</label>
                         <select class="form-select" name="treatment_id" id="mj-treatment">
                             <option value="">Semua Treatment</option>
-                            <?php mysqli_data_seek($tlist_modal,0); while($tl=mysqli_fetch_assoc($tlist_modal)): ?>
+                            <?php foreach ($tlist_modal as $tl): ?>
                             <option value="<?= $tl['id'] ?>"><?= htmlspecialchars($tl['nama']) ?></option>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="form-group full"><label class="form-label">Status</label>
@@ -2061,4 +2079,4 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
 </body>
 
 </html>
-<?php mysqli_close($conn); ?>
+<?php $conn = null; ?>

@@ -22,31 +22,29 @@ if ($nama === '' || $no_pasien === '') {
 
 $tgl = $tanggal_lahir ?: null;
 
-if ($id > 0) {
-    // UPDATE
-    $stmt = mysqli_prepare($conn,
-        "UPDATE pasien SET nama=?,no_pasien=?,tanggal_lahir=?,jenis_kelamin=?,telepon=?,email=?,alamat=?,catatan_medis=?,status=? WHERE id=?");
-    mysqli_stmt_bind_param($stmt,'sssssssssi',
-        $nama,$no_pasien,$tgl,$jenis_kelamin,$telepon,$email,$alamat,$catatan,$status,$id);
-    $ok = mysqli_stmt_execute($stmt);
-    $msg = $ok ? 'Data pasien berhasil diperbarui.' : 'Gagal memperbarui data pasien.';
-    $tipe = 'Pasien'; $judul = 'Pasien Diperbarui'; $desk = "$nama diperbarui oleh admin.";
-} else {
-    // INSERT
-    $stmt = mysqli_prepare($conn,
-        "INSERT INTO pasien (nama,no_pasien,tanggal_lahir,jenis_kelamin,telepon,email,alamat,catatan_medis,status) VALUES (?,?,?,?,?,?,?,?,?)");
-    mysqli_stmt_bind_param($stmt,'sssssssss',
-        $nama,$no_pasien,$tgl,$jenis_kelamin,$telepon,$email,$alamat,$catatan,$status);
-    $ok = mysqli_stmt_execute($stmt);
-    $msg = $ok ? 'Pasien baru berhasil ditambahkan.' : 'Gagal menambahkan pasien.';
-    $tipe = 'Pasien'; $judul = 'Pasien Baru'; $desk = "$nama ditambahkan oleh admin.";
-}
+try {
+    if ($id > 0) {
+        // UPDATE
+        $stmt = $conn->prepare("UPDATE pasien SET nama=?,no_pasien=?,tanggal_lahir=?,jenis_kelamin=?,telepon=?,email=?,alamat=?,catatan_medis=?,status=? WHERE id=?");
+        $ok = $stmt->execute([$nama,$no_pasien,$tgl,$jenis_kelamin,$telepon,$email,$alamat,$catatan,$status,$id]);
+        $msg = 'Data pasien berhasil diperbarui.';
+        $tipe = 'Pasien'; $judul = 'Pasien Diperbarui'; $desk = "$nama diperbarui oleh admin.";
+    } else {
+        // INSERT
+        $stmt = $conn->prepare("INSERT INTO pasien (nama,no_pasien,tanggal_lahir,jenis_kelamin,telepon,email,alamat,catatan_medis,status) VALUES (?,?,?,?,?,?,?,?,?)");
+        $ok = $stmt->execute([$nama,$no_pasien,$tgl,$jenis_kelamin,$telepon,$email,$alamat,$catatan,$status]);
+        $msg = 'Pasien baru berhasil ditambahkan.';
+        $tipe = 'Pasien'; $judul = 'Pasien Baru'; $desk = "$nama ditambahkan oleh admin.";
+    }
 
-if ($ok) {
-    $uid = (int)$_SESSION['user_id'];
-    $log = mysqli_prepare($conn,"INSERT INTO log_aktivitas (user_id,tipe,judul,deskripsi,referensi_tabel) VALUES (?,?,?,?,'pasien')");
-    mysqli_stmt_bind_param($log,'isss',$uid,$tipe,$judul,$desk);
-    mysqli_stmt_execute($log);
+    if ($ok) {
+        $uid = (int)$_SESSION['user_id'];
+        $log = $conn->prepare("INSERT INTO log_aktivitas (user_id,tipe,judul,deskripsi,referensi_tabel) VALUES (?,?,?,?,'pasien')");
+        $log->execute([$uid,$tipe,$judul,$desk]);
+    }
+} catch (Exception $e) {
+    $ok = false;
+    $msg = $e->getMessage();
 }
 
 $param = $ok ? 'success='.urlencode($msg) : 'error='.urlencode($msg);

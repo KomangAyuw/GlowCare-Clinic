@@ -18,15 +18,17 @@ if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-// Simpan ke tabel pesan_kontak
-$stmt = mysqli_prepare($conn,
-    "INSERT INTO pesan_kontak (nama, telepon, email, pesan) VALUES (?, ?, ?, ?)");
-mysqli_stmt_bind_param($stmt, 'ssss', $nama, $telp, $email, $pesan);
-$ok = mysqli_stmt_execute($stmt);
+try {
+    // Simpan ke tabel pesan_kontak
+    $stmt = $conn->prepare("INSERT INTO pesan_kontak (nama, telepon, email, pesan) VALUES (?, ?, ?, ?)");
+    $ok = $stmt->execute([$nama, $telp, $email, $pesan]);
 
-if ($ok) {
-    header('Location: ../../index.php?success=' . urlencode('Pesan kamu berhasil terkirim! Kami akan menghubungi kamu segera.'));
-} else {
-    header('Location: ../../index.php?error=' . urlencode('Gagal mengirim pesan. Silakan coba lagi.'));
+    if ($ok) {
+        header('Location: ../../index.php?success=' . urlencode('Pesan kamu berhasil terkirim! Kami akan menghubungi kamu segera.'));
+    } else {
+        header('Location: ../../index.php?error=' . urlencode('Gagal mengirim pesan. Silakan coba lagi.'));
+    }
+} catch (Exception $e) {
+    header('Location: ../../index.php?error=' . urlencode('Gagal mengirim pesan: ' . $e->getMessage()));
 }
 exit;

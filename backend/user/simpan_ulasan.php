@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 $conn = require '../config/koneksi.php';
 
 // Auto-migrasi tabel ulasan jika belum ada
-mysqli_query($conn, "CREATE TABLE IF NOT EXISTS `ulasan` (
+$conn->exec("CREATE TABLE IF NOT EXISTS `ulasan` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `dokter_id` INT NOT NULL,
   `pasien_id` INT NOT NULL,
@@ -34,23 +34,31 @@ if ($dokter_id <= 0) {
 $rating_val = min(5, max(1, $rating_val));
 
 // Ambil pasien_id dari user_id
-$qPasien = mysqli_query($conn, "SELECT id FROM pasien WHERE user_id = $user_id LIMIT 1");
-if (!$qPasien || mysqli_num_rows($qPasien) === 0) {
+$qPasien = $conn->prepare("SELECT id FROM pasien WHERE user_id = :user_id LIMIT 1");
+$qPasien->execute(['user_id' => $user_id]);
+$pasienRow = $qPasien->fetch();
+if (!$pasienRow) {
     header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Data pasien tidak ditemukan.'));
     exit;
 }
-$pasien_id = (int)mysqli_fetch_assoc($qPasien)['id'];
+$pasien_id = (int)$pasienRow['id'];
 
 // Simpan ulasan ke tabel ulasan
-$stmt = mysqli_prepare($conn, "INSERT INTO ulasan (dokter_id, pasien_id, rating, komentar) VALUES (?, ?, ?, ?)");
-mysqli_stmt_bind_param($stmt, 'iiis', $dokter_id, $pasien_id, $rating_val, $komentar);
-mysqli_stmt_execute($stmt);
+$stmt = $conn->prepare("INSERT INTO ulasan (dokter_id, pasien_id, rating, komentar) VALUES (:dokter_id, :pasien_id, :rating, :komentar)");
+$stmt->execute([
+    'dokter_id' => $dokter_id,
+    'pasien_id' => $pasien_id,
+    'rating'    => $rating_val,
+    'komentar'  => $komentar
+]);
 
 // Hitung ulang rata-rata rating dari tabel ulasan
-$qAvg = mysqli_query($conn, "SELECT AVG(rating) AS avg_rating FROM ulasan WHERE dokter_id = $dokter_id");
-if ($qAvg) {
-    $avg = round((float)mysqli_fetch_assoc($qAvg)['avg_rating'], 1);
-    mysqli_query($conn, "UPDATE dokter SET rating = $avg WHERE id = $dokter_id");
+$qAvg = $conn->prepare("SELECT AVG(rating) AS avg_rating FROM ulasan WHERE dokter_id = :dokter_id");
+$qAvg->execute(['dokter_id' => $dokter_id]);
+if ($avgRow = $qAvg->fetch()) {
+    $avg = round((float)$avgRow['avg_rating'], 1);
+    $stmtUpdateDokter = $conn->prepare("UPDATE dokter SET rating = :rating WHERE id = :dokter_id");
+    $stmtUpdateDokter->execute(['rating' => $avg, 'dokter_id' => $dokter_id]);
 }
 
 header('Location: ../../pages/user/dashboarduser.php?page=riwayat&success=' . urlencode('Terima kasih! Ulasan Anda berhasil terkirim.'));

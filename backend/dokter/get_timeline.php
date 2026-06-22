@@ -14,17 +14,18 @@ if ($pasien_id <= 0) {
     exit;
 }
 
-$q = mysqli_query($conn, "
+$q = $conn->prepare("
     SELECT * 
     FROM rekam_medis 
-    WHERE pasien_id = $pasien_id 
+    WHERE pasien_id = :pasien_id 
     ORDER BY tanggal DESC, id DESC
 ");
+$q->execute(['pasien_id' => $pasien_id]);
 
 $timeline = [];
 $bulan_ind = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-while ($row = mysqli_fetch_assoc($q)) {
+while ($row = $q->fetch()) {
     // Format tanggal
     $tgl = $row['tanggal']; // YYYY-MM-DD
     if (!empty($tgl)) {

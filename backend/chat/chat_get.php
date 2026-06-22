@@ -18,12 +18,14 @@ if (!$consultation_id) {
 $user_id = (int)$_SESSION['user_id'];
 $role = strtolower($_SESSION['role'] ?? 'user');
 if ($role === 'dokter') {
-    mysqli_query($conn, "UPDATE messages SET is_read = 1 WHERE consultation_id = $consultation_id AND sender_type = 'Pasien' AND is_read = 0");
+    $stmtUpdate = $conn->prepare("UPDATE messages SET is_read = 1 WHERE consultation_id = :consultation_id AND sender_type = 'Pasien' AND is_read = 0");
+    $stmtUpdate->execute(['consultation_id' => $consultation_id]);
 } elseif ($role === 'user' || $role === 'pasien') {
-    mysqli_query($conn, "UPDATE messages SET is_read = 1 WHERE consultation_id = $consultation_id AND sender_type = 'Dokter' AND is_read = 0");
+    $stmtUpdate = $conn->prepare("UPDATE messages SET is_read = 1 WHERE consultation_id = :consultation_id AND sender_type = 'Dokter' AND is_read = 0");
+    $stmtUpdate->execute(['consultation_id' => $consultation_id]);
 }
 
-$q = mysqli_query($conn, "
+$stmtSelect = $conn->prepare("
     SELECT m.*,
         CASE
             WHEN m.sender_type = 'Dokter' THEN d.nama
@@ -33,12 +35,13 @@ $q = mysqli_query($conn, "
     FROM messages m
     LEFT JOIN dokter d ON m.sender_type = 'Dokter' AND m.sender_id = d.id
     LEFT JOIN pasien p ON m.sender_type = 'Pasien' AND m.sender_id = p.id
-    WHERE m.consultation_id = $consultation_id
+    WHERE m.consultation_id = :consultation_id
     ORDER BY m.created_at ASC
 ");
+$stmtSelect->execute(['consultation_id' => $consultation_id]);
 
 $messages = [];
-while ($row = mysqli_fetch_assoc($q)) {
+while ($row = $stmtSelect->fetch()) {
     $row['time'] = date('H:i', strtotime($row['created_at']));
     $messages[]  = $row;
 }

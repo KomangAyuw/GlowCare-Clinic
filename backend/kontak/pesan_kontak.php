@@ -32,30 +32,26 @@ if (empty($pesan)) {
 }
 
 if (empty($errors)) {
-    $stmt = mysqli_prepare($conn,
-        "INSERT INTO pesan_kontak (nama, telepon, email, pesan)
-         VALUES (?, ?, ?, ?)"
-    );
+    try {
+        $stmt = $conn->prepare(
+            "INSERT INTO pesan_kontak (nama, telepon, email, pesan)
+             VALUES (?, ?, ?, ?)"
+        );
 
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 'ssss', $nama, $telp, $email, $pesan);
-
-        if (mysqli_stmt_execute($stmt)) {
+        if ($stmt->execute([$nama, $telp, $email, $pesan])) {
             $_SESSION['sukses'] = true;
-            mysqli_stmt_close($stmt);
-            mysqli_close($conn);
+            $conn = null;
             header('Location: ../../pages/kontak.php');
             exit;
         } else {
-            $errors[] = 'Gagal menyimpan pesan: ' . mysqli_stmt_error($stmt);
-            mysqli_stmt_close($stmt);
+            $errors[] = 'Gagal menyimpan pesan.';
         }
-    } else {
-        $errors[] = 'Terjadi kesalahan pada server.';
+    } catch (Exception $e) {
+        $errors[] = 'Gagal menyimpan pesan: ' . $e->getMessage();
     }
 }
 
-mysqli_close($conn);
+$conn = null;
 
 $_SESSION['errors']    = $errors;
 $_SESSION['old_input'] = compact('nama', 'telp', 'email', 'pesan');

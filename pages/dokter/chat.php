@@ -3,12 +3,13 @@ require '../../backend/auth/guard_dokter.php';
 require '../../backend/config/koneksi.php';
 
 $user_id = (int)$_SESSION['user_id'];
-$qProfil = mysqli_query($conn, "SELECT id, nama, spesialisasi FROM dokter WHERE user_id = $user_id LIMIT 1");
-$profil  = $qProfil ? mysqli_fetch_assoc($qProfil) : [];
+$stmtProfil = $conn->prepare("SELECT id, nama, spesialisasi FROM dokter WHERE user_id = :user_id LIMIT 1");
+$stmtProfil->execute(['user_id' => $user_id]);
+$profil = $stmtProfil->fetch() ?: [];
 $dokter_id = $profil['id'] ?? 0;
 
 // Get doctor's unique patients with their latest consultation
-$qConsults = mysqli_query($conn, "
+$stmtConsults = $conn->prepare("
     SELECT c.id as consultation_id, c.appointment_id, p.id as pasien_id, p.nama as nama_pasien,
            t.nama as nama_treatment, a.tanggal, a.jam, a.status as appt_status
     FROM consultations c
@@ -19,18 +20,14 @@ $qConsults = mysqli_query($conn, "
         SELECT a2.pasien_id, MAX(CONCAT(a2.tanggal, ' ', a2.jam)) as max_datetime
         FROM consultations c2
         JOIN appointment a2 ON c2.appointment_id = a2.id
-        WHERE c2.dokter_id = $dokter_id
+        WHERE c2.dokter_id = :dokter_id
         GROUP BY a2.pasien_id
     ) latest ON c.pasien_id = latest.pasien_id AND CONCAT(a.tanggal, ' ', a.jam) = latest.max_datetime
-    WHERE c.dokter_id = $dokter_id
+    WHERE c.dokter_id = :dokter_id2
     ORDER BY a.tanggal DESC, a.jam DESC
 ");
-$consultations = [];
-if ($qConsults) {
-    while ($row = mysqli_fetch_assoc($qConsults)) {
-        $consultations[] = $row;
-    }
-}
+$stmtConsults->execute(['dokter_id' => $dokter_id, 'dokter_id2' => $dokter_id]);
+$consultations = $stmtConsults->fetchAll() ?: [];
 
 $appt_id = (int)($_GET['appt_id'] ?? ($consultations[0]['appointment_id'] ?? 0));
 $consultation_id = 0;
@@ -38,46 +35,49 @@ $pasien = ['nama' => 'Pasien', 'usia' => '-'];
 $selected_pasien_id = 0;
 
 if ($appt_id > 0) {
-    $qConsult = mysqli_query($conn, "SELECT id, pasien_id FROM consultations WHERE appointment_id = $appt_id LIMIT 1");
-    if ($qConsult && mysqli_num_rows($qConsult) > 0) {
-        $consult = mysqli_fetch_assoc($qConsult);
+    $stmtConsult = $conn->prepare("SELECT id, pasien_id FROM consultations WHERE appointment_id = :appt_id LIMIT 1");
+    $stmtConsult->execute(['appt_id' => $appt_id]);
+    $consult = $stmtConsult->fetch();
+    if ($consult) {
         $consultation_id = $consult['id'];
         $pasien_id = $consult['pasien_id'];
         $selected_pasien_id = $pasien_id;
     } else {
-        $qAppt = mysqli_query($conn, "SELECT pasien_id FROM appointment WHERE id = $appt_id AND dokter_id = $dokter_id LIMIT 1");
-        if ($appt = mysqli_fetch_assoc($qAppt)) {
+        $stmtAppt = $conn->prepare("SELECT pasien_id FROM appointment WHERE id = :appt_id AND dokter_id = :dokter_id LIMIT 1");
+        $stmtAppt->execute(['appt_id' => $appt_id, 'dokter_id' => $dokter_id]);
+        if ($appt = $stmtAppt->fetch()) {
             $pasien_id = $appt['pasien_id'];
             $selected_pasien_id = $pasien_id;
-            mysqli_query($conn, "INSERT INTO consultations (appointment_id, pasien_id, dokter_id, status, created_at) VALUES ($appt_id, $pasien_id, $dokter_id, 'Aktif', NOW())");
-            $consultation_id = mysqli_insert_id($conn);
+            $stmtInsertConsult = $conn->prepare("INSERT INTO consultations (appointment_id, pasien_id, dokter_id, status, created_at) VALUES (:appt_id, :pasien_id, :dokter_id, 'Aktif', NOW())");
+            $stmtInsertConsult->execute([
+                'appt_id' => $appt_id,
+                'pasien_id' => $pasien_id,
+                'dokter_id' => $dokter_id
+            ]);
+            $consultation_id = $conn->lastInsertId();
         }
     }
     
     if ($selected_pasien_id > 0) {
-        $qPasien = mysqli_query($conn, "SELECT nama, usia, jenis_kelamin FROM pasien WHERE id = $selected_pasien_id LIMIT 1");
-        if ($qPasien && mysqli_num_rows($qPasien) > 0) {
-            $pasien = mysqli_fetch_assoc($qPasien);
-        }
+        $stmtPasien = $conn->prepare("SELECT nama, usia, jenis_kelamin FROM pasien WHERE id = :pasien_id LIMIT 1");
+        $stmtPasien->execute(['pasien_id' => $selected_pasien_id]);
+        $pasien = $stmtPasien->fetch() ?: ['nama' => 'Pasien', 'usia' => '-'];
     }
 }
 
 // Get the consultation history with this patient
 $session_history = [];
 if ($dokter_id > 0 && $selected_pasien_id > 0) {
-    $qHistory = mysqli_query($conn, "
+    $stmtHistory = $conn->prepare("
         SELECT c.id as consultation_id, a.id as appt_id, a.tanggal, a.jam, t.nama as nama_treatment, a.status as appt_status
         FROM consultations c
         JOIN appointment a ON c.appointment_id = a.id
         LEFT JOIN treatment t ON a.treatment_id = t.id
-        WHERE c.dokter_id = $dokter_id AND c.pasien_id = $selected_pasien_id
+        WHERE c.dokter_id = :dokter_id AND c.pasien_id = :pasien_id
         ORDER BY a.tanggal DESC, a.jam DESC
     ");
-    if ($qHistory) {
-        while ($row = mysqli_fetch_assoc($qHistory)) {
-            $session_history[] = $row;
-        }
-    }
+    $stmtHistory->execute(['dokter_id' => $dokter_id, 'pasien_id' => $selected_pasien_id]);
+    $session_history = $stmtHistory->fetchAll() ?: [];
 }
 ?>
 <!DOCTYPE html>

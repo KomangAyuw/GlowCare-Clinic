@@ -17,33 +17,45 @@ if ($appt_id <= 0) {
 }
 
 // Ambil info appointment
-$qApp = mysqli_query($conn, "SELECT * FROM appointment WHERE id = $appt_id LIMIT 1");
-if (!$qApp || mysqli_num_rows($qApp) === 0) {
+$qApp = $conn->prepare("SELECT * FROM appointment WHERE id = :appt_id LIMIT 1");
+$qApp->execute(['appt_id' => $appt_id]);
+$app = $qApp->fetch();
+if (!$app) {
     header('Location: ../../pages/user/dashboarduser.php?error=' . urlencode('Janji temu tidak ditemukan.'));
     exit;
 }
-$app = mysqli_fetch_assoc($qApp);
 $pasien_id = (int)$app['pasien_id'];
 $dokter_id = (int)$app['dokter_id'];
 $tanggal   = $app['tanggal'];
 $jam       = $app['jam'];
 
 // Batalkan appointment
-$ok1 = mysqli_query($conn, "UPDATE appointment SET status = 'Dibatalkan' WHERE id = $appt_id");
+$stmt1 = $conn->prepare("UPDATE appointment SET status = 'Dibatalkan' WHERE id = :appt_id");
+$ok1 = $stmt1->execute(['appt_id' => $appt_id]);
 
 // Batalkan jadwal dokter
-$ok2 = mysqli_query($conn, "UPDATE jadwal SET status = 'Dibatalkan' WHERE pasien_id = $pasien_id AND dokter_id = $dokter_id AND tanggal = '$tanggal' AND jam_mulai = '$jam'");
+$stmt2 = $conn->prepare("UPDATE jadwal SET status = 'Dibatalkan' WHERE pasien_id = :pasien_id AND dokter_id = :dokter_id AND tanggal = :tanggal AND jam_mulai = :jam");
+$ok2 = $stmt2->execute([
+    'pasien_id' => $pasien_id,
+    'dokter_id' => $dokter_id,
+    'tanggal' => $tanggal,
+    'jam' => $jam
+]);
 
 if ($ok1 && $ok2) {
     // Log Aktivitas
-    $qPasien = mysqli_query($conn, "SELECT nama FROM pasien WHERE id = $pasien_id LIMIT 1");
-    $namaPasien = $qPasien ? mysqli_fetch_assoc($qPasien)['nama'] : 'Pasien';
+    $qPasien = $conn->prepare("SELECT nama FROM pasien WHERE id = :pasien_id LIMIT 1");
+    $qPasien->execute(['pasien_id' => $pasien_id]);
+    $namaPasien = ($pRow = $qPasien->fetch()) ? $pRow['nama'] : 'Pasien';
     $judulLog = 'Booking Dibatalkan';
     $deskLog = "$namaPasien membatalkan janji temu tanggal $tanggal ($alasan).";
     
-    $log = mysqli_prepare($conn, "INSERT INTO log_aktivitas (user_id, tipe, judul, deskripsi, referensi_tabel) VALUES (?, 'Janji Temu', ?, ?, 'appointment')");
-    mysqli_stmt_bind_param($log, 'iss', $user_id, $judulLog, $deskLog);
-    mysqli_stmt_execute($log);
+    $log = $conn->prepare("INSERT INTO log_aktivitas (user_id, tipe, judul, deskripsi, referensi_tabel) VALUES (:user_id, 'Janji Temu', :judul, :deskripsi, 'appointment')");
+    $log->execute([
+        'user_id' => $user_id,
+        'judul' => $judulLog,
+        'deskripsi' => $deskLog
+    ]);
 
     header('Location: ../../pages/user/dashboarduser.php?success=' . urlencode('Jadwal berhasil dibatalkan.'));
 } else {

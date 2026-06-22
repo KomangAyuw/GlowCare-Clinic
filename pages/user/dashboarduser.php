@@ -9,59 +9,74 @@ $user_id = (int)$_SESSION['user_id'];
 $conn = require_once '../../backend/config/koneksi.php';
 
 // 1. Ambil Profil Pasien
-$qPasien = mysqli_query($conn, "SELECT * FROM pasien WHERE user_id = $user_id LIMIT 1");
-if (!$qPasien || mysqli_num_rows($qPasien) === 0) {
+$stmtPasien = $conn->prepare("SELECT * FROM pasien WHERE user_id = :user_id LIMIT 1");
+$stmtPasien->execute(['user_id' => $user_id]);
+$pasien = $stmtPasien->fetch();
+
+if (!$pasien) {
     // Buat pasien record jika belum ada
     $noPasien = 'P-' . rand(1000, 9999);
     $noRekam = 'RM-' . rand(1000, 9999);
-    $nama = mysqli_real_escape_string($conn, $_SESSION['username']);
-    $email = mysqli_real_escape_string($conn, $_SESSION['email']);
+    $nama = $_SESSION['username'];
+    $email = $_SESSION['email'];
     
     // Ambil telepon dari users table jika ada
-    $qUserTel = mysqli_query($conn, "SELECT telepon FROM users WHERE id = $user_id LIMIT 1");
-    $userTelRow = $qUserTel ? mysqli_fetch_assoc($qUserTel) : null;
-    $telepon = mysqli_real_escape_string($conn, $userTelRow['telepon'] ?? '');
+    $stmtUserTel = $conn->prepare("SELECT telepon FROM users WHERE id = :user_id LIMIT 1");
+    $stmtUserTel->execute(['user_id' => $user_id]);
+    $userTelRow = $stmtUserTel->fetch();
+    $telepon = $userTelRow['telepon'] ?? '';
     
-    mysqli_query($conn, "INSERT INTO pasien (user_id, nama, no_pasien, no_rekam, email, telepon, no_telp, status) VALUES ($user_id, '$nama', '$noPasien', '$noRekam', '$email', '$telepon', '$telepon', 'Aktif')");
-    $qPasien = mysqli_query($conn, "SELECT * FROM pasien WHERE user_id = $user_id LIMIT 1");
+    $stmtInsertPasien = $conn->prepare("INSERT INTO pasien (user_id, nama, no_pasien, no_rekam, email, telepon, no_telp, status) VALUES (:user_id, :nama, :no_pasien, :no_rekam, :email, :telepon, :no_telp, 'Aktif')");
+    $stmtInsertPasien->execute([
+        'user_id' => $user_id,
+        'nama' => $nama,
+        'no_pasien' => $noPasien,
+        'no_rekam' => $noRekam,
+        'email' => $email,
+        'telepon' => $telepon,
+        'no_telp' => $telepon
+    ]);
+
+    $stmtPasien->execute(['user_id' => $user_id]);
+    $pasien = $stmtPasien->fetch();
 }
-$pasien = mysqli_fetch_assoc($qPasien);
 $pasien_id = (int)$pasien['id'];
 
 // 2. Statistik
-$total_kunjungan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM rekam_medis WHERE pasien_id = $pasien_id"))['n'];
-$jadwal_mendatang = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS n FROM appointment WHERE pasien_id = $pasien_id AND status = 'Terjadwal' AND tanggal >= CURDATE()"))['n'];
+$stmtCountKunjungan = $conn->prepare("SELECT COUNT(*) AS n FROM rekam_medis WHERE pasien_id = :pasien_id");
+$stmtCountKunjungan->execute(['pasien_id' => $pasien_id]);
+$total_kunjungan = $stmtCountKunjungan->fetch()['n'] ?? 0;
+
+$stmtCountJadwal = $conn->prepare("SELECT COUNT(*) AS n FROM appointment WHERE pasien_id = :pasien_id AND status = 'Terjadwal' AND tanggal >= CURDATE()");
+$stmtCountJadwal->execute(['pasien_id' => $pasien_id]);
+$jadwal_mendatang = $stmtCountJadwal->fetch()['n'] ?? 0;
 
 // Cek pengumuman baru dalam 7 hari terakhir
-$qRecentPengumuman = mysqli_query($conn, "SELECT COUNT(*) AS n FROM pengumuman WHERE target IN ('Semua', 'Pasien') AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
-$recent_pengumuman = $qRecentPengumuman ? mysqli_fetch_assoc($qRecentPengumuman)['n'] : 0;
+$stmtRecentP = $conn->query("SELECT COUNT(*) AS n FROM pengumuman WHERE target IN ('Semua', 'Pasien') AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+$recent_pengumuman = $stmtRecentP->fetch()['n'] ?? 0;
 $notif_baru = ($jadwal_mendatang > 0 || $recent_pengumuman > 0) ? 1 : 0;
 
 // Query pengumuman untuk ditampilkan
-$qPengumuman = mysqli_query($conn, "SELECT * FROM pengumuman WHERE target IN ('Semua', 'Pasien') ORDER BY created_at DESC LIMIT 20");
-$pengumuman_list = [];
-if ($qPengumuman) {
-    while ($p = mysqli_fetch_assoc($qPengumuman)) {
-        $pengumuman_list[] = $p;
-    }
-}
+$stmtPengumuman = $conn->query("SELECT * FROM pengumuman WHERE target IN ('Semua', 'Pasien') ORDER BY created_at DESC LIMIT 20");
+$pengumuman_list = $stmtPengumuman->fetchAll() ?: [];
 
 // 3. Jadwal Mendatang Pertama
-$qNextAppt = mysqli_query($conn, "
+$stmtNextAppt = $conn->prepare("
     SELECT a.*, d.nama AS nama_dokter, d.spesialisasi, t.nama AS nama_treatment 
     FROM appointment a 
     JOIN dokter d ON a.dokter_id = d.id 
     LEFT JOIN treatment t ON a.treatment_id = t.id 
-    WHERE a.pasien_id = $pasien_id AND a.tanggal >= CURDATE() AND a.status = 'Terjadwal' 
+    WHERE a.pasien_id = :pasien_id AND a.tanggal >= CURDATE() AND a.status = 'Terjadwal' 
     ORDER BY a.tanggal ASC, a.jam ASC 
     LIMIT 1
 ");
-$nextAppt = $qNextAppt ? mysqli_fetch_assoc($qNextAppt) : null;
+$stmtNextAppt->execute(['pasien_id' => $pasien_id]);
+$nextAppt = $stmtNextAppt->fetch() ?: null;
 
 // 4. Dokter List
-$qDokter = mysqli_query($conn, "SELECT * FROM dokter WHERE status='Aktif' ORDER BY nama ASC");
+$stmtDokter = $conn->query("SELECT * FROM dokter WHERE status='Aktif' ORDER BY nama ASC");
 $dokter_list = [];
-while ($d = mysqli_fetch_assoc($qDokter)) {
+while ($d = $stmtDokter->fetch()) {
     if (!empty($d['foto'])) {
         if (strpos($d['foto'], 'http') !== 0) {
             if (strpos($d['foto'], 'asset/') === 0) {
@@ -77,35 +92,28 @@ while ($d = mysqli_fetch_assoc($qDokter)) {
 }
 
 // Fetch Doctor Schedules for the table
-$qJadwal = mysqli_query($conn, "SELECT * FROM jadwal_dokter WHERE status='Aktif'");
+$stmtJadwal = $conn->query("SELECT * FROM jadwal_dokter WHERE status='Aktif'");
 $jadwal_list = [];
-if ($qJadwal) {
-    while ($j = mysqli_fetch_assoc($qJadwal)) {
-        $jadwal_list[$j['dokter_id']][$j['hari']] = substr($j['jam_mulai'], 0, 5) . ' - ' . substr($j['jam_selesai'], 0, 5);
-    }
+while ($j = $stmtJadwal->fetch()) {
+    $jadwal_list[$j['dokter_id']][$j['hari']] = substr($j['jam_mulai'], 0, 5) . ' - ' . substr($j['jam_selesai'], 0, 5);
 }
 
 // 5. Treatment List untuk Dropdown Booking
-$qTreatment = mysqli_query($conn, "SELECT * FROM treatment WHERE status='Aktif' ORDER BY urutan ASC");
-$treatment_list = [];
-while ($t = mysqli_fetch_assoc($qTreatment)) {
-    $treatment_list[] = $t;
-}
+$stmtTreatment = $conn->query("SELECT * FROM treatment WHERE status='Aktif' ORDER BY urutan ASC");
+$treatment_list = $stmtTreatment->fetchAll() ?: [];
 
 // 6. Riwayat Kunjungan Pasien
-$qRiwayat = mysqli_query($conn, "
+$stmtRiwayat = $conn->prepare("
     SELECT a.id, a.tanggal, a.jam, a.status, d.nama AS nama_dokter, d.spesialisasi, t.nama AS nama_treatment, rm.anamnesis, rm.pemeriksaan, rm.tindak_lanjut, rm.ruangan
     FROM appointment a
     JOIN dokter d ON a.dokter_id = d.id
     LEFT JOIN treatment t ON a.treatment_id = t.id
     LEFT JOIN rekam_medis rm ON rm.pasien_id = a.pasien_id AND rm.dokter_id = a.dokter_id AND rm.tanggal = a.tanggal
-    WHERE a.pasien_id = $pasien_id
+    WHERE a.pasien_id = :pasien_id
     ORDER BY a.tanggal DESC, a.jam DESC
 ");
-$riwayat_list = [];
-while ($r = mysqli_fetch_assoc($qRiwayat)) {
-    $riwayat_list[] = $r;
-}
+$stmtRiwayat->execute(['pasien_id' => $pasien_id]);
+$riwayat_list = $stmtRiwayat->fetchAll() ?: [];
 
 $initial = strtoupper(substr($pasien['nama'], 0, 1));
 $error = $_GET['error'] ?? '';
@@ -1080,18 +1088,6 @@ $success = $_GET['success'] ?? '';
         </div>
 
         <div class="content-area">
-            <?php if (($_GET['page'] ?? '') === 'akun'): ?>
-                <?php if ($error): ?>
-                    <div class="alert-notification alert-danger" style="margin-bottom: 20px; padding: 12px 20px; background: #fce4df; border: 1px solid #e8b5ac; border-radius: 8px; color: #6b3a2d; font-size: 13px; transition: opacity 0.5s ease;">
-                        Peringatan: <?= htmlspecialchars($error) ?>
-                    </div>
-                <?php endif; ?>
-                <?php if ($success): ?>
-                    <div class="alert-notification alert-success" style="margin-bottom: 20px; padding: 12px 20px; background: #e8f5d8; border: 1px solid #c5daa8; border-radius: 8px; color: #5a6f2d; font-size: 13px; transition: opacity 0.5s ease;">
-                        Sukses: <?= htmlspecialchars($success) ?>
-                    </div>
-                <?php endif; ?>
-            <?php endif; ?>
 
             <div class="two-col">
 

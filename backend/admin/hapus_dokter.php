@@ -10,24 +10,28 @@ if ($id <= 0) {
     header('Location: ../../pages/admin/dashboard.php?panel=dokter&error='.urlencode('ID tidak valid.')); exit;
 }
 
-$row  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT nama FROM dokter WHERE id=$id"));
-$nama = $row['nama'] ?? 'Tidak diketahui';
+try {
+    $stmtRow = $conn->prepare("SELECT nama FROM dokter WHERE id = ?");
+    $stmtRow->execute([$id]);
+    $row = $stmtRow->fetch();
+    $nama = $row['nama'] ?? 'Tidak diketahui';
 
-$stmt = mysqli_prepare($conn, "DELETE FROM dokter WHERE id=?");
-mysqli_stmt_bind_param($stmt, 'i', $id);
-$ok = mysqli_stmt_execute($stmt);
+    $stmt = $conn->prepare("DELETE FROM dokter WHERE id = ?");
+    $ok = $stmt->execute([$id]);
 
-if ($ok) {
-    $uid  = (int)$_SESSION['user_id'];
-    $tipe = 'Dokter';
-    $judul = 'Dokter Dihapus';
-    $desk  = "$nama dihapus oleh admin.";
-    $log  = mysqli_prepare($conn, "INSERT INTO log_aktivitas (user_id,tipe,judul,deskripsi,referensi_tabel) VALUES (?,?,?,?,'dokter')");
-    mysqli_stmt_bind_param($log, 'isss', $uid, $tipe, $judul, $desk);
-    mysqli_stmt_execute($log);
-    $param = 'success='.urlencode("Dokter $nama berhasil dihapus.");
-} else {
-    $param = 'error='.urlencode('Gagal menghapus dokter. Mungkin ada jadwal atau appointment terkait.');
+    if ($ok) {
+        $uid  = (int)$_SESSION['user_id'];
+        $tipe = 'Dokter';
+        $judul = 'Dokter Dihapus';
+        $desk  = "$nama dihapus oleh admin.";
+        $log  = $conn->prepare("INSERT INTO log_aktivitas (user_id,tipe,judul,deskripsi,referensi_tabel) VALUES (?,?,?,?,'dokter')");
+        $log->execute([$uid, $tipe, $judul, $desk]);
+        $param = 'success='.urlencode("Dokter $nama berhasil dihapus.");
+    } else {
+        $param = 'error='.urlencode('Gagal menghapus dokter. Mungkin ada jadwal atau appointment terkait.');
+    }
+} catch (Exception $e) {
+    $param = 'error='.urlencode('Gagal menghapus dokter: ' . $e->getMessage());
 }
 
 header("Location: ../../pages/admin/dashboard.php?panel=dokter&$param");

@@ -47,36 +47,28 @@ if ($nama === '') {
     header('Location: ../../pages/admin/dashboard.php?panel=treatment&error='.urlencode('Nama treatment wajib diisi.')); exit;
 }
 
-if ($id > 0) {
-    $stmt = mysqli_prepare($conn,
-        "UPDATE treatment SET nama=?,kategori=?,deskripsi=?,deskripsi_panjang=?,gambar_url=?,link_halaman=?,urutan=?,status=? WHERE id=?");
-    mysqli_stmt_bind_param($stmt, 'sssssssii',
-        $nama,$kategori,$deskripsi,$deskripsi_panjang,$gambar_url,$link_halaman,$urutan,$status,$id);
-    // fix: i for urutan, s for status, i for id
-    mysqli_stmt_close($stmt);
-    $stmt = mysqli_prepare($conn,
-        "UPDATE treatment SET nama=?,kategori=?,durasi=?,deskripsi=?,deskripsi_panjang=?,gambar_url=?,link_halaman=?,urutan=?,status=? WHERE id=?");
-    mysqli_stmt_bind_param($stmt, 'sssssssisi',
-        $nama,$kategori,$durasi,$deskripsi,$deskripsi_panjang,$gambar_url,$link_halaman,$urutan,$status,$id);
-    $ok  = mysqli_stmt_execute($stmt);
-    $msg = $ok ? 'Treatment berhasil diperbarui.' : mysqli_error($conn);
-    $judul = 'Treatment Diperbarui'; $desk = "$nama diperbarui.";
-} else {
-    $stmt = mysqli_prepare($conn,
-        "INSERT INTO treatment (nama,kategori,durasi,deskripsi,deskripsi_panjang,gambar_url,link_halaman,urutan,status) VALUES (?,?,?,?,?,?,?,?,?)");
-    mysqli_stmt_bind_param($stmt, 'sssssssis',
-        $nama,$kategori,$durasi,$deskripsi,$deskripsi_panjang,$gambar_url,$link_halaman,$urutan,$status);
-    $ok  = mysqli_stmt_execute($stmt);
-    $msg = $ok ? 'Treatment baru berhasil ditambahkan.' : mysqli_error($conn);
-    $judul = 'Treatment Baru'; $desk = "$nama ditambahkan.";
-}
+try {
+    if ($id > 0) {
+        $stmt = $conn->prepare("UPDATE treatment SET nama=?,kategori=?,durasi=?,deskripsi=?,deskripsi_panjang=?,gambar_url=?,link_halaman=?,urutan=?,status=? WHERE id=?");
+        $ok = $stmt->execute([$nama,$kategori,$durasi,$deskripsi,$deskripsi_panjang,$gambar_url,$link_halaman,$urutan,$status,$id]);
+        $msg = 'Treatment berhasil diperbarui.';
+        $judul = 'Treatment Diperbarui'; $desk = "$nama diperbarui.";
+    } else {
+        $stmt = $conn->prepare("INSERT INTO treatment (nama,kategori,durasi,deskripsi,deskripsi_panjang,gambar_url,link_halaman,urutan,status) VALUES (?,?,?,?,?,?,?,?,?)");
+        $ok = $stmt->execute([$nama,$kategori,$durasi,$deskripsi,$deskripsi_panjang,$gambar_url,$link_halaman,$urutan,$status]);
+        $msg = 'Treatment baru berhasil ditambahkan.';
+        $judul = 'Treatment Baru'; $desk = "$nama ditambahkan.";
+    }
 
-if ($ok) {
-    $uid  = (int)$_SESSION['user_id'];
-    $tipe = 'Treatment';
-    $log  = mysqli_prepare($conn, "INSERT INTO log_aktivitas (user_id,tipe,judul,deskripsi,referensi_tabel) VALUES (?,?,?,?,'treatment')");
-    mysqli_stmt_bind_param($log, 'isss', $uid, $tipe, $judul, $desk);
-    mysqli_stmt_execute($log);
+    if ($ok) {
+        $uid  = (int)$_SESSION['user_id'];
+        $tipe = 'Treatment';
+        $log  = $conn->prepare("INSERT INTO log_aktivitas (user_id,tipe,judul,deskripsi,referensi_tabel) VALUES (?,?,?,?,'treatment')");
+        $log->execute([$uid, $tipe, $judul, $desk]);
+    }
+} catch (Exception $e) {
+    $ok = false;
+    $msg = $e->getMessage();
 }
 
 $param = $ok ? 'success='.urlencode($msg) : 'error='.urlencode($msg);

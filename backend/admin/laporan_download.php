@@ -12,53 +12,68 @@ $lap_tahun = (int)($_GET['lap_tahun'] ?? date('Y'));
 $bln_ind = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 $periode = $bln_ind[$lap_bulan] . ' ' . $lap_tahun;
 
-// ── Query ──────────────────────────────────────────────────────────────────
-$sql = "SELECT
-    d.nama AS nama_dokter,
-    d.spesialisasi,
-    COUNT(a.id)                             AS total_appt,
-    COALESCE(SUM(a.status='Selesai'),0)     AS selesai,
-    COALESCE(SUM(a.status='Dibatalkan'),0)  AS batal,
-    COALESCE(SUM(a.status='Berlangsung'),0) AS berlangsung,
-    COALESCE(SUM(py.jumlah),0)              AS pendapatan,
-    d.rating
-    FROM dokter d
-    LEFT JOIN appointment a ON a.dokter_id=d.id
-        AND MONTH(a.tanggal)=$lap_bulan AND YEAR(a.tanggal)=$lap_tahun
-    LEFT JOIN pembayaran py ON py.appointment_id=a.id AND py.status='Lunas'
-    GROUP BY d.id, d.nama, d.spesialisasi, d.rating
-    ORDER BY pendapatan DESC";
+try {
+    // ── Query ──────────────────────────────────────────────────────────────────
+    $sql = "SELECT
+        d.nama AS nama_dokter,
+        d.spesialisasi,
+        COUNT(a.id)                             AS total_appt,
+        COALESCE(SUM(a.status='Selesai'),0)     AS selesai,
+        COALESCE(SUM(a.status='Dibatalkan'),0)  AS batal,
+        COALESCE(SUM(a.status='Berlangsung'),0) AS berlangsung,
+        COALESCE(SUM(py.jumlah),0)              AS pendapatan,
+        d.rating
+        FROM dokter d
+        LEFT JOIN appointment a ON a.dokter_id=d.id
+            AND MONTH(a.tanggal)=:lap_bulan AND YEAR(a.tanggal)=:lap_tahun
+        LEFT JOIN pembayaran py ON py.appointment_id=a.id AND py.status='Lunas'
+        GROUP BY d.id, d.nama, d.spesialisasi, d.rating
+        ORDER BY pendapatan DESC";
 
-$result = mysqli_query($conn, $sql);
-$rows   = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $stmtResult = $conn->prepare($sql);
+    $stmtResult->execute(['lap_bulan' => $lap_bulan, 'lap_tahun' => $lap_tahun]);
+    $rows = $stmtResult->fetchAll();
 
-// Hitung total
-$tot_a = $tot_s = $tot_b = $tot_p = 0;
-foreach ($rows as $r) {
-    $tot_a += $r['total_appt'];
-    $tot_s += $r['selesai'];
-    $tot_b += $r['batal'];
-    $tot_p += $r['pendapatan'];
-}
+    // Hitung total
+    $tot_a = $tot_s = $tot_b = $tot_p = 0;
+    foreach ($rows as $r) {
+        $tot_a += $r['total_appt'];
+        $tot_s += $r['selesai'];
+        $tot_b += $r['batal'];
+        $tot_p += $r['pendapatan'];
+    }
 
-// ── Keuangan bulan ini ─────────────────────────────────────────────────────
-$keu_ok = false;
-$tot_masuk = $tot_keluar = 0;
-$keu_rows  = [];
-$keu_check = mysqli_query($conn, "SHOW TABLES LIKE 'keuangan'");
-if (mysqli_num_rows($keu_check) > 0) {
-    $keu_ok  = true;
-    $kr = mysqli_fetch_assoc(mysqli_query($conn, "SELECT
-        COALESCE(SUM(CASE WHEN jenis='Pemasukan'   THEN jumlah ELSE 0 END),0) AS masuk,
-        COALESCE(SUM(CASE WHEN jenis='Pengeluaran' THEN jumlah ELSE 0 END),0) AS keluar
-        FROM keuangan WHERE MONTH(tanggal)=$lap_bulan AND YEAR(tanggal)=$lap_tahun"));
-    $tot_masuk  = (float)$kr['masuk'];
-    $tot_keluar = (float)$kr['keluar'];
+    // ── Keuangan bulan ini ─────────────────────────────────────────────────────
+    $keu_ok = false;
+    $tot_masuk = $tot_keluar = 0;
+    $keu_rows  = [];
+    // Cek apakah tabel keuangan ada di database
+    $dbName = $conn->query("SELECT DATABASE() AS db")->fetch()['db'] ?? '';
+    $stmtCheck = $conn->prepare("SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = :db AND TABLE_NAME = 'keuangan'");
+    $stmtCheck->execute(['db' => $dbName]);
+    $hasKeuangan = ($stmtCheck->fetch()['count'] ?? 0) > 0;
 
-    $keu_res  = mysqli_query($conn, "SELECT tanggal,jenis,kategori,keterangan,metode,jumlah,referensi
-        FROM keuangan WHERE MONTH(tanggal)=$lap_bulan AND YEAR(tanggal)=$lap_tahun
-        ORDER BY tanggal ASC, id ASC");
-    $keu_rows = mysqli_fetch_all($keu_res, MYSQLI_ASSOC);
+    if ($hasKeuangan) {
+        $keu_ok  = true;
+        
+        $stmtKr = $conn->prepare("SELECT
+            COALESCE(SUM(CASE WHEN jenis='Pemasukan'   THEN jumlah ELSE 0 END),0) AS masuk,
+            COALESCE(SUM(CASE WHEN jenis='Pengeluaran' THEN jumlah ELSE 0 END),0) AS keluar
+            FROM keuangan WHERE MONTH(tanggal)=:lap_bulan AND YEAR(tanggal)=:lap_tahun");
+        $stmtKr->execute(['lap_bulan' => $lap_bulan, 'lap_tahun' => $lap_tahun]);
+        $kr = $stmtKr->fetch();
+        $tot_masuk  = (float)($kr['masuk'] ?? 0);
+        $tot_keluar = (float)($kr['keluar'] ?? 0);
+
+        $stmtKeuRes  = $conn->prepare("SELECT tanggal,jenis,kategori,keterangan,metode,jumlah,referensi
+            FROM keuangan WHERE MONTH(tanggal)=:lap_bulan AND YEAR(tanggal)=:lap_tahun
+            ORDER BY tanggal ASC, id ASC");
+        $stmtKeuRes->execute(['lap_bulan' => $lap_bulan, 'lap_tahun' => $lap_tahun]);
+        $keu_rows = $stmtKeuRes->fetchAll();
+    }
+} catch (Exception $e) {
+    // Tangani error query
+    $rows = [];
 }
 
 function rupiah_fmt(float $n): string {

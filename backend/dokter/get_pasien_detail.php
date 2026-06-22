@@ -14,15 +14,16 @@ if ($id <= 0) {
     exit;
 }
 
-$q = mysqli_query($conn, "
+$q = $conn->prepare("
     SELECT p.*, 
            (SELECT COUNT(*) FROM rekam_medis WHERE pasien_id = p.id) AS total_kunjungan
     FROM pasien p 
-    WHERE p.id = $id 
+    WHERE p.id = :id 
     LIMIT 1
 ");
+$q->execute(['id' => $id]);
 
-if ($row = mysqli_fetch_assoc($q)) {
+if ($row = $q->fetch()) {
     // Map missing or custom fields
     $row['alergi'] = $row['catatan_medis'] ?: 'Tidak ada';
     $row['gol_darah'] = '-';

@@ -1,14 +1,13 @@
 <?php
 session_start();
-$conn = @mysqli_connect('localhost', 'root', '', 'glowcareclinic');
 $dokter_homepage = [];
-if ($conn) {
-    $qDoc = mysqli_query($conn, "SELECT nama, spesialisasi, bio, rating, foto FROM dokter WHERE status='Aktif' ORDER BY rating DESC LIMIT 3");
-    if ($qDoc) {
-        while ($d = mysqli_fetch_assoc($qDoc)) {
-            $dokter_homepage[] = $d;
-        }
-    }
+try {
+    $conn = new PDO("mysql:host=localhost;dbname=glowcareclinic;charset=utf8mb4", "root", "");
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $qDoc = $conn->query("SELECT nama, spesialisasi, bio, rating, foto FROM dokter WHERE status='Aktif' ORDER BY rating DESC LIMIT 3");
+    $dokter_homepage = $qDoc->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $conn = null;
 }
 ?>
 <!DOCTYPE html>

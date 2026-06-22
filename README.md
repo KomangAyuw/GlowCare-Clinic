@@ -151,11 +151,11 @@ GlowCare-Clinic/
 
 | Kategori | Teknologi |
 |---|---|
-| **Frontend** | HTML5, CSS3, JavaScript (ES6+), Tailwind CSS (via CDN) |
+| **Frontend** | HTML5, CSS3, JavaScript, Tailwind CSS (via CDN) |
 | **Fonts & Icons** | Google Fonts (Inter, Playfair Display), Material Symbols Outlined |
-| **Backend** | Native PHP (PHP Session, Native Routing, MySQLi connection) |
+| **Backend** | Native PHP |
 | **Database** | MySQL |
-| **Web Server** | Apache (XAMPP / Laragon) |
+| **Web Server** | XAMPP |
 | **Version Control** | Git & GitHub |
 | **Development Tools** | Visual Studio Code, phpMyAdmin, Claude, ChatGPT, Stitch |
 

@@ -2,8 +2,11 @@
 $conn = require '../config/koneksi.php';
 session_start(); // ← pindah ke atas, sebelum header apapun
 
-$alterTable = "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NOT NULL DEFAULT 'user'";
-mysqli_query($conn, $alterTable);
+try {
+    $alterTable = "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NOT NULL DEFAULT 'user'";
+    $conn->exec($alterTable);
+} catch (PDOException $e) {
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../../pages/auth/Signin.php'); // ← 'I' kapital
@@ -23,14 +26,11 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-$email = mysqli_real_escape_string($conn, $email);
+$stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE email = ? LIMIT 1");
+$stmt->execute([$email]);
+$user = $stmt->fetch();
 
-$query  = "SELECT id, username, password, role FROM users WHERE email = '$email' LIMIT 1";
-$result = mysqli_query($conn, $query);
-
-if ($result && mysqli_num_rows($result) === 1) {
-    $user = mysqli_fetch_assoc($result);
-
+if ($user) {
     if (password_verify($password, $user['password'])) {
         $_SESSION['user_id']  = $user['id'];
         $_SESSION['username'] = $user['username'];

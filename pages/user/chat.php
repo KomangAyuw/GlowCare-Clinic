@@ -7,13 +7,14 @@ if (!isset($_SESSION['user_id'])) {
 require '../../backend/config/koneksi.php';
 $user_id = (int)$_SESSION['user_id'];
 
-$qProfil = mysqli_query($conn, "SELECT p.*, u.username FROM pasien p JOIN users u ON u.id = p.user_id WHERE p.user_id = $user_id LIMIT 1");
-$profil  = $qProfil ? mysqli_fetch_assoc($qProfil) : [];
+$stmtProfil = $conn->prepare("SELECT p.*, u.username FROM pasien p JOIN users u ON u.id = p.user_id WHERE p.user_id = :user_id LIMIT 1");
+$stmtProfil->execute(['user_id' => $user_id]);
+$profil = $stmtProfil->fetch() ?: [];
 $pasien_id    = (int)($profil['id'] ?? 0);
 $namaPasien   = htmlspecialchars($profil['nama'] ?? $profil['username'] ?? 'Pasien');
 
 // Ambil dokter unik dengan janji temu terbaru untuk sidebar
-$qUniqueDocs = mysqli_query($conn, "
+$stmtUniqueDocs = $conn->prepare("
     SELECT a.id as appt_id, a.status as appt_status, d.id as dokter_id, d.nama as nama_dokter, d.spesialisasi,
            t.nama as nama_treatment, a.tanggal, a.jam
     FROM appointment a
@@ -22,18 +23,14 @@ $qUniqueDocs = mysqli_query($conn, "
     INNER JOIN (
         SELECT dokter_id, MAX(CONCAT(tanggal, ' ', jam)) as max_datetime
         FROM appointment
-        WHERE pasien_id = $pasien_id
+        WHERE pasien_id = :pasien_id
         GROUP BY dokter_id
     ) latest ON a.dokter_id = latest.dokter_id AND CONCAT(a.tanggal, ' ', a.jam) = latest.max_datetime
-    WHERE a.pasien_id = $pasien_id
+    WHERE a.pasien_id = :pasien_id2
     ORDER BY a.tanggal DESC, a.jam DESC
 ");
-$unique_doctors = [];
-if ($qUniqueDocs) {
-    while ($row = mysqli_fetch_assoc($qUniqueDocs)) {
-        $unique_doctors[] = $row;
-    }
-}
+$stmtUniqueDocs->execute(['pasien_id' => $pasien_id, 'pasien_id2' => $pasien_id]);
+$unique_doctors = $stmtUniqueDocs->fetchAll() ?: [];
 
 // Appointment yang sedang dipilih
 $appt_id = (int)($_GET['appt_id'] ?? ($unique_doctors[0]['appt_id'] ?? 0));
@@ -44,58 +41,63 @@ $selected_dokter_id = 0;
 
 if ($appt_id > 0) {
     // Cari atau buat sesi konsultasi
-    $qConsult = mysqli_query($conn, "SELECT id, dokter_id FROM consultations WHERE appointment_id = $appt_id LIMIT 1");
-    if ($qConsult && mysqli_num_rows($qConsult) > 0) {
-        $consult = mysqli_fetch_assoc($qConsult);
+    $stmtConsult = $conn->prepare("SELECT id, dokter_id FROM consultations WHERE appointment_id = :appt_id LIMIT 1");
+    $stmtConsult->execute(['appt_id' => $appt_id]);
+    $consult = $stmtConsult->fetch();
+    if ($consult) {
         $consultation_id = (int)$consult['id'];
         $dokter_id = (int)$consult['dokter_id'];
     } else {
-        $qAppt = mysqli_query($conn, "SELECT dokter_id, status FROM appointment WHERE id = $appt_id AND pasien_id = $pasien_id LIMIT 1");
-        if ($appt = mysqli_fetch_assoc($qAppt)) {
+        $stmtAppt = $conn->prepare("SELECT dokter_id, status FROM appointment WHERE id = :appt_id AND pasien_id = :pasien_id LIMIT 1");
+        $stmtAppt->execute(['appt_id' => $appt_id, 'pasien_id' => $pasien_id]);
+        if ($appt = $stmtAppt->fetch()) {
             $dokter_id = (int)$appt['dokter_id'];
-            mysqli_query($conn, "INSERT INTO consultations (appointment_id, pasien_id, dokter_id, status, created_at) VALUES ($appt_id, $pasien_id, $dokter_id, 'Aktif', NOW())");
-            $consultation_id = (int)mysqli_insert_id($conn);
+            $stmtInsertConsult = $conn->prepare("INSERT INTO consultations (appointment_id, pasien_id, dokter_id, status, created_at) VALUES (:appt_id, :pasien_id, :dokter_id, 'Aktif', NOW())");
+            $stmtInsertConsult->execute([
+                'appt_id' => $appt_id,
+                'pasien_id' => $pasien_id,
+                'dokter_id' => $dokter_id
+            ]);
+            $consultation_id = (int)$conn->lastInsertId();
         }
     }
 
     if (isset($dokter_id) && $dokter_id > 0) {
         $selected_dokter_id = $dokter_id;
-        $qDokter = mysqli_query($conn, "SELECT nama, spesialisasi FROM dokter WHERE id = $dokter_id LIMIT 1");
-        if ($qDokter && mysqli_num_rows($qDokter) > 0) {
-            $dokter = mysqli_fetch_assoc($qDokter);
-            $dokter['nama']         = htmlspecialchars($dokter['nama']);
-            $dokter['spesialisasi'] = htmlspecialchars($dokter['spesialisasi']);
+        $stmtDokter = $conn->prepare("SELECT nama, spesialisasi FROM dokter WHERE id = :dokter_id LIMIT 1");
+        $stmtDokter->execute(['dokter_id' => $dokter_id]);
+        if ($resDokter = $stmtDokter->fetch()) {
+            $dokter['nama']         = htmlspecialchars($resDokter['nama']);
+            $dokter['spesialisasi'] = htmlspecialchars($resDokter['spesialisasi']);
         }
     }
 
     // Ambil info detail untuk appointment terpilih
-    $qApptInfo = mysqli_query($conn, "
+    $stmtApptInfo = $conn->prepare("
         SELECT a.id as appt_id, a.status as appt_status, d.nama as nama_dokter, d.spesialisasi,
                t.nama as nama_treatment, a.tanggal, a.jam 
         FROM appointment a 
         JOIN dokter d ON a.dokter_id = d.id
         LEFT JOIN treatment t ON a.treatment_id = t.id
-        WHERE a.id = $appt_id AND a.pasien_id = $pasien_id
+        WHERE a.id = :appt_id AND a.pasien_id = :pasien_id
         LIMIT 1
     ");
-    $apptInfo = ($qApptInfo && mysqli_num_rows($qApptInfo) > 0) ? mysqli_fetch_assoc($qApptInfo) : null;
+    $stmtApptInfo->execute(['appt_id' => $appt_id, 'pasien_id' => $pasien_id]);
+    $apptInfo = $stmtApptInfo->fetch() ?: null;
 }
 
 // Ambil riwayat sesi untuk dokter terpilih
 $session_history = [];
 if ($pasien_id > 0 && $selected_dokter_id > 0) {
-    $qHistory = mysqli_query($conn, "
+    $stmtHistory = $conn->prepare("
         SELECT a.id as appt_id, a.status as appt_status, a.tanggal, a.jam, t.nama as nama_treatment
         FROM appointment a
         LEFT JOIN treatment t ON a.treatment_id = t.id
-        WHERE a.pasien_id = $pasien_id AND a.dokter_id = $selected_dokter_id
+        WHERE a.pasien_id = :pasien_id AND a.dokter_id = :dokter_id
         ORDER BY a.tanggal DESC, a.jam DESC
     ");
-    if ($qHistory) {
-        while ($row = mysqli_fetch_assoc($qHistory)) {
-            $session_history[] = $row;
-        }
-    }
+    $stmtHistory->execute(['pasien_id' => $pasien_id, 'dokter_id' => $selected_dokter_id]);
+    $session_history = $stmtHistory->fetchAll() ?: [];
 }
 
 $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Selesai']);

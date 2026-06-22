@@ -217,9 +217,10 @@
         <section class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop pb-xl">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
                 <?php
-$qDokter = mysqli_query($conn, "SELECT * FROM dokter WHERE status='Aktif' ORDER BY nama ASC");
-if (mysqli_num_rows($qDokter) > 0) {
-    while ($d = mysqli_fetch_assoc($qDokter)) {
+$qDokter = $conn->query("SELECT * FROM dokter WHERE status='Aktif' ORDER BY nama ASC");
+$doctors = $qDokter->fetchAll();
+if (count($doctors) > 0) {
+    foreach ($doctors as $d) {
         $foto = !empty($d['foto']) 
             ? (strpos($d['foto'], 'http') === 0 || strpos($d['foto'], 'asset/') === 0 ? '../' . $d['foto'] : '../backend/uploads/' . $d['foto']) 
             : 'https://ui-avatars.com/api/?name=' . urlencode($d['nama']) . '&background=064e3b&color=fff&size=500';
