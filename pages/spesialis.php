@@ -236,7 +236,7 @@ if (mysqli_num_rows($qDokter) > 0) {
                     </div>
                     <div class="p-8 flex flex-col flex-grow">
                         <h2 class="font-headline-md text-headline-md text-primary mb-1">
-                            <?= htmlspecialchars($d['nama_lengkap'] ?: $d['nama']) ?></h2>
+                            <?= htmlspecialchars($d['nama']) ?></h2>
                         <p class="font-label-md text-label-md text-secondary mb-4 tracking-wide uppercase">
                             <?= htmlspecialchars($d['spesialisasi']) ?></p>
                         <p class="font-body-sm text-body-sm text-on-surface-variant mb-6 flex-grow leading-relaxed">

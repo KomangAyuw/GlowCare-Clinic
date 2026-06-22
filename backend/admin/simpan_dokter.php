@@ -6,7 +6,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 $conn = require '../config/koneksi.php';
 
 $id           = (int)($_POST['id'] ?? 0);
-$nama         = trim($_POST['nama'] ?? '');
+$nama         = trim(strip_tags($_POST['nama'] ?? ''));
 $no_str       = trim($_POST['no_str'] ?? '');
 $spesialisasi = $_POST['spesialisasi'] ?? 'Other';
 $telepon      = trim($_POST['telepon'] ?? '');
@@ -55,18 +55,18 @@ if (empty($foto_val)) {
 
 if ($id > 0) {
     $stmt = mysqli_prepare($conn,
-        "UPDATE dokter SET nama=?,no_str=?,spesialisasi=?,telepon=?,email=?,pengalaman=?,rating=?,status=?,bio=?,foto=? WHERE id=?");
-    mysqli_stmt_bind_param($stmt, 'sssssidsssi',
-        $nama,$no_str,$spesialisasi,$telepon,$email,$pengalaman,$rating,$status,$bio,$foto_val,$id);
+        "UPDATE dokter SET nama=?,nama_lengkap=?,no_str=?,spesialisasi=?,telepon=?,email=?,pengalaman=?,rating=?,status=?,bio=?,foto=? WHERE id=?");
+    mysqli_stmt_bind_param($stmt, 'ssssssidsssi',
+        $nama,$nama,$no_str,$spesialisasi,$telepon,$email,$pengalaman,$rating,$status,$bio,$foto_val,$id);
     $ok  = mysqli_stmt_execute($stmt);
     $msg = $ok ? 'Data dokter berhasil diperbarui.' : mysqli_error($conn);
     $judul = 'Dokter Diperbarui';
     $desk  = "$nama diperbarui oleh admin.";
 } else {
     $stmt = mysqli_prepare($conn,
-        "INSERT INTO dokter (nama,no_str,spesialisasi,telepon,email,pengalaman,rating,status,bio,foto) VALUES (?,?,?,?,?,?,?,?,?,?)");
-    mysqli_stmt_bind_param($stmt, 'sssssidsss',
-        $nama,$no_str,$spesialisasi,$telepon,$email,$pengalaman,$rating,$status,$bio,$foto_val);
+        "INSERT INTO dokter (nama,nama_lengkap,no_str,spesialisasi,telepon,email,pengalaman,rating,status,bio,foto) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+    mysqli_stmt_bind_param($stmt, 'ssssssidsss',
+        $nama,$nama,$no_str,$spesialisasi,$telepon,$email,$pengalaman,$rating,$status,$bio,$foto_val);
     $ok  = mysqli_stmt_execute($stmt);
     $msg = $ok ? 'Dokter baru berhasil ditambahkan.' : mysqli_error($conn);
     $judul = 'Dokter Baru';

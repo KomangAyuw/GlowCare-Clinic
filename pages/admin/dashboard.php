@@ -1922,6 +1922,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                 <button class="btn-cancel" onclick="closeConfirm()">Batal</button>
                 <form method="POST" id="confirm-form">
                     <input type="hidden" name="id" id="confirm-id">
+                    <input type="hidden" name="aksi" value="hapus">
                     <button type="submit" class="btn-save" style="background:#e05050">Ya, Hapus</button>
                 </form>
             </div>

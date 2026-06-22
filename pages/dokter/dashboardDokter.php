@@ -35,7 +35,12 @@ $fotoUrl      = !empty($profil['foto'])
                         ? '../../' . htmlspecialchars($profil['foto']) 
                         : '../../backend/uploads/' . htmlspecialchars($profil['foto'])))
                 : '../../asset/img/doctor1.png';
-$namaDisplay  = $gelar ? "$gelar $namaLengkap" : $namaLengkap;
+$namaDisplay  = $namaLengkap;
+if ($gelar && stripos($namaDisplay, $gelar) === false) {
+    if (!(stripos($gelar, 'dr') === 0 && stripos($namaDisplay, 'dr') === 0)) {
+        $namaDisplay = "$gelar $namaLengkap";
+    }
+}
 
 $qStatHari = mysqli_query($conn, "
     SELECT
@@ -707,7 +712,21 @@ $tanggalHariIni = formatTanggal($today);
                 $hariList[] = date('Y-m-d', strtotime("$senin +$i days"));
             }
             $namaHari = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-            $slotJam  = ['09:00','10:30','13:00','15:00'];
+            
+            // Definisikan slot default
+            $defaultSlots = ['09:00','10:30','13:00','15:00'];
+            // Kumpulkan jam mulai dari jadwal yang ada pada minggu ini
+            $actualSlots = [];
+            foreach ($jadwalMinggu as $tgl => $events) {
+                foreach ($events as $ev) {
+                    if (!empty($ev['jam_mulai'])) {
+                        $actualSlots[] = substr($ev['jam_mulai'], 0, 5);
+                    }
+                }
+            }
+            // Gabungkan, buang duplikat, dan urutkan agar jam tampil kronologis
+            $slotJam = array_unique(array_merge($defaultSlots, $actualSlots));
+            sort($slotJam);
             ?>
                 <div class="week-grid">
                     <div class="wg-head">Jam</div>
