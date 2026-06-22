@@ -143,7 +143,7 @@ GlowCare-Clinic/
     └── img/                  # Folder gambar statis & ikon aset
 ```
 
-# Bug Logs (Riwayat Perbaikan Bug)
+# Bug Logs (5 Riwayat Perbaikan Bug)
 
 ### Bug Log 1 (Nama Dokter Menampilkan Kode Script)
 1) Gejala: Muncul tulisan `<script>console.log('XSS_WORKED')</script>` pada nama dokter di dashboard admin.
@@ -151,12 +151,7 @@ GlowCare-Clinic/
 3) Hipotesis penyebab: Sistem menyimpan semua data yang dimasukkan pengguna tanpa memeriksa apakah terdapat kode yang tidak seharusnya disimpan sebagai nama dokter (Stored XSS).
 4) Fix (apa yang diubah): Menambahkan pembersihan tag HTML dan Script lewat fungsi `strip_tags()` sebelum nama dokter disimpan pada file `backend/admin/simpan_dokter.php` (baris 9).
 5) Bukti (Untuk Screenshot):
-   Sebelum (Stored XSS):
-   ![Sebelum](asset/img/bugs/bug1_sebelum.png)
-   Sesudah (Perbaikan Kode):
    ![Sesudah (Perbaikan Kode)](asset/img/bugs/bug1_sesudah_code.png)
-   Sesudah (Tampilan Bersih & Aman):
-   ![Sesudah](asset/img/bugs/bug1_sesudah.png)
 
 ---
 
@@ -166,12 +161,7 @@ GlowCare-Clinic/
 3) Hipotesis penyebab: Sistem tidak menerima informasi bahwa pengguna sedang melakukan proses penghapusan data, sehingga perintah hapus tidak dapat dijalankan (form konfirmasi modal tidak menyertakan parameter `aksi`).
 4) Fix (apa yang diubah): Menambahkan input tersembunyi `aksi="hapus"` pada form modal konfirmasi di file `pages/admin/dashboard.php` (baris 1925).
 5) Bukti (Untuk Screenshot):
-   Sebelum (Toast Error):
-   ![Sebelum](asset/img/bugs/bug2_sebelum.png)
-   Sesudah (Perbaikan Kode):
    ![Sesudah (Perbaikan Kode)](asset/img/bugs/bug2_sesudah_code.png)
-   Sesudah (Berhasil Dihapus):
-   ![Sesudah (Berhasil Dihapus)](asset/img/bugs/bug2_sesudah.png)
 
 ---
 
@@ -181,7 +171,6 @@ GlowCare-Clinic/
 3) Hipotesis penyebab: Sistem salah mengenali jenis pengguna yang sedang login karena data role yang dibaca tidak sesuai dengan data yang tersimpan di database (masalah pencocokan string role secara case-sensitive).
 4) Fix (apa yang diubah): Memperbaiki proses pembacaan role pengguna dengan mengonversinya menjadi huruf kecil menggunakan `strtolower()` dan memperbarui validasi agar mengenali role `'user'` dan `'pasien'` dengan benar pada file `backend/notifikasi/notif_count.php` (baris 13 & 17).
 5) Bukti (Untuk Screenshot):
-   Sesudah (Perbaikan Kode):
    ![Sesudah (Perbaikan Kode)](asset/img/bugs/bug3_sesudah_code.png)
 
 ---
@@ -192,7 +181,6 @@ GlowCare-Clinic/
 3) Hipotesis penyebab: Sistem masih mengarah ke lokasi file chat yang lama (`../../backend/chat_send.php`) karena letak file backend chat dipindahkan ke dalam folder `backend/chat/` pasca restrukturisasi.
 4) Fix (apa yang diubah): Memperbarui alamat file target fetch pada fitur chat agar mengarah ke lokasi folder backend yang baru pada file `pages/user/chat.php` (baris 548) & `pages/dokter/chat.php` (baris 392).
 5) Bukti (Untuk Screenshot):
-   Sesudah (Perbaikan Kode):
    ![Sesudah (Perbaikan Kode)](asset/img/bugs/bug4_sesudah_code.png)
 
 ---
@@ -203,16 +191,28 @@ GlowCare-Clinic/
 3) Hipotesis penyebab: Sistem belum memiliki pengaturan pemetaan navigasi di JavaScript yang menghubungkan menu Pengumuman dengan panel halaman yang harus ditampilkan.
 4) Fix (apa yang diubah): Menambahkan registrasi menu `'pengumuman'` pada variabel `titles` sistem navigasi dashboard admin di file `asset/js/admin.js` (baris 1).
 5) Bukti (Untuk Screenshot):
-   Sesudah (Perbaikan Kode - dashboard.php):
    ![Sesudah (Perbaikan Kode - dashboard.php)](asset/img/bugs/bug5_sesudah_code1.png)
-   Sesudah (Perbaikan Kode - admin.js):
    ![Sesudah (Perbaikan Kode - admin.js)](asset/img/bugs/bug5_sesudah_code2.png)
 
 ---
 
-# AI Tools Used
-* **Claude**: Digunakan untuk mendeteksi, mendiagnosis, dan menulis kode perbaikan bug/kesalahan sistem pada logika PHP & JavaScript di backend dan database.
-* **Stitch**: Digunakan untuk brainstorming ide visual, skema warna premium (harmonious colors), serta pemetaan layout antarmuka (UI/UX) website agar tampak elegan.
+# AI Usage Statement
+
+Sesuai dengan aturan pengerjaan proyek, berikut adalah pernyataan penggunaan AI selama pengembangan aplikasi GlowCare Clinic:
+
+1) Tool: Google Gemini / Claude
+
+2) Untuk apa: Membantu memperbaiki bug/kesalahan pada file backend PHP & JavaScript, merapikan struktur menu navigasi/sitemap, serta merestrukturisasi halaman publik klinik (about, spesialis, kontak, treatment) agar sesuai dengan desain layout yang premium.
+
+3) 2-3 prompt utama:
+   * "bagaimana cara menyanitasi input PHP agar terhindar dari celah keamanan Stored XSS pada nama dokter?"
+   * "kenapa tombol hapus pesan kontak di dashboard admin memicu error aksi tidak dikenali dan bagaimana cara memperbaikinya?"
+   * "bagaimana cara membenahi session role check agar tidak case-sensitive dan tidak memicu redirect berulang ke login?"
+   * "buatkan struktur folder dan sitemap teks untuk proyek sistem informasi klinik kecantikan GlowCare Clinic"
+
+4) Bagian output AI yang dipakai: Solusi perbaikan Stored XSS menggunakan `strip_tags()` pada backend input dokter, penambahan input tersembunyi `aksi="hapus"` pada modal konfirmasi hapus pesan, modifikasi logic database query pada dashboard dokter (untuk load jadwal jam mulai dinamis), serta format tata letak tree sitemap/direktori.
+
+5) Bagian yang saya ubah + alasan: Kami menyesuaikan penataan letak file publik dengan memindahkannya ke dalam folder `pages/` agar terstruktur rapi, menyesuaikan seluruh path relatif (`../` dan `../../`) pada tautan menu navigasi agar tidak broken link, serta memperbarui isi keluhan pasien Siti Rahayu agar terlihat klinis, realistis, dan profesional.
 
 ---
 
