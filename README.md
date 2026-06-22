@@ -151,6 +151,7 @@ GlowCare-Clinic/
 3) Hipotesis penyebab: Sistem menyimpan semua data yang dimasukkan pengguna tanpa memeriksa apakah terdapat kode yang tidak seharusnya disimpan sebagai nama dokter (Stored XSS).
 4) Fix (apa yang diubah): Menambahkan pembersihan tag HTML dan Script lewat fungsi `strip_tags()` sebelum nama dokter disimpan pada file `backend/admin/simpan_dokter.php` (baris 9).
 5) Bukti (Untuk Screenshot):
+
    ![Sesudah (Perbaikan Kode)](asset/img/bugs/bug1_sesudah_code.png)
 
 ---
@@ -200,9 +201,9 @@ GlowCare-Clinic/
 
 Sesuai dengan aturan pengerjaan proyek, berikut adalah pernyataan penggunaan AI selama pengembangan aplikasi GlowCare Clinic:
 
-1) Tool: Google Gemini / Claude
+1) Tool: Claude & Stitch
 
-2) Untuk apa: Membantu memperbaiki bug/kesalahan pada file backend PHP & JavaScript, merapikan struktur menu navigasi/sitemap, serta merestrukturisasi halaman publik klinik (about, spesialis, kontak, treatment) agar sesuai dengan desain layout yang premium.
+2) Untuk apa: Claude digunakan untuk mendeteksi, mendiagnosis, dan menulis kode perbaikan bug/kesalahan sistem pada logika PHP & JavaScript di backend dan database. Stitch digunakan untuk brainstorming ide visual, skema warna premium (harmonious colors), serta pemetaan layout antarmuka (UI/UX) website agar tampak elegan.
 
 3) 2-3 prompt utama:
    * "bagaimana cara menyanitasi input PHP agar terhindar dari celah keamanan Stored XSS pada nama dokter?"
