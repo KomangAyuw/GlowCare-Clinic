@@ -151,8 +151,7 @@ GlowCare-Clinic/
 3) Hipotesis penyebab: Sistem menyimpan semua data yang dimasukkan pengguna tanpa memeriksa apakah terdapat kode yang tidak seharusnya disimpan sebagai nama dokter (Stored XSS).
 4) Fix (apa yang diubah): Menambahkan pembersihan tag HTML dan Script lewat fungsi `strip_tags()` sebelum nama dokter disimpan pada file `backend/admin/simpan_dokter.php` (baris 9).
 5) Bukti (Untuk Screenshot):
-   ![Sebelum](asset/img/bugs/bug1_sebelum.png)
-   ![Sesudah](asset/img/bugs/bug1_sesudah.png)
+   (asset/img/bugs/bug1_sebelum.png)
 
 ---
 
@@ -162,9 +161,7 @@ GlowCare-Clinic/
 3) Hipotesis penyebab: Sistem tidak menerima informasi bahwa pengguna sedang melakukan proses penghapusan data, sehingga perintah hapus tidak dapat dijalankan (form konfirmasi modal tidak menyertakan parameter `aksi`).
 4) Fix (apa yang diubah): Menambahkan input tersembunyi `aksi="hapus"` pada form modal konfirmasi di file `pages/admin/dashboard.php` (baris 1925).
 5) Bukti (Untuk Screenshot):
-   ![Sebelum](asset/img/bugs/bug2_sebelum.png)
-   ![Sesudah (Perbaikan Kode)](asset/img/bugs/bug2_sesudah_code.png)
-   ![Sesudah (Berhasil)](asset/img/bugs/bug2_sesudah.png)
+   (asset/img/bugs/bug2_sesudah_code.png)
 
 ---
 
@@ -174,7 +171,7 @@ GlowCare-Clinic/
 3) Hipotesis penyebab: Sistem salah mengenali jenis pengguna yang sedang login karena data role yang dibaca tidak sesuai dengan data yang tersimpan di database (masalah pencocokan string role secara case-sensitive).
 4) Fix (apa yang diubah): Memperbaiki proses pembacaan role pengguna dengan mengonversinya menjadi huruf kecil menggunakan `strtolower()` dan memperbarui validasi agar mengenali role `'user'` dan `'pasien'` dengan benar pada file `backend/notifikasi/notif_count.php` (baris 13 & 17).
 5) Bukti (Untuk Screenshot):
-   ![Sesudah (Perbaikan Kode)](asset/img/bugs/bug3_sesudah_code.png)
+   (asset/img/bugs/bug3_sesudah_code.png)
 
 ---
 
