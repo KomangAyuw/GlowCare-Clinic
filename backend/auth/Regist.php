@@ -80,4 +80,3 @@ if (mysqli_query($conn, $insertSql)) {
 $errorMessage = 'Terjadi kesalahan saat registrasi. Silakan coba lagi.';
 header('Location: ../../pages/auth/SignUp.php?error=' . urlencode($errorMessage));
 exit;
-
