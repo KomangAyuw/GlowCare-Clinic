@@ -146,124 +146,56 @@ GlowCare-Clinic/
 # Bug Logs (Riwayat Perbaikan Bug)
 
 ### Bug Log 1 (Nama Dokter Menampilkan Kode Script)
-
-1. **Gejala**:
-   Muncul tulisan `<script>console.log('XSS_WORKED')</script>` pada nama dokter di dashboard admin.
-
-2. **Langkah reproduksi**:
-   Masukkan kode script pada kolom nama dokter, simpan data, lalu buka dashboard admin.
-
-3. **Hipotesis penyebab**:
-   Sistem menyimpan semua data yang dimasukkan pengguna tanpa memeriksa apakah terdapat kode yang tidak seharusnya disimpan sebagai nama dokter (Stored XSS).
-
-4. **Fix (apa yang diubah)**:
-   * **File**: [backend/admin/simpan_dokter.php](file:///c:/xampp/htdocs/GlowCare-Clinic/backend/admin/simpan_dokter.php#L9) (Baris 9)
-   * Menambahkan pembersihan tag HTML dan Script lewat fungsi `strip_tags()` sebelum nama dokter disimpan:
-     ```php
-     $nama = trim(strip_tags($_POST['nama'] ?? ''));
-     ```
-
-5. **Bukti (Untuk Screenshot)**:
-   * Sebelum: Kode script tampil pada nama dokter.
-   * Sesudah: Hanya nama dokter bersih (`dr. Anisa Putri, Sp.BP-RE`) yang tersimpan dan ditampilkan.
+1) Gejala: Muncul tulisan `<script>console.log('XSS_WORKED')</script>` pada nama dokter di dashboard admin.
+2) Langkah reproduksi: Masukkan kode script pada kolom nama dokter, simpan data, lalu buka dashboard admin.
+3) Hipotesis penyebab: Sistem menyimpan semua data yang dimasukkan pengguna tanpa memeriksa apakah terdapat kode yang tidak seharusnya disimpan sebagai nama dokter (Stored XSS).
+4) Fix (apa yang diubah): Menambahkan pembersihan tag HTML dan Script lewat fungsi `strip_tags()` sebelum nama dokter disimpan pada file `backend/admin/simpan_dokter.php` (baris 9).
+5) Bukti (Untuk Screenshot):
+   ![Sebelum](asset/img/bugs/bug1_sebelum.png)
+   ![Sesudah](asset/img/bugs/bug1_sesudah.png)
 
 ---
 
 ### Bug Log 2 (Gagal Menghapus Pesan Kontak)
-
-1. **Gejala**:
-   Muncul pesan error "Aksi tidak dikenali" saat admin menghapus pesan kontak.
-
-2. **Langkah reproduksi**:
-   Admin membuka menu pesan kontak, menekan tombol Hapus, lalu mengonfirmasi penghapusan.
-
-3. **Hipotesis penyebab**:
-   Sistem tidak menerima informasi bahwa pengguna sedang melakukan proses penghapusan data, sehingga perintah hapus tidak dapat dijalankan (form konfirmasi modal tidak menyertakan parameter `aksi`).
-
-4. **Fix (apa yang diubah)**:
-   * **File**: [pages/admin/dashboard.php](file:///c:/xampp/htdocs/GlowCare-Clinic/pages/admin/dashboard.php#L1925) (Baris 1925)
-   * Menambahkan input tersembunyi `aksi="hapus"` pada form modal konfirmasi agar dikenali oleh logika backend:
-     ```html
-     <input type="hidden" name="aksi" value="hapus">
-     ```
-
-5. **Bukti (Untuk Screenshot)**:
-   * Sebelum: Muncul pesan "Aksi tidak dikenali".
-   * Sesudah: Pesan kontak berhasil terhapus secara permanen dari database.
+1) Gejala: Muncul pesan error "Aksi tidak dikenali" saat admin menghapus pesan kontak.
+2) Langkah reproduksi: Admin membuka menu pesan kontak, menekan tombol Hapus, lalu mengonfirmasi penghapusan.
+3) Hipotesis penyebab: Sistem tidak menerima informasi bahwa pengguna sedang melakukan proses penghapusan data, sehingga perintah hapus tidak dapat dijalankan (form konfirmasi modal tidak menyertakan parameter `aksi`).
+4) Fix (apa yang diubah): Menambahkan input tersembunyi `aksi="hapus"` pada form modal konfirmasi di file `pages/admin/dashboard.php` (baris 1925).
+5) Bukti (Untuk Screenshot):
+   ![Sebelum](asset/img/bugs/bug2_sebelum.png)
+   ![Sesudah (Perbaikan Kode)](asset/img/bugs/bug2_sesudah_code.png)
+   ![Sesudah (Berhasil)](asset/img/bugs/bug2_sesudah.png)
 
 ---
 
 ### Bug Log 3 (Layanan & Dashboard Tidak Dapat Diakses)
-
-1. **Gejala**:
-   Pasien atau dokter gagal mengakses dashboard dan menu layanan, serta sering kembali ke halaman login.
-
-2. **Langkah reproduksi**:
-   Login sebagai pasien atau dokter, lalu coba akses dashboard atau halaman layanan.
-
-3. **Hipotesis penyebab**:
-   Sistem salah mengenali jenis pengguna yang sedang login karena data role yang dibaca tidak sesuai dengan data yang tersimpan di database (masalah pencocokan string role secara case-sensitive).
-
-4. **Fix (apa yang diubah)**:
-   * **File**: [backend/notifikasi/notif_count.php](file:///c:/xampp/htdocs/GlowCare-Clinic/backend/notifikasi/notif_count.php#L13-L17) (Baris 13, 17, dan 49)
-   * Memperbaiki pembacaan role dengan mengonversinya menjadi huruf kecil menggunakan `strtolower()` dan memperbarui validasi agar mengenali role `'user'` dan `'pasien'` dengan benar:
-     ```php
-     $role = strtolower($_SESSION['role'] ?? 'user');
-     if ($role === 'user' || $role === 'pasien') { ... }
-     ```
-
-5. **Bukti (Untuk Screenshot)**:
-   * Sebelum: Pengguna tidak dapat mengakses dashboard atau layanan.
-   * Sesudah: Dashboard dan layanan dapat diakses dengan normal.
+1) Gejala: Pasien atau dokter gagal mengakses dashboard dan menu layanan, serta sering kembali ke halaman login.
+2) Langkah reproduksi: Login sebagai pasien atau dokter, lalu coba akses dashboard atau halaman layanan.
+3) Hipotesis penyebab: Sistem salah mengenali jenis pengguna yang sedang login karena data role yang dibaca tidak sesuai dengan data yang tersimpan di database (masalah pencocokan string role secara case-sensitive).
+4) Fix (apa yang diubah): Memperbaiki proses pembacaan role pengguna dengan mengonversinya menjadi huruf kecil menggunakan `strtolower()` dan memperbarui validasi agar mengenali role `'user'` dan `'pasien'` dengan benar pada file `backend/notifikasi/notif_count.php` (baris 13 & 17).
+5) Bukti (Untuk Screenshot):
+   ![Sesudah (Perbaikan Kode)](asset/img/bugs/bug3_sesudah_code.png)
 
 ---
 
 ### Bug Log 4 (Chat Tidak Terkirim ke Dokter & Sebaliknya)
-
-1. **Gejala**:
-   Pesan chat yang dikirim oleh pasien maupun dokter tidak muncul pada ruang percakapan dan tidak diterima oleh lawan bicara.
-
-2. **Langkah reproduksi**:
-   Buka halaman chat konsultasi, ketik pesan atau kirim gambar, lalu tekan tombol Kirim.
-
-3. **Hipotesis penyebab**:
-   Sistem masih mengarah ke lokasi file chat yang lama (`../../backend/chat_send.php`) karena letak file backend chat dipindahkan ke dalam folder `backend/chat/` pasca restrukturisasi.
-
-4. **Fix (apa yang diubah)**:
-   * **File**: [pages/user/chat.php](file:///c:/xampp/htdocs/GlowCare-Clinic/pages/user/chat.php#L548) (Baris 548) & [pages/dokter/chat.php](file:///c:/xampp/htdocs/GlowCare-Clinic/pages/dokter/chat.php#L392) (Baris 392)
-   * Memperbarui alamat file target fetch pada fitur chat agar mengarah ke lokasi folder backend yang baru:
-     ```javascript
-     fetch('../../backend/chat/chat_send.php', { ... })
-     fetch('../../backend/chat/chat_get.php?consultation_id=...', { ... })
-     ```
-
-5. **Bukti (Untuk Screenshot)**:
-   * Sebelum: Pesan tidak terkirim dan tidak muncul pada ruang chat.
-   * Sesudah: Pesan berhasil terkirim dan tampil pada kedua sisi percakapan.
+1) Gejala: Pesan chat yang dikirim oleh pasien maupun dokter tidak muncul pada ruang percakapan dan tidak diterima oleh lawan bicara.
+2) Langkah reproduksi: Buka halaman chat konsultasi, ketik pesan atau kirim gambar, lalu tekan tombol Kirim.
+3) Hipotesis penyebab: Sistem masih mengarah ke lokasi file chat yang lama (`../../backend/chat_send.php`) karena letak file backend chat dipindahkan ke dalam folder `backend/chat/` pasca restrukturisasi.
+4) Fix (apa yang diubah): Memperbarui alamat file target fetch pada fitur chat agar mengarah ke lokasi folder backend yang baru pada file `pages/user/chat.php` (baris 548) & `pages/dokter/chat.php` (baris 392).
+5) Bukti (Untuk Screenshot):
+   ![Sesudah (Perbaikan Kode)](asset/img/bugs/bug4_sesudah_code.png)
 
 ---
 
 ### Bug Log 5 (Tombol Sidebar Navigasi Tidak Merespons)
-
-1. **Gejala**:
-   Beberapa menu sidebar seperti "Pengumuman" tidak menampilkan halaman yang sesuai saat diklik.
-
-2. **Langkah reproduksi**:
-   Login sebagai admin lalu klik menu Pengumuman pada sidebar.
-
-3. **Hipotesis penyebab**:
-   Sistem belum memiliki pengaturan pemetaan navigasi di JavaScript yang menghubungkan menu Pengumuman dengan panel halaman yang harus ditampilkan.
-
-4. **Fix (apa yang diubah)**:
-   * **File**: [asset/js/admin.js](file:///c:/xampp/htdocs/GlowCare-Clinic/asset/js/admin.js#L1) (Baris 1) & [pages/admin/dashboard.php](file:///c:/xampp/htdocs/GlowCare-Clinic/pages/admin/dashboard.php#L369) (Baris 369)
-   * Menambahkan registrasi menu `'pengumuman'` pada variabel `titles` sistem navigasi dashboard admin:
-     ```javascript
-     const titles = { ..., pengumuman:'Pengumuman', ... };
-     ```
-
-5. **Bukti (Untuk Screenshot)**:
-   * Sebelum: Halaman tidak berubah saat menu diklik.
-   * Sesudah: Halaman Pengumuman berhasil ditampilkan.
+1) Gejala: Beberapa menu sidebar seperti "Pengumuman" tidak menampilkan halaman yang sesuai saat diklik.
+2) Langkah reproduksi: Login sebagai admin lalu klik menu Pengumuman pada sidebar.
+3) Hipotesis penyebab: Sistem belum memiliki pengaturan pemetaan navigasi di JavaScript yang menghubungkan menu Pengumuman dengan panel halaman yang harus ditampilkan.
+4) Fix (apa yang diubah): Menambahkan registrasi menu `'pengumuman'` pada variabel `titles` sistem navigasi dashboard admin di file `asset/js/admin.js` (baris 1).
+5) Bukti (Untuk Screenshot):
+   ![Sesudah (Perbaikan Kode - dashboard.php)](asset/img/bugs/bug5_sesudah_code1.png)
+   ![Sesudah (Perbaikan Kode - admin.js)](asset/img/bugs/bug5_sesudah_code2.png)
 
 ---
 
