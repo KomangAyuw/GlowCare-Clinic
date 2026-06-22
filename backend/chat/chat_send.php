@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'koneksi.php';
+require '../config/koneksi.php';
 
 header('Content-Type: application/json');
 
@@ -35,7 +35,7 @@ if (!$consultation_id) {
 $image_url = null;
 
 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-    $upload_dir = '../uploads/chat/';
+    $upload_dir = '../../backend/uploads/chat/';
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0777, true);
     }
@@ -46,7 +46,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     if (in_array($file_ext, $allowed)) {
         $filename = 'chat_' . time() . '_' . rand(1000, 9999) . '.' . $file_ext;
         if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_dir . $filename)) {
-            $image_url = 'uploads/chat/' . $filename;
+            $image_url = 'backend/uploads/chat/' . $filename;
         }
     }
 }

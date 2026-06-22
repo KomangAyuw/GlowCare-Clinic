@@ -3,11 +3,11 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-require_once 'koneksi.php';
+require_once '../config/koneksi.php';
 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../index.php');
+    header('Location: ../../index.php');
     exit;
 }
 
@@ -44,7 +44,7 @@ if (empty($errors)) {
             $_SESSION['sukses'] = true;
             mysqli_stmt_close($stmt);
             mysqli_close($conn);
-            header('Location: ../kontak.php');
+            header('Location: ../../pages/kontak.php');
             exit;
         } else {
             $errors[] = 'Gagal menyimpan pesan: ' . mysqli_stmt_error($stmt);
@@ -60,5 +60,5 @@ mysqli_close($conn);
 $_SESSION['errors']    = $errors;
 $_SESSION['old_input'] = compact('nama', 'telp', 'email', 'pesan');
 
-header('Location: ../kontak.php');
+header('Location: ../../pages/kontak.php');
 exit;

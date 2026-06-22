@@ -6,7 +6,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dokter') {
     exit;
 }
 
-$conn = require '../koneksi.php';
+$conn = require '../config/koneksi.php';
 
 $id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) {

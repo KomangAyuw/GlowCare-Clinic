@@ -148,13 +148,13 @@ unset($_SESSION['old_input']);
 <header class="fixed w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out docked full-width top-0">
 <div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-base max-w-[1200px] mx-auto">
 <!-- Brand Logo -->
-<a class="font-headline-lg text-headline-lg text-primary inline-flex items-center" href="index.php"><span class="material-symbols-outlined text-primary text-3xl mr-2 align-middle" style="font-variation-settings: &quot;FILL&quot; 1;">spa</span>GlowCare</a>
+<a class="font-headline-lg text-headline-lg text-primary inline-flex items-center" href="../index.php"><span class="material-symbols-outlined text-primary text-3xl mr-2 align-middle" style="font-variation-settings: &quot;FILL&quot; 1;">spa</span>GlowCare</a>
 <!-- Navigation Links -->
 <nav class="hidden md:flex items-center gap-sm">
 <!-- Inactive Items -->
-<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="index.php">Home</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="../index.php">Home</a>
 <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="about.php">About Us</a>
-<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="treatment.php">Services</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="treatment/treatment.php">Services</a>
 <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="spesialis.php">Doctors</a>
 <!-- Active Item (Contact) -->
 <a class="font-label-md text-label-md px-4 py-2 text-primary font-bold border-b-2 border-primary pb-1 hover:bg-primary-container/20 rounded-t-lg transition-all duration-300 ease-in-out" href="kontak.php">Contact</a>
@@ -162,20 +162,20 @@ unset($_SESSION['old_input']);
 <!-- Actions -->
 <div class="flex items-center gap-sm">
 <?php if (isset($_SESSION['user_id'])): 
-    $dashboard_url = 'pages/user/dashboarduser.php';
+    $dashboard_url = 'user/dashboarduser.php';
     if (isset($_SESSION['role'])) {
         if ($_SESSION['role'] === 'admin') {
-            $dashboard_url = 'pages/admin/dashboard.php';
+            $dashboard_url = 'admin/dashboard.php';
         } elseif ($_SESSION['role'] === 'dokter') {
-            $dashboard_url = 'pages/dokter/dashboardDokter.php';
+            $dashboard_url = 'dokter/dashboardDokter.php';
         }
     }
 ?>
     <a href="<?= $dashboard_url ?>" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
-    <a href="backend/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
+    <a href="../backend/auth/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
 <?php else: ?>
-    <a href="pages/auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
-    <a href="pages/auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
+    <a href="auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
+    <a href="auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
 <?php endif; ?>
 </div>
 </div>
@@ -185,7 +185,7 @@ unset($_SESSION['old_input']);
 <!-- Hero Section -->
 <section class="relative w-full min-h-[300px] flex items-center justify-center overflow-hidden h-[450px]">
 <div class="absolute inset-0 z-0">
-<img alt="Serene clinical reception" class="w-full h-full object-cover object-center" src="asset/img/consultation.png">
+<img alt="Serene clinical reception" class="w-full h-full object-cover object-center" src="../asset/img/consultation.png">
 <div class="absolute inset-0 bg-background/70 backdrop-blur-[2px]"></div>
 </div>
 <div class="relative z-10 text-center px-margin-mobile max-w-3xl mx-auto">
@@ -225,7 +225,7 @@ unset($_SESSION['old_input']);
     <?php unset($_SESSION['errors']); ?>
 <?php endif; ?>
 
-<form action="backend/pesan_kontak.php" method="POST" class="space-y-10">
+<form action="../backend/kontak/pesan_kontak.php" method="POST" class="space-y-10">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="flex flex-col gap-2">
             <label class="font-label-md text-on-surface-variant ml-1" for="name">Full Name *</label>
@@ -324,7 +324,7 @@ unset($_SESSION['old_input']);
 <!-- Map Section -->
 <section class="w-full h-[500px] relative mt-lg md:h-[500px]">
 <div class="absolute inset-0 w-full h-full">
-<img alt="Map location of GlowCare clinic in Mataram" class="w-full h-full object-cover" src="asset/img/maps.jpg">
+<img alt="Map location of GlowCare clinic in Mataram" class="w-full h-full object-cover" src="../asset/img/maps.jpg">
 </div>
 <!-- Overlay Card on Map -->
 <div class="absolute inset-0 flex items-center justify-start pointer-events-none">
@@ -370,8 +370,8 @@ unset($_SESSION['old_input']);
 <!-- Links -->
 <div class="col-span-1 md:col-span-1 space-y-sm flex flex-col">
 <h4 class="font-label-md text-label-md text-on-background mb-xs">Tautan Cepat</h4>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="index.php">Beranda</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="treatment.php">Layanan</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="../index.php">Beranda</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="treatment/treatment.php">Layanan</a>
 <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="spesialis.php">Dokter</a>
 <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="kontak.php">Contact</a>
 </div>

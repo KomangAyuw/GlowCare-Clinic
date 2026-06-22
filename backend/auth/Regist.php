@@ -1,8 +1,8 @@
 <?php
-require 'koneksi.php';
+require '../config/koneksi.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../pages/auth/SignUp.php');
+    header('Location: ../../pages/auth/SignUp.php');
     exit;
 }
 
@@ -13,27 +13,27 @@ $password   = $_POST['password'] ?? '';
 $confirm    = $_POST['konfirmasi'] ?? '';
 
 if ($username === '' || $email === '' || $phone === '' || $password === '' || $confirm === '') {
-    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Semua field harus diisi.'));
+    header('Location: ../../pages/auth/SignUp.php?error=' . urlencode('Semua field harus diisi.'));
     exit;
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Format email tidak valid.'));
+    header('Location: ../../pages/auth/SignUp.php?error=' . urlencode('Format email tidak valid.'));
     exit;
 }
 
 if (strlen($phone) < 11 || strlen($phone) >= 13) {
-    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Nomor telepon tidak valid (harus 11 atau 12 karakter).'));
+    header('Location: ../../pages/auth/SignUp.php?error=' . urlencode('Nomor telepon tidak valid (harus 11 atau 12 karakter).'));
     exit;
 }
 
 if (strlen($password) !== 8) {
-    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Password harus terdiri dari 8 karakter.'));
+    header('Location: ../../pages/auth/SignUp.php?error=' . urlencode('Password harus terdiri dari 8 karakter.'));
     exit;
 }
 
 if ($password !== $confirm) {
-    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Password dan konfirmasi tidak cocok.'));
+    header('Location: ../../pages/auth/SignUp.php?error=' . urlencode('Password dan konfirmasi tidak cocok.'));
     exit;
 }
 
@@ -62,7 +62,7 @@ $phone = mysqli_real_escape_string($conn, $phone);
 $checkEmail = "SELECT id FROM users WHERE email = '$email' LIMIT 1";
 $result = mysqli_query($conn, $checkEmail);
 if ($result && mysqli_num_rows($result) > 0) {
-    header('Location: ../pages/auth/SignUp.php?error=' . urlencode('Email sudah terdaftar.'));
+    header('Location: ../../pages/auth/SignUp.php?error=' . urlencode('Email sudah terdaftar.'));
     exit;
 }
 
@@ -73,11 +73,11 @@ $role = mysqli_real_escape_string($conn, $role);
 $insertSql = "INSERT INTO users (username, email, telepon, password, role) VALUES ('$username', '$email', '$phone', '$hashPassword', '$role')";
 
 if (mysqli_query($conn, $insertSql)) {
-    header('Location: ../pages/auth/Signin.php?success=' . urlencode('Registrasi berhasil. Silakan masuk.'));
+    header('Location: ../../pages/auth/Signin.php?success=' . urlencode('Registrasi berhasil. Silakan masuk.'));
     exit;
 }
 
 $errorMessage = 'Terjadi kesalahan saat registrasi. Silakan coba lagi.';
-header('Location: ../pages/auth/SignUp.php?error=' . urlencode($errorMessage));
+header('Location: ../../pages/auth/SignUp.php?error=' . urlencode($errorMessage));
 exit;
 

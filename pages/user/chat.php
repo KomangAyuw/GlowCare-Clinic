@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ../auth/Signin.php');
     exit;
 }
-require '../../backend/koneksi.php';
+require '../../backend/config/koneksi.php';
 $user_id = (int)$_SESSION['user_id'];
 
 $qProfil = mysqli_query($conn, "SELECT p.*, u.username FROM pasien p JOIN users u ON u.id = p.user_id WHERE p.user_id = $user_id LIMIT 1");
@@ -409,7 +409,7 @@ $canBatal = $apptInfo && !in_array($apptInfo['appt_status'], ['Dibatalkan', 'Sel
     <div class="topnav-brand">GlowCare Clinic · Chat Konsultasi</div>
     <div class="topnav-actions">
         <a href="dashboarduser.php" class="btn-back">&#8592; Dashboard</a>
-        <a href="../../backend/logout.php" class="btn-logout-nav">Logout</a>
+        <a href="../../backend/auth/logout.php" class="btn-logout-nav">Logout</a>
     </div>
 </div>
 
@@ -545,7 +545,7 @@ let lastCount = 0;
 // ── Fetch & render pesan ──
 function fetchMessages() {
     if (!consultationId) return;
-    fetch(`../../backend/chat_get.php?consultation_id=${consultationId}`)
+    fetch(`../../backend/chat/chat_get.php?consultation_id=${consultationId}`)
         .then(r => r.json())
         .then(data => {
             if (data.status === 'success' && data.data.length !== lastCount) {
@@ -607,7 +607,7 @@ function sendMessage() {
     fd.append('consultation_id', consultationId);
     fd.append('message', msg);
 
-    fetch('../../backend/chat_send.php', { method:'POST', body:fd })
+    fetch('../../backend/chat/chat_send.php', { method:'POST', body:fd })
         .then(r => r.json())
         .then(data => {
             if (data.status === 'success') {
@@ -630,7 +630,7 @@ function sendImage(input) {
         fd.append('image', input.files[0]);
         fd.append('message', '');
 
-        fetch('../../backend/chat_send.php', { method:'POST', body:fd })
+        fetch('../../backend/chat/chat_send.php', { method:'POST', body:fd })
             .then(r => r.json())
             .then(data => {
                 if (data.status === 'success') {

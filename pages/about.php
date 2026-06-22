@@ -131,34 +131,34 @@ session_start();
     <header class="fixed w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out top-0">
         <div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-base max-w-[1200px] mx-auto">
             <!-- Brand Logo -->
-            <a class="font-headline-lg text-headline-lg text-primary inline-flex items-center" href="index.php">
+            <a class="font-headline-lg text-headline-lg text-primary inline-flex items-center" href="../index.php">
                 <span class="material-symbols-outlined text-primary text-3xl mr-2 align-middle" style="font-variation-settings: 'FILL' 1;">spa</span>GlowCare
             </a>
             <!-- Navigation Links -->
             <nav class="hidden md:flex items-center gap-sm">
-                <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="index.php#home">Home</a>
+                <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="../index.php#home">Home</a>
                 <a class="font-label-md text-label-md px-4 py-2 text-primary font-bold border-b-2 border-primary pb-1 hover:bg-primary-container/20 rounded-t-lg transition-all duration-300 ease-in-out" href="about.php">About Us</a>
-                <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="treatment.php">Services</a>
+                <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="treatment/treatment.php">Services</a>
                 <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="spesialis.php">Doctors</a>
                 <a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="kontak.php">Contact</a>
             </nav>
             <!-- Actions -->
             <div class="flex items-center gap-sm">
             <?php if (isset($_SESSION['user_id'])): 
-                $dashboard_url = 'pages/user/dashboarduser.php';
+                $dashboard_url = 'user/dashboarduser.php';
                 if (isset($_SESSION['role'])) {
                     if ($_SESSION['role'] === 'admin') {
-                        $dashboard_url = 'pages/admin/dashboard.php';
+                        $dashboard_url = 'admin/dashboard.php';
                     } elseif ($_SESSION['role'] === 'dokter') {
-                        $dashboard_url = 'pages/dokter/dashboardDokter.php';
+                        $dashboard_url = 'dokter/dashboardDokter.php';
                     }
                 }
             ?>
                 <a href="<?= $dashboard_url ?>" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
-                <a href="backend/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
+                <a href="../backend/auth/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
             <?php else: ?>
-                <a href="pages/auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
-                <a href="pages/auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
+                <a href="auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
+                <a href="auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
             <?php endif; ?>
             </div>
         </div>
@@ -178,7 +178,7 @@ session_start();
                 </div>
                 <div class="order-1 md:order-2">
                     <div class="rounded-lg overflow-hidden h-[400px] md:h-[500px]">
-                        <img src="asset/img/detail_treatment.png" alt="GlowCare Treatment" class="w-full h-full object-cover">
+                        <img src="../asset/img/detail_treatment.png" alt="GlowCare Treatment" class="w-full h-full object-cover">
                     </div>
                 </div>
             </div>
@@ -261,7 +261,7 @@ session_start();
             <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
                 <!-- Specialist 1 -->
                 <div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-ambient">
-                    <img src="asset/img/doctor1.png" alt="Dr. Amanda Hayes" class="w-full h-64 object-cover object-top">
+                    <img src="../asset/img/doctor1.png" alt="Dr. Amanda Hayes" class="w-full h-64 object-cover object-top">
                     <div class="p-md text-center">
                         <h3 class="font-headline-md text-headline-md text-on-background mb-1">Dr. Amanda Hayes</h3>
                         <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Medical Director, Dermatologist</p>
@@ -279,7 +279,7 @@ session_start();
                 </div>
                 <!-- Specialist 2 -->
                 <div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-ambient">
-                    <img src="asset/img/doctor2.png" alt="Dr. Marcus Chen" class="w-full h-64 object-cover object-top">
+                    <img src="../asset/img/doctor2.png" alt="Dr. Marcus Chen" class="w-full h-64 object-cover object-top">
                     <div class="p-md text-center">
                         <h3 class="font-headline-md text-headline-md text-on-background mb-1">Dr. Marcus Chen</h3>
                         <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Aesthetic Physician</p>
@@ -297,7 +297,7 @@ session_start();
                 </div>
                 <!-- Specialist 3 -->
                 <div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-ambient">
-                    <img src="asset/img/doctor3.png" alt="Dr. Sarah Jenkins" class="w-full h-64 object-cover object-top">
+                    <img src="../asset/img/doctor3.png" alt="Dr. Sarah Jenkins" class="w-full h-64 object-cover object-top">
                     <div class="p-md text-center">
                         <h3 class="font-headline-md text-headline-md text-on-background mb-1">Dr. Sarah Jenkins</h3>
                         <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Plastic Surgeon</p>
@@ -351,8 +351,8 @@ session_start();
         <!-- Links -->
         <div class="col-span-1 md:col-span-1 space-y-sm flex flex-col">
             <h4 class="font-label-md text-label-md text-on-background mb-xs">Tautan Cepat</h4>
-            <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="index.php">Beranda</a>
-            <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="treatment.php">Layanan</a>
+            <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="../index.php">Beranda</a>
+            <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="treatment/treatment.php">Layanan</a>
             <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="spesialis.php">Dokter</a>
             <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="kontak.php">Contact</a>
         </div>

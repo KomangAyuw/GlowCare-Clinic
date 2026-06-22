@@ -3,6 +3,7 @@ const dokterTitles = {
     jadwal: 'Jadwal Praktik',
     'daftar-pasien': 'Daftar Pasien',
     'rekam-medis': 'Rekam Medis',
+    ulasan: 'Ulasan Pasien',
     profil: 'Profil Saya',
     notifikasi: 'Notifikasi'
 };

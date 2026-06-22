@@ -2,8 +2,8 @@
 // ══════════════════════════════════════════════
 //  GlowCare — Dashboard Dokter (Dinamis)
 // ══════════════════════════════════════════════
-require '../../backend/guard_dokter.php';
-require '../../backend/koneksi.php';
+require '../../backend/auth/guard_dokter.php';
+require '../../backend/config/koneksi.php';
 
 $user_id = (int)$_SESSION['user_id'];
 $today   = date('Y-m-d');
@@ -211,6 +211,27 @@ if ($qPengumuman) {
         $pengumuman_list[] = $p;
     }
 }
+
+// ── 8. ULASAN PASIEN ─────────────────────────
+$qUlasan = mysqli_query($conn, "
+    SELECT u.*, p.nama AS nama_pasien
+    FROM ulasan u
+    JOIN pasien p ON p.id = u.pasien_id
+    WHERE u.dokter_id = $dokter_id
+    ORDER BY u.created_at DESC
+    LIMIT 50
+");
+$daftarUlasan = [];
+$totalUlasan = 0;
+$sumRating = 0;
+if ($qUlasan) {
+    while ($row = mysqli_fetch_assoc($qUlasan)) {
+        $daftarUlasan[] = $row;
+        $sumRating += (int)$row['rating'];
+        $totalUlasan++;
+    }
+}
+$avgRating = $totalUlasan > 0 ? round($sumRating / $totalUlasan, 1) : 0;
 
 // ── HELPER FUNCTIONS ──────────────────────────
 function badgeClass(string $status): string {
@@ -420,6 +441,9 @@ $tanggalHariIni = formatTanggal($today);
         </a>
         <a class="nav-item" onclick="showPanel('rekam-medis', this)">
             Rekam Medis
+        </a>
+        <a class="nav-item" onclick="showPanel('ulasan', this)">
+            Ulasan Pasien
         </a>
         <a class="nav-item" href="chat.php">
             Konsultasi Chat
@@ -1158,6 +1182,65 @@ $tanggalHariIni = formatTanggal($today);
             </div>
         </div><!-- /panel-profil -->
 
+        <!-- ══ PANEL: ULASAN PASIEN ══ -->
+        <div class="panel" id="panel-ulasan">
+            <div class="hero-banner" style="margin: -36px -40px 36px -40px;">
+                <div class="hero-greeting">Ulasan &amp; Rating</div>
+                <div class="hero-name">Ulasan <em>Pasien</em></div>
+                <div class="hero-sub">Lihat tanggapan dan rating dari pasien yang pernah Anda tangani.</div>
+            </div>
+
+            <!-- Rating Summary -->
+            <div class="card" style="text-align:center; padding:32px 24px; margin-bottom:28px;">
+                <div style="font-size:48px; font-family:'Playfair Display',serif; color:#4a321f; font-weight:600;">
+                    <?= $avgRating > 0 ? $avgRating : '—' ?>
+                </div>
+                <div style="font-size:24px; color:#c4a882; margin:4px 0 8px; letter-spacing:2px;">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <?= $i <= round($avgRating) ? '★' : '☆' ?>
+                    <?php endfor; ?>
+                </div>
+                <div style="font-size:13px; color:#7d6756; font-weight:300;">
+                    Rata-rata dari <strong><?= $totalUlasan ?></strong> ulasan pasien
+                </div>
+            </div>
+
+            <!-- Review List -->
+            <?php if (empty($daftarUlasan)): ?>
+                <div class="card" style="text-align:center; padding:48px 24px;">
+                    <div style="font-size:36px; margin-bottom:12px;">📝</div>
+                    <div style="font-family:'Playfair Display',serif; font-size:18px; color:#4a321f; margin-bottom:6px;">Belum Ada Ulasan</div>
+                    <div style="font-size:13px; color:#7d6756; font-weight:300;">Ulasan akan muncul setelah pasien memberikan rating setelah kunjungan selesai.</div>
+                </div>
+            <?php else: ?>
+                <?php foreach ($daftarUlasan as $ul): ?>
+                    <div class="card" style="padding:20px 24px; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div style="width:40px; height:40px; background:#f5e7dc; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:600; color:#735a39; font-size:15px;">
+                                    <?= strtoupper(mb_substr($ul['nama_pasien'], 0, 1)) ?>
+                                </div>
+                                <div>
+                                    <div style="font-size:14px; font-weight:500; color:#4a321f;"><?= htmlspecialchars($ul['nama_pasien']) ?></div>
+                                    <div style="font-size:11px; color:#a89a8a;"><?= date('d M Y, H:i', strtotime($ul['created_at'])) ?> WIB</div>
+                                </div>
+                            </div>
+                            <div style="font-size:14px; color:#c4a882; letter-spacing:1px;">
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <?= $i <= (int)$ul['rating'] ? '★' : '☆' ?>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+                        <?php if (!empty($ul['komentar'])): ?>
+                            <div style="font-size:13px; color:#5a4a3a; line-height:1.7; font-weight:300; padding-left:52px;">
+                                "<?= htmlspecialchars($ul['komentar']) ?>"
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div><!-- /panel-ulasan -->
+
     </div><!-- /content -->
 </div><!-- /main -->
 
@@ -1296,7 +1379,7 @@ $tanggalHariIni = formatTanggal($today);
 <!-- Toast -->
 <div class="toast" id="toast"><span id="toast-msg">Berhasil disimpan</span></div>
 
-    <script src="../../asset/js/dokter.js?v=6"></script>
+    <script src="../../asset/js/dokter.js?v=7"></script>
     <!-- LOGOUT CONFIRMATION MODAL -->
     <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center">
         <div style="background:#fff;border-radius:20px;padding:40px 36px;width:360px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.18);animation:logoutFadeIn .25s ease">
@@ -1305,7 +1388,7 @@ $tanggalHariIni = formatTanggal($today);
             <p style="font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.6">Sesi Anda sebagai <strong>Dokter</strong> akan diakhiri. Anda perlu login kembali untuk mengakses portal.</p>
             <div style="display:flex;gap:12px;justify-content:center">
                 <button onclick="hideLogoutModal()" style="flex:1;padding:11px;border:1.5px solid #d1c4b8;border-radius:50px;background:#fff;color:#64748b;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">Batal</button>
-                <a href="../../backend/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#e05050;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
+                <a href="../../backend/auth/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#e05050;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
             </div>
         </div>
     </div>
@@ -1322,7 +1405,7 @@ $tanggalHariIni = formatTanggal($today);
     <!-- Real-time Notification Polling -->
     <script>
     function pollNotifications() {
-        fetch('../../backend/notif_count.php')
+        fetch('../../backend/notifikasi/notif_count.php')
             .then(r => r.json())
             .then(data => {
                 const btn = document.querySelector('.notif-btn-text');

@@ -1,12 +1,12 @@
 <?php
-$conn = require 'koneksi.php';
+$conn = require '../config/koneksi.php';
 session_start(); // ← pindah ke atas, sebelum header apapun
 
 $alterTable = "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NOT NULL DEFAULT 'user'";
 mysqli_query($conn, $alterTable);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../pages/auth/Signin.php'); // ← 'I' kapital
+    header('Location: ../../pages/auth/Signin.php'); // ← 'I' kapital
     exit;
 }
 
@@ -14,12 +14,12 @@ $email    = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
 
 if ($email === '' || $password === '') {
-    header('Location: ../pages/auth/Signin.php?error=' . urlencode('Email dan password harus diisi.')); // ← fix
+    header('Location: ../../pages/auth/Signin.php?error=' . urlencode('Email dan password harus diisi.')); // ← fix
     exit;
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header('Location: ../pages/auth/Signin.php?error=' . urlencode('Email tidak valid.')); // ← fix
+    header('Location: ../../pages/auth/Signin.php?error=' . urlencode('Email tidak valid.')); // ← fix
     exit;
 }
 
@@ -40,18 +40,18 @@ if ($result && mysqli_num_rows($result) === 1) {
 
         switch ($role) {
             case 'dokter':
-                header('Location: ../pages/dokter/dashboardDokter.php');
+                header('Location: ../../pages/dokter/dashboardDokter.php');
                 break;
             case 'admin':
-                header('Location: ../pages/admin/dashboard.php');
+                header('Location: ../../pages/admin/dashboard.php');
                 break;
             default:
-                header('Location: ../pages/user/dashboarduser.php');
+                header('Location: ../../pages/user/dashboarduser.php');
         }
         exit;
     }
 }
 
-header('Location: ../pages/auth/Signin.php?error=' . urlencode('Email atau password salah.')); // ← fix
+header('Location: ../../pages/auth/Signin.php?error=' . urlencode('Email atau password salah.')); // ← fix
 exit;
 ?>

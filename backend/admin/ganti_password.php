@@ -3,7 +3,7 @@ session_start();
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../../pages/auth/Signin.php'); exit;
 }
-$conn = require '../koneksi.php';
+$conn = require '../config/koneksi.php';
 
 $lama      = $_POST['password_lama'] ?? '';
 $baru      = $_POST['password_baru'] ?? '';

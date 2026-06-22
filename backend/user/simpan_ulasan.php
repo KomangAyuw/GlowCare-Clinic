@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$conn = require '../koneksi.php';
+$conn = require '../config/koneksi.php';
 
 // Auto-migrasi tabel ulasan jika belum ada
 mysqli_query($conn, "CREATE TABLE IF NOT EXISTS `ulasan` (

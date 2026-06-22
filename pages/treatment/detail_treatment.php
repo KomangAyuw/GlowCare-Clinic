@@ -1,6 +1,6 @@
 <?php
 session_start();
-$conn = require_once 'backend/koneksi.php';
+$conn = require_once '../../backend/config/koneksi.php';
 
 // Get treatment by ID
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -20,7 +20,7 @@ $durasi   = htmlspecialchars($tr['durasi'] ?? '60 Menit');
 $desc     = htmlspecialchars($tr['deskripsi_panjang'] ?? $tr['deskripsi'] ?? '');
 $img      = $tr['gambar_url'] ?? '';
 if ($img && strpos($img, 'http') !== 0 && strpos($img, 'asset/') !== 0) {
-    $img = 'backend/uploads/' . $img;
+    $img = '../../backend/uploads/' . $img;
 }
 $img      = htmlspecialchars($img);
 
@@ -258,7 +258,7 @@ $cat_info = $category_data[$kategori] ?? [
 <span class="">Back to Treatments</span>
 </a>
 </div>
-<a class="font-headline-lg text-headline-lg text-primary inline-flex items-center" href="index.php">
+<a class="font-headline-lg text-headline-lg text-primary inline-flex items-center" href="../../index.php">
 <span class="material-symbols-outlined text-primary text-3xl mr-2 align-middle" style="font-variation-settings: 'FILL' 1;">spa</span>GlowCare
 </a>
 </div>
@@ -278,7 +278,7 @@ $cat_info = $category_data[$kategori] ?? [
 <h1 class="font-display-lg text-display-lg text-on-surface mb-md"><?= $nama ?></h1>
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mb-lg"><?= $desc ?></p>
 <div class="flex gap-md">
-<a href="<?= isset($_SESSION['user_id']) ? 'pages/user/dashboarduser.php?page=daftar-konsul&treatment_id=' . $tr['id'] : 'pages/auth/Signin.php' ?>" class="bg-primary text-on-primary px-lg py-md rounded-lg font-label-md text-label-md luxury-shadow hover:scale-[1.02] transition-transform inline-block">
+<a href="<?= isset($_SESSION['user_id']) ? '../user/dashboarduser.php?page=daftar-konsul&treatment_id=' . $tr['id'] : '../auth/Signin.php' ?>" class="bg-primary text-on-primary px-lg py-md rounded-lg font-label-md text-label-md luxury-shadow hover:scale-[1.02] transition-transform inline-block">
                             Book This Treatment
 </a>
 </div>
@@ -398,7 +398,7 @@ $cat_info = $category_data[$kategori] ?? [
 <div class="max-w-2xl mx-auto px-margin-mobile">
 <h2 class="font-display-lg text-display-lg mb-md">Ready to Refresh?</h2>
 <p class="font-body-lg text-body-lg text-on-surface-variant mb-xl">Join hundreds of satisfied clients who trust GlowCare for their aesthetic journey.</p>
-<a href="<?= isset($_SESSION['user_id']) ? 'pages/user/dashboarduser.php?page=daftar-konsul&treatment_id=' . $tr['id'] : 'pages/auth/Signin.php' ?>" class="bg-primary text-on-primary px-lg py-md rounded-lg font-label-md text-label-md luxury-shadow hover:bg-on-primary-fixed-variant transition-all hover:scale-[1.05] active:scale-95 inline-block">
+<a href="<?= isset($_SESSION['user_id']) ? '../user/dashboarduser.php?page=daftar-konsul&treatment_id=' . $tr['id'] : '../auth/Signin.php' ?>" class="bg-primary text-on-primary px-lg py-md rounded-lg font-label-md text-label-md luxury-shadow hover:bg-on-primary-fixed-variant transition-all hover:scale-[1.05] active:scale-95 inline-block">
                     Book This Treatment
 </a>
 </div>
@@ -435,10 +435,10 @@ $cat_info = $category_data[$kategori] ?? [
 <!-- Links -->
 <div class="col-span-1 md:col-span-1 space-y-sm flex flex-col">
 <h4 class="font-label-md text-label-md text-on-background mb-xs">Tautan Cepat</h4>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="index.php">Beranda</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="../../index.php">Beranda</a>
 <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="treatment.php">Layanan</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="spesialis.php">Dokter</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="kontak.php">Contact</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="../spesialis.php">Dokter</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="../kontak.php">Contact</a>
 </div>
 <!-- Map Placeholder -->
 <div class="col-span-1 md:col-span-1">

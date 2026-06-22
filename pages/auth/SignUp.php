@@ -158,7 +158,7 @@ input::-ms-clear {
 </div>
 
 <!-- Form Section -->
-<form action="../../backend/Regist.php" class="space-y-6" method="POST" id="signup-form" novalidate>
+<form action="../../backend/auth/Regist.php" class="space-y-6" method="POST" id="signup-form" novalidate>
 <div class="space-y-sm">
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="username">

@@ -3,7 +3,7 @@ session_start();
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../../pages/auth/Signin.php'); exit;
 }
-$conn = require '../koneksi.php';
+$conn = require '../config/koneksi.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $appt_id   = (int)($_POST['appointment_id'] ?? 0);

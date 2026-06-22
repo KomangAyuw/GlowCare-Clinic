@@ -1,6 +1,6 @@
 <?php
-require '../guard_dokter.php';
-$conn = require '../koneksi.php';
+require '../auth/guard_dokter.php';
+$conn = require '../config/koneksi.php';
 
 $user_id = (int)$_SESSION['user_id'];
 

@@ -3,7 +3,7 @@ session_start();
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../../pages/auth/Signin.php'); exit;
 }
-$conn = require '../koneksi.php';
+$conn = require '../config/koneksi.php';
 
 $id               = (int)($_POST['id'] ?? 0);
 $nama             = trim($_POST['nama'] ?? '');
@@ -15,7 +15,7 @@ $gambar_url       = trim($_POST['gambar_url_lama'] ?? '');
 // Check if a new treatment image is uploaded
 if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] !== UPLOAD_ERR_NO_FILE) {
     if ($_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = __DIR__ . '/../uploads/';
+        $upload_dir = __DIR__ . '/../uploads/treatment/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
@@ -26,7 +26,7 @@ if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] !== UPLOAD_ERR_NO_FIL
         if (in_array($file_ext, $allowed)) {
             $filename = 'treatment_' . time() . '_' . rand(1000, 9999) . '.' . $file_ext;
             if (move_uploaded_file($_FILES['gambar']['tmp_name'], $upload_dir . $filename)) {
-                $gambar_url = $filename; // Just save the filename (consistent with doctor logic)
+                $gambar_url = 'treatment/' . $filename; // Just save the filename (consistent with doctor logic)
             } else {
                 header('Location: ../../pages/admin/dashboard.php?panel=treatment&error='.urlencode('Gagal menyimpan file gambar treatment.')); exit;
             }

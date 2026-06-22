@@ -3,7 +3,7 @@ session_start();
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../../pages/auth/Signin.php'); exit;
 }
-$conn = require '../koneksi.php';
+$conn = require '../config/koneksi.php';
 
 $id           = (int)($_POST['id'] ?? 0);
 $nama         = trim($_POST['nama'] ?? '');
@@ -26,7 +26,7 @@ $foto_val = $_POST['current_foto'] ?? '';
 // Check if a new photo is uploaded
 if (isset($_FILES['foto']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
     if ($_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = __DIR__ . '/../uploads/';
+        $upload_dir = __DIR__ . '/../uploads/dokter/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
@@ -37,7 +37,7 @@ if (isset($_FILES['foto']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
         if (in_array($file_ext, $allowed)) {
             $filename = 'doctor_' . time() . '_' . rand(1000, 9999) . '.' . $file_ext;
             if (move_uploaded_file($_FILES['foto']['tmp_name'], $upload_dir . $filename)) {
-                $foto_val = $filename;
+                $foto_val = 'dokter/' . $filename;
             } else {
                 header('Location: ../../pages/admin/dashboard.php?panel=dokter&error='.urlencode('Gagal menyimpan file foto dokter.')); exit;
             }

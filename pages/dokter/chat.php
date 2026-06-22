@@ -1,6 +1,6 @@
 <?php
-require '../../backend/guard_dokter.php';
-require '../../backend/koneksi.php';
+require '../../backend/auth/guard_dokter.php';
+require '../../backend/config/koneksi.php';
 
 $user_id = (int)$_SESSION['user_id'];
 $qProfil = mysqli_query($conn, "SELECT id, nama, spesialisasi FROM dokter WHERE user_id = $user_id LIMIT 1");
@@ -341,7 +341,7 @@ let lastMessageCount = 0;
 
 function fetchMessages() {
     if (consultationId === 0) return;
-    fetch(`../../backend/chat_get.php?consultation_id=${consultationId}`)
+    fetch(`../../backend/chat/chat_get.php?consultation_id=${consultationId}`)
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success' && data.data.length !== lastMessageCount) {
@@ -396,7 +396,7 @@ function sendMessage() {
     formData.append('consultation_id', consultationId);
     formData.append('message', msgText);
 
-    fetch('../../backend/chat_send.php', { method: 'POST', body: formData })
+    fetch('../../backend/chat/chat_send.php', { method: 'POST', body: formData })
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
@@ -417,7 +417,7 @@ function sendImage(input) {
         formData.append('consultation_id', consultationId);
         formData.append('image', input.files[0]);
         formData.append('message', '');
-        fetch('../../backend/chat_send.php', { method: 'POST', body: formData })
+        fetch('../../backend/chat/chat_send.php', { method: 'POST', body: formData })
             .then(r => r.json()).then(d => { if (d.status === 'success') { input.value=''; fetchMessages(); } });
     }
 }

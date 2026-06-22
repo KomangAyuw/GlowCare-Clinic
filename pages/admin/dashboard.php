@@ -4,7 +4,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../../pages/auth/Signin.php');
     exit;
 }
-$conn = require_once '../../backend/koneksi.php';
+$conn = require_once '../../backend/config/koneksi.php';
 
 // Auto-migrasi tabel pengumuman
 try {
@@ -684,7 +684,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
                             <td style="max-width:200px;font-size:12px;color:#585552"><?= htmlspecialchars(mb_substr($tr['deskripsi_panjang']??$tr['deskripsi']??'',0,70)) ?>...</td>
                             <td><?= $tr['status']==='Aktif'?'<span class="badge badge-green">Aktif</span>':'<span class="badge badge-gray">Nonaktif</span>' ?></td>
                             <td style="white-space:nowrap">
-                                <a class="act-btn" style="border: 1px solid #386663; color: #386663; padding: 4px 10px; margin-right: 4px; text-decoration:none; display:inline-block;" href="../../detail_treatment.php?id=<?= $tr['id'] ?>" target="_blank" title="Preview">Preview</a>
+                                <a class="act-btn" style="border: 1px solid #386663; color: #386663; padding: 4px 10px; margin-right: 4px; text-decoration:none; display:inline-block;" href="../treatment/detail_treatment.php?id=<?= $tr['id'] ?>" target="_blank" title="Preview">Preview</a>
                                 <button class="act-btn" style="border: 1px solid #d1c4b8; padding: 4px 10px; margin-right: 4px;" onclick="editTreatment(<?= htmlspecialchars(json_encode($tr)) ?>)" title="Edit">Edit</button>
                                 <button class="act-btn" style="border: 1px solid #e05050; color: #e05050; padding: 4px 10px;" onclick="confirmDelete('hapus_treatment.php','<?= $tr['id'] ?>','treatment <?= htmlspecialchars(addslashes($tr['nama'])) ?>')" title="Hapus">Hapus</button>
                             </td>
@@ -1708,7 +1708,7 @@ $tgl_now  = $hari_ind[date('w')].', '.date('d').' '.$bln_ind[(int)date('n')].' '
             <p style="font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.6">Sesi Anda sebagai <strong>Admin</strong> akan diakhiri. Anda perlu login kembali untuk mengakses dashboard.</p>
             <div style="display:flex;gap:12px;justify-content:center">
                 <button onclick="hideLogoutModal()" style="flex:1;padding:11px;border:1.5px solid #d1c4b8;border-radius:50px;background:#fff;color:#64748b;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">Batal</button>
-                <a href="../../backend/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#e05050;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
+                <a href="../../backend/auth/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#e05050;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
             </div>
         </div>
     </div>

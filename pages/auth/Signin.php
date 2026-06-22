@@ -162,7 +162,7 @@ input::-ms-clear {
     </div>
 <?php endif; ?>
 
-<form action="../../backend/log.php" class="space-y-6" method="POST">
+<form action="../../backend/auth/log.php" class="space-y-6" method="POST">
 <div>
 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="email">Email Address</label>
 <div class="relative">

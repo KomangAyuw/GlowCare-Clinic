@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-require 'koneksi.php';
+require '../config/koneksi.php';
 
 $user_id = (int)$_SESSION['user_id'];
 $role = strtolower($_SESSION['role'] ?? 'user');

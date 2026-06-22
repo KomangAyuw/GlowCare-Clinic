@@ -1,6 +1,6 @@
 <?php
 session_start();
-$conn = require_once 'backend/koneksi.php';
+$conn = require_once '../../backend/config/koneksi.php';
 $treatments = [];
 $q = mysqli_query($conn, "SELECT * FROM treatment WHERE status='Aktif' ORDER BY urutan ASC");
 while($r = mysqli_fetch_assoc($q)) {
@@ -141,34 +141,34 @@ while($r = mysqli_fetch_assoc($q)) {
 <header class="fixed w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out docked full-width top-0">
 <div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-base max-w-[1200px] mx-auto">
 <!-- Brand Logo -->
-<a class="font-headline-lg text-headline-lg text-primary inline-flex items-center" href="index.php"><span class="material-symbols-outlined text-primary text-3xl mr-2 align-middle" style="font-variation-settings: &quot;FILL&quot; 1;">spa</span>GlowCare</a>
+<a class="font-headline-lg text-headline-lg text-primary inline-flex items-center" href="../../index.php"><span class="material-symbols-outlined text-primary text-3xl mr-2 align-middle" style="font-variation-settings: &quot;FILL&quot; 1;">spa</span>GlowCare</a>
 <!-- Navigation Links -->
 <nav class="hidden md:flex items-center gap-sm">
 <!-- Inactive Items -->
-<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="index.php">Home</a>
-<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="about.php">About Us</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="../../index.php">Home</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="../about.php">About Us</a>
 <!-- Active Item -->
 <a class="font-label-md text-label-md px-4 py-2 text-primary font-bold border-b-2 border-primary pb-1 hover:bg-primary-container/20 rounded-t-lg transition-all duration-300 ease-in-out" href="treatment.php">Services</a>
-<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="spesialis.php">Doctors</a>
-<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="kontak.php">Contact</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="../spesialis.php">Doctors</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="../kontak.php">Contact</a>
 </nav>
 <!-- Actions -->
 <div class="flex items-center gap-sm">
 <?php if (isset($_SESSION['user_id'])): 
-    $dashboard_url = 'pages/user/dashboarduser.php';
+    $dashboard_url = '../user/dashboarduser.php';
     if (isset($_SESSION['role'])) {
         if ($_SESSION['role'] === 'admin') {
-            $dashboard_url = 'pages/admin/dashboard.php';
+            $dashboard_url = '../admin/dashboard.php';
         } elseif ($_SESSION['role'] === 'dokter') {
-            $dashboard_url = 'pages/dokter/dashboardDokter.php';
+            $dashboard_url = '../dokter/dashboardDokter.php';
         }
     }
 ?>
     <a href="<?= $dashboard_url ?>" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
-    <a href="backend/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
+    <a href="../../backend/auth/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
 <?php else: ?>
-    <a href="pages/auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
-    <a href="pages/auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
+    <a href="../auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
+    <a href="../auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
 <?php endif; ?>
 </div>
 </div>
@@ -177,7 +177,7 @@ while($r = mysqli_fetch_assoc($q)) {
 <!-- Hero Section -->
 <section class="relative w-full h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
 <div class="absolute inset-0 z-0">
-<img alt="Premium Aesthetic Services Hero" class="w-full h-full object-cover object-center brightness-[0.85] contrast-[1.05]" src="asset/img/glow_infusion.png">
+<img alt="Premium Aesthetic Services Hero" class="w-full h-full object-cover object-center brightness-[0.85] contrast-[1.05]" src="../../asset/img/glow_infusion.png">
 <div class="absolute inset-0 bg-surface/50 backdrop-blur-[1px]"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent"></div>
 </div>
@@ -224,7 +224,7 @@ while($r = mysqli_fetch_assoc($q)) {
     $nama = htmlspecialchars($tr['nama']);
     $img = $tr['gambar_url'] ?? '';
     if ($img && strpos($img, 'http') !== 0 && strpos($img, 'asset/') !== 0) {
-        $img = 'backend/uploads/' . $img;
+        $img = '../../backend/uploads/' . $img;
     }
     $img = htmlspecialchars($img);
     $kat = htmlspecialchars($tr['kategori']);
@@ -288,7 +288,7 @@ while($r = mysqli_fetch_assoc($q)) {
 </div>
 <!-- Right Content: Testimonial Image -->
 <div class="relative rounded-2xl overflow-hidden shadow-lg">
-<img alt="Clinical Technology" class="w-full h-full object-cover" src="asset/img/Laser.jpg">
+<img alt="Clinical Technology" class="w-full h-full object-cover" src="../../asset/img/Laser.jpg">
 <div class="absolute bottom-6 left-6 right-6 bg-surface/90 backdrop-blur-md p-md rounded-xl border border-outline-variant/30">
 <p class="font-body-sm italic text-on-surface-variant mb-2">
           "Kami mengutamakan presisi medis dan kenyamanan pasien di setiap detik prosedur."
@@ -318,7 +318,7 @@ while($r = mysqli_fetch_assoc($q)) {
     Schedule a comprehensive consultation with our clinical experts to develop a personalized treatment plan tailored to your unique goals.
   </p>
 <!-- High-Contrast Primary Button -->
-<a href="<?= isset($_SESSION['user_id']) ? 'pages/user/dashboarduser.php?page=daftar-konsul' : 'pages/auth/Signin.php' ?>" class="inline-block relative z-10 bg-primary text-on-primary font-label-md text-label-md px-xl py-4 rounded-lg hover:-translate-y-1 hover:shadow-lg transition-all duration-300 uppercase tracking-wider">
+<a href="<?= isset($_SESSION['user_id']) ? '../user/dashboarduser.php?page=daftar-konsul' : '../auth/Signin.php' ?>" class="inline-block relative z-10 bg-primary text-on-primary font-label-md text-label-md px-xl py-4 rounded-lg hover:-translate-y-1 hover:shadow-lg transition-all duration-300 uppercase tracking-wider">
     Booking Now
   </a>
 <!-- Subtle Bottom Accent -->
@@ -356,10 +356,10 @@ while($r = mysqli_fetch_assoc($q)) {
 <!-- Links -->
 <div class="col-span-1 md:col-span-1 space-y-sm flex flex-col">
 <h4 class="font-label-md text-label-md text-on-background mb-xs">Tautan Cepat</h4>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="index.php">Beranda</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="../../index.php">Beranda</a>
 <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="treatment.php">Layanan</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="spesialis.php">Dokter</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="kontak.php">Contact</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="../spesialis.php">Dokter</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="../kontak.php">Contact</a>
 </div>
 <!-- Map Placeholder -->
 <div class="col-span-1 md:col-span-1">

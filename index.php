@@ -1,5 +1,15 @@
 <?php
 session_start();
+$conn = @mysqli_connect('localhost', 'root', '', 'glowcareclinic');
+$dokter_homepage = [];
+if ($conn) {
+    $qDoc = mysqli_query($conn, "SELECT nama, spesialisasi, bio, rating, foto FROM dokter WHERE status='Aktif' ORDER BY rating DESC LIMIT 3");
+    if ($qDoc) {
+        while ($d = mysqli_fetch_assoc($qDoc)) {
+            $dokter_homepage[] = $d;
+        }
+    }
+}
 ?>
 <!DOCTYPE html><html class="scroll-smooth" lang="en" style=""><head>
 <meta charset="utf-8">
@@ -148,10 +158,10 @@ session_start();
 <!-- Active Item -->
 <a class="font-label-md text-label-md px-4 py-2 text-primary font-bold border-b-2 border-primary pb-1 hover:bg-primary-container/20 rounded-t-lg transition-all duration-300 ease-in-out" href="index.php">Home</a>
 <!-- Inactive Items -->
-<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="about.php">About Us</a>
-<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="treatment.php">Services</a>
-<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="spesialis.php">Doctors</a>
-<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="kontak.php">Contact</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="pages/about.php">About Us</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="pages/treatment/treatment.php">Services</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="pages/spesialis.php">Doctors</a>
+<a class="font-label-md text-label-md px-4 py-2 text-on-surface-variant font-medium hover:text-primary hover:bg-primary-container/20 rounded-lg transition-all duration-300 ease-in-out" href="pages/kontak.php">Contact</a>
 </nav>
 <!-- Actions -->
 <div class="flex items-center gap-sm">
@@ -166,7 +176,7 @@ session_start();
     }
 ?>
     <a href="<?= $dashboard_url ?>" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
-    <a href="backend/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
+    <a href="backend/auth/logout.php" class="font-label-md text-label-md bg-error text-on-error px-6 py-2 rounded-lg hover:opacity-90 shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Logout</a>
 <?php else: ?>
     <a href="pages/auth/Signin.php" class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Login</a>
     <a href="pages/auth/SignUp.php" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded-lg hover:bg-on-primary-fixed-variant shadow-sm transition-all duration-300 ease-in-out inline-flex items-center justify-center">Register</a>
@@ -196,7 +206,7 @@ session_start();
 <span class="">Book Appointment</span>
 </a>
 <!-- Secondary Button (Teal/Secondary style) -->
-<a href="treatment.php" class="font-label-md text-label-md border-2 border-secondary text-secondary px-8 py-3 hover:bg-secondary-container hover:text-on-secondary-container transition-colors flex items-center justify-center rounded-full">Explore Services</a>
+<a href="pages/treatment/treatment.php" class="font-label-md text-label-md border-2 border-secondary text-secondary px-8 py-3 hover:bg-secondary-container hover:text-on-secondary-container transition-colors flex items-center justify-center rounded-full">Explore Services</a>
 </div>
 </div>
 </div>
@@ -276,7 +286,7 @@ session_start();
 <span class="inline-block px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm uppercase tracking-wider">Acne &amp; Pores</span>
 <h3 class="font-headline-lg text-display-lg text-on-background">Acne Care</h3>
 <p class="font-body-lg text-body-lg text-on-surface-variant">Perawatan intensif untuk mengatasi jerawat membandel dan komedo, menenangkan peradangan, dan mencegah bekas luka dengan teknologi terkini.</p>
-<a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="treatment.php?category=Acne">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
+<a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="pages/treatment/treatment.php?category=Acne">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
 </div>
 </div>
 <!-- Service 2: Brightening Therapy (Image Right) -->
@@ -285,7 +295,7 @@ session_start();
 <span class="inline-block px-3 py-1 rounded-full bg-primary-container/30 text-on-primary-container font-label-sm text-label-sm uppercase tracking-wider">Pigmentation</span>
 <h3 class="font-headline-lg text-display-lg text-on-background">Brightening Therapy</h3>
 <p class="font-body-lg text-body-lg text-on-surface-variant">Solusi efektif untuk mencerahkan kulit kusam, memudarkan flek hitam, dan meratakan warna kulit untuk kilau alami yang sehat.</p>
-<a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="treatment.php?category=Brightening">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
+<a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="pages/treatment/treatment.php?category=Brightening">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
 </div>
 <div class="md:col-span-7 order-1 md:order-2 relative overflow-hidden rounded-2xl shadow-ambient transition-ambient group-hover:shadow-ambient-hover">
 <img alt="Brightening Therapy" class="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoqh0qnJ_ZtymedJ_mDDK4ofHRObnvt1AXIV5D6j9_JwwOjN1qRI2AwedAaOnnK91ZZ7q8GOeyf4sbgechDVBpIKF_G4sCXPTd_cHCGOnwdpBmta0ZTofnzX6Mk7PNM8jhzUkWz2FprCWO_kHHUvnbOGFTv1f_IMyL3IFRQzZqxyujQivTi47nUsMMsD3r_iP3O3otaX3NVkdskXaUldXM5lTIgxf0p-bNCpiQ8k3wORggrq47zVrtF_7E3b39OeCjwrxnVzurIjQ">
@@ -302,7 +312,7 @@ session_start();
 <span class="inline-block px-3 py-1 rounded-full bg-tertiary-container/50 text-on-tertiary-container font-label-sm text-label-sm uppercase tracking-wider">Rejuvenation</span>
 <h3 class="font-headline-lg text-display-lg text-on-background">Anti-Aging</h3>
 <p class="font-body-lg text-body-lg text-on-surface-variant">Terapi peremajaan kulit premium untuk mengurangi garis halus, mengencangkan kerutan, dan mengembalikan elastisitas kulit muda Anda.</p>
-<a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="treatment.php?category=Anti-Aging">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
+<a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="pages/treatment/treatment.php?category=Anti-Aging">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
 </div>
 </div>
 <!-- Service 4: Hair & Body Care (Image Right) -->
@@ -311,7 +321,7 @@ session_start();
     <span class="inline-block px-3 py-1 rounded-full bg-primary-container/30 text-on-primary-container font-label-sm text-label-sm uppercase tracking-wider">Body &amp; Scalp</span>
     <h3 class="font-headline-lg text-display-lg text-on-background">Hair &amp; Body Care</h3>
     <p class="font-body-lg text-body-lg text-on-surface-variant">Perawatan menyeluruh untuk kesehatan rambut dan keindahan tubuh, menggunakan teknik relaksasi premium dan produk klinis terbaik.</p>
-    <a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="treatment.php?category=Body">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
+    <a class="inline-flex items-center gap-sm font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors group/link" href="pages/treatment/treatment.php?category=Body">Detail Layanan <span class="material-symbols-outlined text-sm transition-transform group-hover/link:translate-x-1">arrow_forward</span></a>
   </div>
   <div class="md:col-span-7 order-1 md:order-2 relative overflow-hidden rounded-2xl shadow-ambient transition-ambient group-hover:shadow-ambient-hover">
     <img alt="Hair &amp; Body Care Treatment" class="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADfMGkA9DhRp6KiHwA0dX8SR6s-dJJLL6IE3_cMpnt4M7Kic6iJ0C1yR8MIsblETp7gmf3xeblZEMAcSsDPQcsJ-NLjOgYlJ_2r50BWs2vWuuB2J8x7BlZLS1OW9AUIqeyAY-O2pGPbLW8MKII-JQE3AsDf2d_0Jc7ejoDQIwjn_Tm2VQ4gcX-KDFYvUmDpJIBocDV4RqL_ERM5PeeN6APaVme9ZHw_lTh84YDc7lkIlzssGfv6-ggHNARwXfj8oz1FpAALngyYwQ">
@@ -327,15 +337,49 @@ session_start();
 <h2 class="font-headline-lg text-headline-lg text-primary mb-xs">Dokter Spesialis Kami</h2>
 <p class="font-body-md text-body-md text-on-surface-variant">Tim medis profesional yang siap memberikan perawatan terbaik.</p>
 </div>
-<a class="hidden md:flex font-label-md text-label-md text-secondary items-center gap-xs hover:underline mt-sm" href="spesialis.php">Lihat Semua <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+<a class="hidden md:flex font-label-md text-label-md text-secondary items-center gap-xs hover:underline mt-sm" href="pages/spesialis.php">Lihat Semua <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-gutter">
-<!-- Profile Card -->
-<div class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group p-md flex flex-col"><div class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative"><img alt="dr. Anisa Putri" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="asset/img/doctor1.png"></div><h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Anisa Putri, Sp.BP-RE</h3><p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Plastic Surgeon</p><p class="font-body-sm text-body-sm text-on-surface-variant mb-6 leading-relaxed text-center">Spesialis bedah plastik dan rekonstruksi wajah dengan pengalaman lebih dari 10 tahun, ahli dalam prosedur SMAS Facelift dan Blepharoplasty.</p><div class="flex flex-wrap gap-2 mt-auto justify-center"><span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Facelift</span><span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Rhinoplasty</span><span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Blepharoplasty</span></div></div>
-<!-- Profile Card -->
-<div class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group p-md flex flex-col"><div class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative"><img alt="Dr. Chen" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="asset/img/doctor2.png"></div><h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Marcus Chen, Sp.KK</h3><p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Aesthetic Physician</p><p class="font-body-sm text-body-sm text-on-surface-variant mb-6 leading-relaxed text-center">Spesialis perawatan estetika non-invasif dengan pendekatan personal untuk kecantikan alami Anda.</p><div class="flex flex-wrap gap-2 mt-auto justify-center"><span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">CoolSculpting</span><span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Ultherapy</span><span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Thread Lifts</span></div></div>
-<!-- Profile Card -->
-<div class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group sm:hidden md:block p-md flex flex-col"><div class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative"><img alt="Sarah Jenkins" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="asset/img/doctor3.png"></div><h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Sarah Jenkins, Dipl. AAAM</h3><p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Dermatologist</p><p class="font-body-sm text-body-sm text-on-surface-variant mb-6 leading-relaxed text-center">Ahli dermatologi klinis dengan keahlian khusus dalam terapi peremajaan kulit berbasis teknologi laser.</p><div class="flex flex-wrap gap-2 mt-auto justify-center"><span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Laser Treatment</span><span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Botox</span><span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium">Fillers</span></div></div>
+<?php if (!empty($dokter_homepage)): ?>
+    <?php foreach ($dokter_homepage as $idx => $doc): ?>
+        <?php
+            $fotoSrc = 'asset/img/doctor' . ($idx + 1) . '.png';
+            if (!empty($doc['foto'])) {
+                if (strpos($doc['foto'], 'http') === 0) {
+                    $fotoSrc = htmlspecialchars($doc['foto']);
+                } elseif (strpos($doc['foto'], 'asset/') === 0) {
+                    $fotoSrc = htmlspecialchars($doc['foto']);
+                } else {
+                    $fotoSrc = 'backend/uploads/' . htmlspecialchars($doc['foto']);
+                }
+            }
+            $ratingVal = (float)($doc['rating'] ?? 5.0);
+            $hiddenOnSm = $idx >= 2 ? ' sm:hidden md:block' : '';
+        ?>
+        <div class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group<?= $hiddenOnSm ?> p-md flex flex-col">
+            <div class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative">
+                <img alt="<?= htmlspecialchars($doc['nama']) ?>" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="<?= $fotoSrc ?>">
+            </div>
+            <h3 class="font-headline-md text-headline-md text-on-background mb-1"><?= htmlspecialchars($doc['nama']) ?></h3>
+            <p class="font-label-sm text-label-sm text-secondary mb-2 uppercase tracking-wider"><?= htmlspecialchars($doc['spesialisasi']) ?></p>
+            <div class="flex items-center justify-center gap-1 mb-4">
+                <span style="color:#c4a882; font-size:14px; letter-spacing:1px;">
+                    <?php for ($i = 1; $i <= 5; $i++): ?><?= $i <= round($ratingVal) ? '★' : '☆' ?><?php endfor; ?>
+                </span>
+                <span class="text-xs text-on-surface-variant ml-1"><?= number_format($ratingVal, 1) ?></span>
+            </div>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mb-6 leading-relaxed text-center"><?= htmlspecialchars($doc['bio'] ?: 'Dokter spesialis di GlowCare Clinic.') ?></p>
+            <div class="flex flex-wrap gap-2 mt-auto justify-center">
+                <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-medium"><?= htmlspecialchars($doc['spesialisasi']) ?></span>
+            </div>
+        </div>
+    <?php endforeach; ?>
+<?php else: ?>
+    <!-- Fallback static cards if DB not available -->
+    <div class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group p-md flex flex-col"><div class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative"><img alt="Doctor" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="asset/img/doctor1.png"></div><h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Anisa Putri, Sp.BP-RE</h3><p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Plastic Surgeon</p><p class="font-body-sm text-body-sm text-on-surface-variant mb-6 leading-relaxed text-center">Spesialis bedah plastik dan rekonstruksi wajah.</p></div>
+    <div class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group p-md flex flex-col"><div class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative"><img alt="Doctor" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="asset/img/doctor2.png"></div><h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Marcus Chen, Sp.KK</h3><p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Aesthetic Physician</p><p class="font-body-sm text-body-sm text-on-surface-variant mb-6 leading-relaxed text-center">Spesialis perawatan estetika non-invasif.</p></div>
+    <div class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group sm:hidden md:block p-md flex flex-col"><div class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative"><img alt="Doctor" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="asset/img/doctor3.png"></div><h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Sarah Jenkins, Dipl. AAAM</h3><p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Dermatologist</p><p class="font-body-sm text-body-sm text-on-surface-variant mb-6 leading-relaxed text-center">Ahli dermatologi klinis.</p></div>
+<?php endif; ?>
 </div>
 </section>
 <!-- Testimonials & Before-After Section -->
@@ -433,9 +477,9 @@ session_start();
 <div class="col-span-1 md:col-span-1 space-y-sm flex flex-col">
 <h4 class="font-label-md text-label-md text-on-background mb-xs">Tautan Cepat</h4>
 <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="index.php">Beranda</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="treatment.php">Layanan</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="spesialis.php">Dokter</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="kontak.php">Contact</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="pages/treatment/treatment.php">Layanan</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="pages/spesialis.php">Dokter</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="pages/kontak.php">Contact</a>
 </div>
 <!-- Map Placeholder -->
 <div class="col-span-1 md:col-span-1">

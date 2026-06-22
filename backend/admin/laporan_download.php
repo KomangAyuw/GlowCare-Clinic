@@ -3,7 +3,7 @@ session_start();
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../../pages/auth/Signin.php'); exit;
 }
-$conn = require '../koneksi.php';
+$conn = require '../config/koneksi.php';
 
 $format    = $_GET['format']    ?? 'csv';
 $lap_bulan = (int)($_GET['lap_bulan'] ?? date('n'));

@@ -6,7 +6,7 @@ session_start();
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../../pages/auth/Signin.php'); exit;
 }
-$conn = require '../koneksi.php';
+$conn = require '../config/koneksi.php';
 
 // Pastikan kolom balasan ada (auto-migrate, aman dipanggil berkali-kali)
 try {

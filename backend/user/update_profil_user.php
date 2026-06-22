@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$conn = require '../koneksi.php';
+$conn = require '../config/koneksi.php';
 
 $user_id = (int)$_SESSION['user_id'];
 

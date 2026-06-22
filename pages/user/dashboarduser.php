@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = (int)$_SESSION['user_id'];
-$conn = require_once '../../backend/koneksi.php';
+$conn = require_once '../../backend/config/koneksi.php';
 
 // 1. Ambil Profil Pasien
 $qPasien = mysqli_query($conn, "SELECT * FROM pasien WHERE user_id = $user_id LIMIT 1");
@@ -1421,7 +1421,7 @@ $success = $_GET['success'] ?? '';
             <p style="font-size:13px;color:#7d6756;margin-bottom:28px;line-height:1.6">Sesi Anda sebagai <strong>Pasien</strong> akan diakhiri. Anda perlu login kembali untuk mengakses akun.</p>
             <div style="display:flex;gap:12px;justify-content:center">
                 <button onclick="hideLogoutModal()" style="flex:1;padding:11px;border:1.5px solid #c4a882;border-radius:50px;background:#fff;color:#7d6756;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif">Batal</button>
-                <a href="../../backend/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#735a39;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
+                <a href="../../backend/auth/logout.php" style="flex:1;padding:11px;border-radius:50px;background:#735a39;color:#fff;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;justify-content:center">Ya, Keluar</a>
             </div>
         </div>
     </div>
@@ -1438,7 +1438,7 @@ $success = $_GET['success'] ?? '';
     <!-- Real-time Notification Polling -->
     <script>
     function pollNotifications() {
-        fetch('../../backend/notif_count.php')
+        fetch('../../backend/notifikasi/notif_count.php')
             .then(r => r.json())
             .then(data => {
                 const btn = document.querySelector('.notif-btn-text');
