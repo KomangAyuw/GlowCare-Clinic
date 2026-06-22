@@ -17,8 +17,12 @@ $kategori = htmlspecialchars($tr['kategori']);
 $durasi   = htmlspecialchars($tr['durasi'] ?? '60 Menit');
 $desc     = htmlspecialchars($tr['deskripsi_panjang'] ?? $tr['deskripsi'] ?? '');
 $img      = $tr['gambar_url'] ?? '';
-if ($img && strpos($img, 'http') !== 0 && strpos($img, 'asset/') !== 0) {
-    $img = '../../backend/uploads/' . $img;
+if ($img && strpos($img, 'http') !== 0) {
+    if (strpos($img, 'asset/') === 0) {
+        $img = '../../' . $img;
+    } else {
+        $img = '../../backend/uploads/' . $img;
+    }
 }
 $img      = htmlspecialchars($img);
 

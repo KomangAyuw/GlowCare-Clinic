@@ -295,8 +295,12 @@ $treatments = $q->fetchAll();
     $durasi = htmlspecialchars($tr['durasi'] ?? '60 Menit');
     $nama = htmlspecialchars($tr['nama']);
     $img = $tr['gambar_url'] ?? '';
-    if ($img && strpos($img, 'http') !== 0 && strpos($img, 'asset/') !== 0) {
-        $img = '../../backend/uploads/' . $img;
+    if ($img && strpos($img, 'http') !== 0) {
+        if (strpos($img, 'asset/') === 0) {
+            $img = '../../' . $img;
+        } else {
+            $img = '../../backend/uploads/' . $img;
+        }
     }
     $img = htmlspecialchars($img);
     $kat = htmlspecialchars($tr['kategori']);
