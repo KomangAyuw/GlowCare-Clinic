@@ -215,15 +215,15 @@ unset($_SESSION['old_input']);
             <!-- Actions -->
             <div class="flex items-center gap-sm">
                 <?php if (isset($_SESSION['user_id'])): 
-    $dashboard_url = 'user/dashboarduser.php';
-    if (isset($_SESSION['role'])) {
-        if ($_SESSION['role'] === 'admin') {
-            $dashboard_url = 'admin/dashboard.php';
-        } elseif ($_SESSION['role'] === 'dokter') {
-            $dashboard_url = 'dokter/dashboardDokter.php';
-        }
-    }
-?>
+                    $dashboard_url = 'user/dashboarduser.php';
+                    if (isset($_SESSION['role'])) {
+                        if ($_SESSION['role'] === 'admin') {
+                            $dashboard_url = 'admin/dashboard.php';
+                        } elseif ($_SESSION['role'] === 'dokter') {
+                            $dashboard_url = 'dokter/dashboardDokter.php';
+                        }
+                    }
+                ?>
                 <a href="<?= $dashboard_url ?>"
                     class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
                 <a href="../backend/auth/logout.php"

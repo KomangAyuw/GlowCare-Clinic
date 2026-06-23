@@ -200,15 +200,15 @@ $treatments = $q->fetchAll();
             <!-- Actions -->
             <div class="flex items-center gap-sm">
                 <?php if (isset($_SESSION['user_id'])): 
-    $dashboard_url = '../user/dashboarduser.php';
-    if (isset($_SESSION['role'])) {
-        if ($_SESSION['role'] === 'admin') {
-            $dashboard_url = '../admin/dashboard.php';
-        } elseif ($_SESSION['role'] === 'dokter') {
-            $dashboard_url = '../dokter/dashboardDokter.php';
-        }
-    }
-?>
+                    $dashboard_url = '../user/dashboarduser.php';
+                    if (isset($_SESSION['role'])) {
+                        if ($_SESSION['role'] === 'admin') {
+                            $dashboard_url = '../admin/dashboard.php';
+                        } elseif ($_SESSION['role'] === 'dokter') {
+                            $dashboard_url = '../dokter/dashboardDokter.php';
+                        }
+                    }
+                ?>
                 <a href="<?= $dashboard_url ?>"
                     class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
                 <a href="../../backend/auth/logout.php"
@@ -286,26 +286,26 @@ $treatments = $q->fetchAll();
         <section class="py-xl px-margin-mobile md:px-margin-desktop max-w-[1200px] mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter lg:gap-lg" id="treatments-grid">
                 <?php foreach($treatments as $tr): 
-    $cat_class = strtolower(explode(' ', $tr['kategori'])[0]); 
-    if ($cat_class == 'hair' || $cat_class == 'body') $cat_class = 'body'; 
-    else if ($cat_class == 'anti-aging') $cat_class = 'anti-aging';
-    else if ($cat_class == 'acne') $cat_class = 'acne';
-    else if ($cat_class == 'brightening') $cat_class = 'brightening';
-    else $cat_class = 'other';
-    $durasi = htmlspecialchars($tr['durasi'] ?? '60 Menit');
-    $nama = htmlspecialchars($tr['nama']);
-    $img = $tr['gambar_url'] ?? '';
-    if ($img && strpos($img, 'http') !== 0) {
-        if (strpos($img, 'asset/') === 0) {
-            $img = '../../' . $img;
-        } else {
-            $img = '../../backend/uploads/' . $img;
-        }
-    }
-    $img = htmlspecialchars($img);
-    $kat = htmlspecialchars($tr['kategori']);
-    $desc = htmlspecialchars($tr['deskripsi_panjang'] ?? $tr['deskripsi'] ?? '');
-?>
+                    $cat_class = strtolower(explode(' ', $tr['kategori'])[0]); 
+                    if ($cat_class == 'hair' || $cat_class == 'body') $cat_class = 'body'; 
+                    else if ($cat_class == 'anti-aging') $cat_class = 'anti-aging';
+                    else if ($cat_class == 'acne') $cat_class = 'acne';
+                    else if ($cat_class == 'brightening') $cat_class = 'brightening';
+                    else $cat_class = 'other';
+                    $durasi = htmlspecialchars($tr['durasi'] ?? '60 Menit');
+                    $nama = htmlspecialchars($tr['nama']);
+                    $img = $tr['gambar_url'] ?? '';
+                    if ($img && strpos($img, 'http') !== 0) {
+                        if (strpos($img, 'asset/') === 0) {
+                            $img = '../../' . $img;
+                        } else {
+                            $img = '../../backend/uploads/' . $img;
+                        }
+                    }
+                    $img = htmlspecialchars($img);
+                    $kat = htmlspecialchars($tr['kategori']);
+                    $desc = htmlspecialchars($tr['deskripsi_panjang'] ?? $tr['deskripsi'] ?? '');
+                ?>
                 <div data-category="<?= $cat_class ?>" data-name="<?= strtolower($nama) ?>"
                     data-desc="<?= strtolower($desc) ?>"
                     class="treatment-card bg-surface-container-lowest rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm hover:shadow-[0_12px_30px_rgba(115,90,57,0.12)] hover:-translate-y-1.5 transition-all duration-500 flex flex-col group">

@@ -217,15 +217,15 @@ try {
             <!-- Actions -->
             <div class="flex items-center gap-sm">
                 <?php if (isset($_SESSION['user_id'])): 
-    $dashboard_url = 'pages/user/dashboarduser.php';
-    if (isset($_SESSION['role'])) {
-        if ($_SESSION['role'] === 'admin') {
-            $dashboard_url = 'pages/admin/dashboard.php';
-        } elseif ($_SESSION['role'] === 'dokter') {
-            $dashboard_url = 'pages/dokter/dashboardDokter.php';
-        }
-    }
-?>
+                    $dashboard_url = 'pages/user/dashboarduser.php';
+                    if (isset($_SESSION['role'])) {
+                        if ($_SESSION['role'] === 'admin') {
+                            $dashboard_url = 'pages/admin/dashboard.php';
+                        } elseif ($_SESSION['role'] === 'dokter') {
+                            $dashboard_url = 'pages/dokter/dashboardDokter.php';
+                        }
+                    }
+                ?>
                 <a href="<?= $dashboard_url ?>"
                     class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
                 <a href="backend/auth/logout.php"
@@ -484,19 +484,19 @@ try {
                 <?php if (!empty($dokter_homepage)): ?>
                 <?php foreach ($dokter_homepage as $idx => $doc): ?>
                 <?php
-            $fotoSrc = 'asset/img/doctor' . ($idx + 1) . '.png';
-            if (!empty($doc['foto'])) {
-                if (strpos($doc['foto'], 'http') === 0) {
-                    $fotoSrc = htmlspecialchars($doc['foto']);
-                } elseif (strpos($doc['foto'], 'asset/') === 0) {
-                    $fotoSrc = htmlspecialchars($doc['foto']);
-                } else {
-                    $fotoSrc = 'backend/uploads/' . htmlspecialchars($doc['foto']);
-                }
-            }
-            $ratingVal = (float)($doc['rating'] ?? 5.0);
-            $hiddenOnSm = $idx >= 2 ? ' sm:hidden md:block' : '';
-        ?>
+                    $fotoSrc = 'asset/img/doctor' . ($idx + 1) . '.png';
+                    if (!empty($doc['foto'])) {
+                        if (strpos($doc['foto'], 'http') === 0) {
+                            $fotoSrc = htmlspecialchars($doc['foto']);
+                        } elseif (strpos($doc['foto'], 'asset/') === 0) {
+                            $fotoSrc = htmlspecialchars($doc['foto']);
+                        } else {
+                            $fotoSrc = 'backend/uploads/' . htmlspecialchars($doc['foto']);
+                        }
+                    }
+                    $ratingVal = (float)($doc['rating'] ?? 5.0);
+                    $hiddenOnSm = $idx >= 2 ? ' sm:hidden md:block' : '';
+                ?>
                 <div
                     class="bg-surface-container-lowest rounded-2xl shadow-ambient text-center group<?= $hiddenOnSm ?> p-md flex flex-col">
                     <div
@@ -531,7 +531,8 @@ try {
                         class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative">
                         <img alt="Doctor"
                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            src="asset/img/doctor1.png"></div>
+                            src="asset/img/doctor1.png">
+                    </div>
                     <h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Anisa Putri, Sp.BP-RE</h3>
                     <p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Plastic Surgeon
                     </p>
@@ -544,7 +545,8 @@ try {
                         class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative">
                         <img alt="Doctor"
                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            src="asset/img/doctor2.png"></div>
+                            src="asset/img/doctor2.png">
+                    </div>
                     <h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Marcus Chen, Sp.KK</h3>
                     <p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Aesthetic
                         Physician</p>
@@ -557,7 +559,8 @@ try {
                         class="w-32 h-32 mx-auto rounded-full overflow-hidden mb-md border-4 border-surface shadow-sm relative">
                         <img alt="Doctor"
                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            src="asset/img/doctor3.png"></div>
+                            src="asset/img/doctor3.png">
+                    </div>
                     <h3 class="font-headline-md text-headline-md text-on-background mb-1">dr. Sarah Jenkins, Dipl. AAAM
                     </h3>
                     <p class="font-label-sm text-label-sm text-secondary mb-4 uppercase tracking-wider">Dermatologist

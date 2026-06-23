@@ -5,6 +5,12 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Hanya pasien (role 'user') yang boleh melakukan booking
+if (isset($_SESSION['role']) && $_SESSION['role'] !== 'user') {
+    header('Location: ../../index.php?error=' . urlencode('Akses ditolak. Hanya pasien yang dapat melakukan booking.'));
+    exit;
+}
+
 $conn = require '../config/koneksi.php';
 
 $user_id = (int)$_SESSION['user_id'];

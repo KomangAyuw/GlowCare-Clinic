@@ -5,6 +5,18 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Hanya pasien (role 'user') yang boleh mengakses
+if (isset($_SESSION['role']) && $_SESSION['role'] !== 'user') {
+    if ($_SESSION['role'] === 'admin') {
+        header('Location: ../../pages/admin/dashboard.php');
+    } else if ($_SESSION['role'] === 'dokter') {
+        header('Location: ../../pages/dokter/dashboardDokter.php');
+    } else {
+        header('Location: ../../index.php');
+    }
+    exit;
+}
+
 $user_id = (int)$_SESSION['user_id'];
 $conn = require_once '../../backend/config/koneksi.php';
 

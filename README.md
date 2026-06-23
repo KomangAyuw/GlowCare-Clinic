@@ -138,8 +138,8 @@ GlowCare-Clinic/
 │       └── treatment/        # File foto layanan treatment
 │
 └── asset/                    # Berkas aset statis (frontend global)
-    ├── css/                  # File styling (style.css, admin.css, user.css, dokter.css)
-    ├── js/                   # File script interaktif (script.js, admin.js, user.js, dokter.js)
+    ├── css/                  # File styling (admin.css, user.css, dokter.css)
+    ├── js/                   # File script interaktif (admin.js, user.js, dokter.js)
     └── img/                  # Folder gambar statis & ikon aset
 ```
 

@@ -1,4 +1,6 @@
-<?php session_start(); require_once '../backend/config/koneksi.php'; ?>
+<?php session_start(); 
+require_once '../backend/config/koneksi.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en" style="">
 
@@ -180,15 +182,15 @@
             </nav>
             <div class="flex items-center gap-sm">
                 <?php if (isset($_SESSION['user_id'])): 
-    $dashboard_url = 'user/dashboarduser.php';
-    if (isset($_SESSION['role'])) {
-        if ($_SESSION['role'] === 'admin') {
-            $dashboard_url = 'admin/dashboard.php';
-        } elseif ($_SESSION['role'] === 'dokter') {
-            $dashboard_url = 'dokter/dashboardDokter.php';
-        }
-    }
-?>
+                    $dashboard_url = 'user/dashboarduser.php';
+                    if (isset($_SESSION['role'])) {
+                        if ($_SESSION['role'] === 'admin') {
+                            $dashboard_url = 'admin/dashboard.php';
+                        } elseif ($_SESSION['role'] === 'dokter') {
+                            $dashboard_url = 'dokter/dashboardDokter.php';
+                        }
+                    }
+                ?>
                 <a href="<?= $dashboard_url ?>"
                     class="font-label-md text-label-md text-primary hover:bg-primary-container/20 px-4 py-2 rounded-lg transition-all duration-300 ease-in-out inline-flex items-center justify-center">Dashboard</a>
                 <a href="../backend/auth/logout.php"
@@ -217,14 +219,14 @@
         <section class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop pb-xl">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
                 <?php
-$qDokter = $conn->query("SELECT * FROM dokter WHERE status='Aktif' ORDER BY nama ASC");
-$doctors = $qDokter->fetchAll();
-if (count($doctors) > 0) {
-    foreach ($doctors as $d) {
-        $foto = !empty($d['foto']) 
-            ? (strpos($d['foto'], 'http') === 0 || strpos($d['foto'], 'asset/') === 0 ? '../' . $d['foto'] : '../backend/uploads/' . $d['foto']) 
-            : 'https://ui-avatars.com/api/?name=' . urlencode($d['nama']) . '&background=064e3b&color=fff&size=500';
-?>
+                $qDokter = $conn->query("SELECT * FROM dokter WHERE status='Aktif' ORDER BY nama ASC");
+                $doctors = $qDokter->fetchAll();
+                if (count($doctors) > 0) {
+                    foreach ($doctors as $d) {
+                        $foto = !empty($d['foto']) 
+                            ? (strpos($d['foto'], 'http') === 0 || strpos($d['foto'], 'asset/') === 0 ? '../' . $d['foto'] : '../backend/uploads/' . $d['foto']) 
+                            : 'https://ui-avatars.com/api/?name=' . urlencode($d['nama']) . '&background=064e3b&color=fff&size=500';
+                ?>
                 <article
                     class="bg-surface-container-lowest rounded-[16px] overflow-hidden clinical-shadow clinical-shadow-hover transition-all duration-300 flex flex-col border border-surface-variant">
                     <div class="relative h-[350px] overflow-hidden group">
@@ -253,11 +255,11 @@ if (count($doctors) > 0) {
                     </div>
                 </article>
                 <?php 
-    }
-} else {
-    echo "<p class='text-on-surface-variant col-span-full text-center'>No doctors available at the moment.</p>";
-}
-?>
+                    }
+                } else {
+                    echo "<p class='text-on-surface-variant col-span-full text-center'>No doctors available at the moment.</p>";
+                }
+                ?>
             </div>
         </section>
         <!-- Philosophy Section -->
