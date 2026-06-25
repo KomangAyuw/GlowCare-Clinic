@@ -1,13 +1,13 @@
 <?php
 session_start();
 $dokter_homepage = [];
+require_once __DIR__ . '/backend/config/koneksi.php';
+
 try {
-    $conn = new PDO("mysql:host=localhost;dbname=glowcareclinic;charset=utf8mb4", "root", "");
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $qDoc = $conn->query("SELECT nama, spesialisasi, bio, rating, foto FROM dokter WHERE status='Aktif' ORDER BY rating DESC LIMIT 3");
     $dokter_homepage = $qDoc->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    $conn = null;
+    $dokter_homepage = [];
 }
 ?>
 <!DOCTYPE html>

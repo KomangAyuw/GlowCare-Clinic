@@ -1,5 +1,9 @@
-const titles = {dashboard:'Dashboard',pasien:'Data Pasien',dokter:'Data Dokter',jadwal:'Jadwal Dokter',aktivitas:'Aktivitas',pesan:'Pesan Kontak',laporan:'Laporan',treatment:'Treatment',profil:'Profil',keuangan:'Keuangan',pengumuman:'Pengumuman',appointment:'Janji Temu'};
+// ini buat objek js, berisi pasangan key:value digunakan buat menu sidebar di dahsboard admin
+const titles = {dashboard:'Dashboard',pasien:'Data Pasien',dokter:'Data Dokter',jadwal:'Jadwal Dokter',
+    aktivitas:'Aktivitas',pesan:'Pesan Kontak',laporan:'Laporan',treatment:'Treatment',profil:'Profil',
+    keuangan:'Keuangan',pengumuman:'Pengumuman',appointment:'Janji Temu'};
 
+// ini buat pindah menu di dashboard admin tanpa reload 
 function showPanel(id,el){
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     document.getElementById('panel-'+id).classList.add('active');

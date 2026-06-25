@@ -1,8 +1,5 @@
 <?php
-session_start();
-$conn = require_once '../../backend/config/koneksi.php';
-$q = $conn->query("SELECT * FROM treatment WHERE status='Aktif' ORDER BY urutan ASC");
-$treatments = $q->fetchAll();
+require_once 'treatment_data.php';
 ?>
 <!DOCTYPE html>
 <html class="light" lang="en" style="">
@@ -295,7 +292,7 @@ $treatments = $q->fetchAll();
                     $durasi = htmlspecialchars($tr['durasi'] ?? '60 Menit');
                     $nama = htmlspecialchars($tr['nama']);
                     $img = $tr['gambar_url'] ?? '';
-                    if ($img && strpos($img, 'http') !== 0) {
+                    if ($img && strpos($img, 'http') !== 0) { //strpos itu buat cek posisi suatu kata
                         if (strpos($img, 'asset/') === 0) {
                             $img = '../../' . $img;
                         } else {
